@@ -174,8 +174,8 @@ def build_stairs_set(layout, parent):
     _railing(mb, p0, p1, height=0.9, post_step=1.45)
     # 아랫골목 서쪽 가장자리 파이프 난간 (바다 쪽이 트여 보이도록)
     cy = config.CAM_CUT01["start_xy"][1]            # 컷1 카메라 시작점 기준으로 전경 소품 배치
-    _railing(mb, (x_west + 0.08, cy + 2.45, zl), (x_west + 0.08, 30.0, zl), height=0.95, post_step=2.2)
-    _railing(mb, (x_west + 0.08, -60.0, zl), (x_west + 0.08, cy - 0.35, zl), height=0.95, post_step=2.2)
+    _railing(mb, (x_west + 0.08, cy + 3.15, zl), (x_west + 0.08, 30.0, zl), height=0.95, post_step=2.2)
+    _railing(mb, (x_west + 0.08, -60.0, zl), (x_west + 0.08, cy + 1.55, zl), height=0.95, post_step=2.2)
     mb.to_object("A_난간", col, [M.get("rail", roughness=0.4)])
 
     # 계단 오른쪽 옹벽 위 담장 (계단에서 보면 '담장 너머 집')
@@ -209,17 +209,17 @@ def build_stairs_set(layout, parent):
 
     # CUT1 전경: 짧은 담장 + 화분, 빨랫줄과 빨래
     mb = MeshBuilder()
-    mb.box((0.28, 1.9, 0.92), center=(x_west + 0.14, cy + 1.45, zl + 0.46), mat=0)
+    mb.box((0.28, 1.5, 0.78), center=(x_west + 0.14, cy + 2.35, zl + 0.39), mat=0)
     mb.to_object("A_전경담장", col, [M.get("wall_cream")])
     mb = MeshBuilder()
-    _pot(mb, x_west + 0.16, cy + 1.75, zl + 0.92, r=0.15, h=0.26, flower=True)
-    _pot(mb, x_west + 0.16, cy + 0.95, zl + 0.92, r=0.12, h=0.22, flower=False)
+    _pot(mb, x_west + 0.16, cy + 2.55, zl + 0.78, r=0.15, h=0.26, flower=True)
+    _pot(mb, x_west + 0.16, cy + 1.95, zl + 0.78, r=0.12, h=0.22, flower=False)
     _pot(mb, x_west + 0.45, cy + 7.0, zl, r=0.2, h=0.36, flower=True)
     _pot(mb, br.x - 0.35, br.y - 0.8, zl, r=0.18, h=0.32, flower=False)
     mb.to_object("A_화분", col, _pot_mats())
 
     mb = MeshBuilder()
-    pa, pb = Vector((x_west + 0.35, cy + 2.1, zl)), Vector((x_west + 0.5, cy + 6.4, zl))
+    pa, pb = Vector((x_west + 0.35, cy + 3.3, zl)), Vector((x_west + 0.5, cy + 7.6, zl))
     for p in (pa, pb):
         mb.cylinder(0.03, 0.03, p.z, p.z + 2.05, center_xy=(p.x, p.y), segments=6, mat=0)
     mb.box_between(pa + Vector((0, 0, 1.95)), pb + Vector((0, 0, 1.95)), 0.012, 0.012, mat=0)
@@ -299,7 +299,10 @@ def build_gate_set(layout, parent):
     # 윗골목 바닥 표시 (살짝 다른 색)
     mb = MeshBuilder()
     tl = L.terrace_edge[0]
-    mb.prism([(tl.x, tl.y - 1.2), (0.0, tl.y - 1.2), (0.0, 22.0), (tl.x, 22.0)], zu, zu + 0.01, mat=0)
+    tr = L.terrace_edge[1]
+    edge = (tr - tl).normalized()
+    y_at_gate = tr.y + edge.y / edge.x * (0.0 - tr.x)          # 계단 윗단 선을 대문 선(x=0)까지 연장
+    mb.prism([(tl.x, tl.y), (tr.x, tr.y), (0.0, y_at_gate), (0.0, 22.0), (tl.x, 22.0)], zu, zu + 0.01, mat=0)
     mb.to_object("B_윗골목", col, [M.get("ground_concrete")])
     return col
 

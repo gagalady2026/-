@@ -175,41 +175,69 @@ def camera_cut08(cam, L):
 
 
 # -----------------------------------------------------------------------------
-# 구도 점검 (콘솔 리포트): 컷별 '이미지용 한 순간' 프레임에서 두 인물 머리의 화면 위치·가림 여부
+# 구도 점검 (콘솔 리포트)
+#  · 컷마다 시작·중간·끝·'이미지용 한 순간' 프레임에서 인물 부위(머리·몸통·손·발)가
+#    화면 안에 있는지, 세트에 가려지지 않았는지 레이캐스트로 확인
 # -----------------------------------------------------------------------------
+_BODY = ("head", "torso", "pelvis", "hand_L", "hand_R", "foot_L", "foot_R")
+_ON_STAGE = {"MAIN_": (1, 2, 3, 4, 5, 6, 7), "CITIZEN_": (3, 4, 5, 6, 7)}   # 컷별 등장 인물
+
+
+def _body_visibility(scene, dg, cam, prefix):
+    from bpy_extras.object_utils import world_to_camera_view
+    origin = cam.matrix_world.translation
+    in_frame, visible, blocker = 0, 0, None
+    for part in _BODY:
+        ob = bpy.data.objects.get(prefix + part)
+        if ob is None:
+            continue
+        p = ob.matrix_world.translation
+        v = world_to_camera_view(scene, cam, p)
+        if not (v.z > 0 and 0.0 <= v.x <= 1.0 and 0.0 <= v.y <= 1.0):
+            continue
+        in_frame += 1
+        d = p - origin
+        hit, _loc, _n, _i, hob, _m = scene.ray_cast(dg, origin, d.normalized(), distance=max(0.0, d.length - 0.03))
+        if hit and hob is not None and not hob.name.startswith(("MAIN_", "CITIZEN_")):
+            blocker = hob.name
+        else:
+            visible += 1
+    return in_frame, visible, blocker
+
+
 def report_framing(scene, frames):
     from bpy_extras.object_utils import world_to_camera_view
-    subjects = (("주인공", "MAIN_head", (0.0, -0.02, 0.2)), ("명찰", "MAIN_torso", (0.0, -0.13, 0.185)),
-                ("시민", "CITIZEN_head", (0.0, -0.02, 0.22)))
     warnings = []
-    print(" 구도 점검 (x,y = 화면 좌하단 0 ~ 우상단 1)")
-    for n, f in sorted(frames.items()):
+    print(" 구도 점검 (머리 x,y = 화면 좌하단 0 ~ 우상단 1 / 부위 = 화면 안에서 가려지지 않은 머리·몸통·손·발 수)")
+    for n, f_still in sorted(frames.items()):
         if n == 8:
-            print("  CUT_08 F%03d  CAM_CUT08  | 원경(인물 없음 또는 점 크기)" % f)
+            print("  CUT_08 F%03d  CAM_CUT08  | 원경(인물 없음 또는 점 크기)" % f_still)
             continue
-        scene.frame_set(f)
-        cam = scene.camera
-        dg = bpy.context.evaluated_depsgraph_get()
-        origin = cam.matrix_world.translation
+        f0, f1 = config.cut_range(n)
+        checks = sorted({(f0 + f1) // 2, f1, f_still})       # 첫 프레임은 제외 (CUT3 은 문이 열리기 전)
         cols = []
-        for label, name, local in subjects:
-            ob = bpy.data.objects.get(name)
-            if ob is None:
+        for label, prefix in (("주인공", "MAIN_"), ("시민", "CITIZEN_")):
+            if n not in _ON_STAGE[prefix]:
                 continue
-            p = ob.matrix_world @ Vector(local)
-            v = world_to_camera_view(scene, cam, p)
-            if not (v.z > 0 and -0.02 <= v.x <= 1.02 and -0.02 <= v.y <= 1.02):
-                if label != "명찰":
-                    cols.append("%s 화면 밖" % label)
+            worst = None
+            for f in checks:
+                scene.frame_set(f)
+                dg = bpy.context.evaluated_depsgraph_get()
+                inf, vis, blk = _body_visibility(scene, dg, scene.camera, prefix)
+                if inf and (worst is None or vis / inf < worst[1] / max(1, worst[0])):
+                    worst = (inf, vis, blk, f)
+            if worst is None:
+                cols.append("%s 화면 밖" % label)
                 continue
-            d = p - origin
-            hit, _loc, _n, _i, hob, _m = scene.ray_cast(dg, origin, d.normalized(), distance=max(0.0, d.length - 0.12))
-            blocked = hit and hob is not None and not hob.name.startswith(("MAIN_", "CITIZEN_"))
-            state = "가림(%s)" % hob.name if blocked else "보임"
-            cols.append("%s (%.2f,%.2f) %s" % (label, v.x, v.y, state))
-            if blocked:
-                warnings.append("CUT_%02d F%d %s 가 %s 에 가려짐" % (n, f, label, hob.name))
-        print("  CUT_%02d F%03d  %s  | %s" % (n, f, cam.name, "  |  ".join(cols)))
+            scene.frame_set(f_still)
+            face = bpy.data.objects[prefix + "head"].matrix_world @ Vector((0.0, -0.03, 0.19))
+            head = world_to_camera_view(scene, scene.camera, face)
+            inf, vis, blk, fw = worst
+            state = "%d/%d" % (vis, inf) + ("" if vis == inf else " (F%d, %s)" % (fw, blk))
+            cols.append("%s 머리(%.2f,%.2f) 부위 %s" % (label, head.x, head.y, state))
+            if vis < 0.6 * inf:
+                warnings.append("CUT_%02d F%d %s 가 %s 에 많이 가려짐 (%d/%d)" % (n, fw, label, blk, vis, inf))
+        print("  CUT_%02d F%03d  CAM_CUT%02d | %s" % (n, f_still, n, "  |  ".join(cols)))
     for w in warnings:
         print("  [경고]", w)
     return warnings

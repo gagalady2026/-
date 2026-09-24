@@ -125,7 +125,7 @@ RANDOM_SEED = 7                 # 마을 주택 배치 난수
 # =============================================================================
 SENSOR_WIDTH = 36.0
 
-CAM_CUT01 = dict(lens=24.0, height=0.55, start_xy=(-10.1, -19.0), heading=6.0, pitch=2.5,
+CAM_CUT01 = dict(lens=24.0, height=0.55, start_xy=(-11.6, -18.5), heading=13.0, pitch=2.5,
                  move_dist=1.6, ease_in=0.45, ease_out=0.0)        # Low forward tracking
 CAM_CUT02 = dict(lens=85.0, height=0.95, start_xy=(-0.10, 3.40), end_xy=(-0.46, 2.80),
                  target=(-0.27, -0.10, 0.96), ease_in=0.10, ease_out=0.65)  # 좌→우 표면 트랙, 감속

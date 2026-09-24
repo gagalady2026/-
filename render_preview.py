@@ -23,6 +23,9 @@ if not os.path.exists(os.path.join(_here, "config.py")):
             _here = os.path.dirname(bpy.path.abspath(_t.filepath))
 if _here not in sys.path:
     sys.path.insert(0, _here)
+_cfg = sys.modules.get("config")
+if _cfg is not None and os.path.dirname(os.path.abspath(getattr(_cfg, "__file__", "") or "")) != os.path.abspath(_here):
+    del sys.modules["config"]                         # 다른 애드온의 config 모듈과 이름이 겹치는 경우
 
 import config  # noqa: E402
 

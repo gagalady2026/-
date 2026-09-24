@@ -32,9 +32,15 @@ if PROJECT_DIR not in sys.path:
 
 _MODULES = ["config", "utils", "materials", "characters", "environments", "cameras", "animation",
             "timeline", "render_preview"]
-for _name in _MODULES:                               # 다시 실행할 때 수정한 config 가 반영되도록
-    if _name in sys.modules:
-        importlib.reload(sys.modules[_name])
+for _name in _MODULES:
+    _mod = sys.modules.get(_name)
+    if _mod is None:
+        continue
+    _file = os.path.abspath(getattr(_mod, "__file__", "") or "")
+    if os.path.dirname(_file) != os.path.abspath(PROJECT_DIR):
+        del sys.modules[_name]                        # 다른 애드온의 같은 이름 모듈이면 치우고 이 폴더 것을 씀
+    else:
+        importlib.reload(_mod)                        # 다시 실행할 때 수정한 config 등이 반영되도록
 
 import animation      # noqa: E402
 import cameras        # noqa: E402

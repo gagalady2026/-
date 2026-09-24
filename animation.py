@@ -306,7 +306,7 @@ def setup_cut_03(ctx):
     zu = L.z_up
     b = config.BEATS[3]
     pos_m = Vector((-0.62, 0.02, zu))
-    c_start, c_peek, c_aside = Vector((0.62, -0.50, zu)), Vector((0.34, -0.40, zu)), Vector((0.55, -0.66, zu))
+    c_start, c_peek, c_aside = Vector((0.62, -0.50, zu)), Vector((0.34, -0.40, zu)), Vector((0.50, -0.30, zu))
 
     for f in _frames(3):
         t = _t(f, 3)
@@ -322,7 +322,7 @@ def setup_cut_03(ctx):
         peek = window(t, dh[0] + 0.08, dh[1] + 0.06)
         aside = window(t, *b["turn_to_yard"])
         cpos = c_start.lerp(c_peek, peek).lerp(c_aside, aside)
-        face = rot2(Vector((-1, 0, 0)), -60.0 * aside)            # 서쪽(주인공)을 보다가 몸을 마당 쪽으로 엶
+        face = rot2(Vector((-1, 0, 0)), -40.0 * aside)            # 서쪽(주인공)을 보다가 반걸음 물러서며 몸을 엶
         c.stand(cpos, face)
         c.look_at(_face(m, m.dims["scale"]), max_yaw=70.0)
         rest_r = c.local_point("hand_R", (0, 0, -c.dims["hand"] * 1.12))
