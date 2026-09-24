@@ -1,0 +1,6 @@
+# Blender / Python 생성물
+__pycache__/
+*.pyc
+*.blend1
+build/
+renders/
