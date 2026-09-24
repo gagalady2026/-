@@ -205,6 +205,37 @@ def _body_visibility(scene, dg, cam, prefix):
     return in_frame, visible, blocker
 
 
+def _inside_geometry(scene, dg, p):
+    """점 p 가 닫힌 메시 안에 있으면 그 오브젝트 이름 (6방향 레이 중 대부분이 안쪽 면에 맞으면 '안')."""
+    back_hits, name = 0, None
+    for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)):
+        d = Vector(d)
+        hit, _loc, nrm, _i, hob, _m = scene.ray_cast(dg, p, d, distance=50.0)
+        if hit and nrm.dot(d) > 0.0:
+            back_hits += 1
+            name = hob.name if hob is not None else name
+    return name if back_hits >= 5 else None
+
+
+def check_camera_paths(scene, step=1):
+    """각 컷 카메라가 자기 구간에서 벽·지붕 등 메시 안을 지나가지 않는지 확인."""
+    problems = []
+    for n, f0, f1, _t in config.CUTS:
+        cam = bpy.data.objects.get(CAM_NAMES[n])
+        bad = []
+        for f in range(f0, f1 + 1, step):
+            scene.frame_set(f)
+            name = _inside_geometry(scene, bpy.context.evaluated_depsgraph_get(), cam.matrix_world.translation)
+            if name:
+                bad.append((f, name))
+        if bad:
+            problems.append("%s F%d~F%d 카메라가 '%s' 안을 지나감" % (cam.name, bad[0][0], bad[-1][0], bad[0][1]))
+    print(" 카메라 경로 점검: %s" % ("통과 (세트 안을 지나가는 카메라 없음)" if not problems else ""))
+    for p in problems:
+        print("  [경고]", p)
+    return problems
+
+
 def report_framing(scene, frames):
     from bpy_extras.object_utils import world_to_camera_view
     warnings = []

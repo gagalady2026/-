@@ -111,6 +111,7 @@ def build_previs():
     scene.frame_set(config.FRAME_START)
     timeline.verify_timeline(scene)
     cameras.report_framing(scene, render_preview.still_frames())
+    cameras.check_camera_paths(scene)
     scene.frame_set(config.FRAME_START)
     print("[previs] 생성 완료: %d프레임 (%.1f초), 컷 %d개, 카메라 %d대"
           % (config.FRAME_END - config.FRAME_START + 1, total, len(config.CUTS), len(cams)))

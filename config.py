@@ -120,7 +120,8 @@ RANDOM_SEED = 7                 # 마을 주택 배치 난수
 # 4. 카메라  (렌즈 mm · 높이 m · 이동 거리 m · ease_in/ease_out = 가속/감속 구간이 컷 길이에서 차지하는 비율)
 #    xy 는 월드 좌표(대문 중심 원점), height 는 그 자리 바닥에서의 높이.
 #    CUT4~6 의 *_local 은 평상 로컬 좌표: +X = 주인공 쪽, -Y = 두 사람이 함께 향한 앞쪽, Z = 마당 바닥 기준
-#    CUT7 은 시민 기준: over_shoulder = (시민 뒤쪽 m, 시민 오른쪽 m), rise = 크레인 상승량, back = 뒤로 빠지는 양
+#    CUT7 은 시민 기준: over_shoulder = (시민 뒤쪽 m, 시민 오른쪽 m), rise = 크레인 상승량,
+#         back = 뒤로 빠지는 양, back_heading = 빠지는 방향(방위각, 대문 지붕을 피해 골목 쪽으로)
 #    CUT8 은 월드 좌표 그대로 (start = 시작 위치, target = 바라보는 점)
 # =============================================================================
 SENSOR_WIDTH = 36.0
@@ -138,7 +139,7 @@ CAM_CUT05 = dict(lens=70.0, height=1.12, pos_local=(1.40, -1.33), target_local=(
 CAM_CUT06 = dict(lens=50.0, height=1.32, pos_local=(0.95, -2.75), target_local=(-0.03, -0.12, 0.86),
                  drift=(0.05, 0.0, -0.02), ease_in=0.5, ease_out=0.5)   # 거의 정적(아주 미세한 드리프트)
 CAM_CUT07 = dict(lens_start=50.0, lens_end=28.0, height=1.47, over_shoulder=(1.30, 0.50), rise=2.2,
-                 back=0.6, ease_in=0.45, ease_out=0.20)              # 눈높이(시민 어깨 옆) → crane-up
+                 back=0.6, back_heading=340.0, ease_in=0.45, ease_out=0.20)   # 눈높이(시민 어깨 옆) → crane-up
 CAM_CUT08 = dict(lens=24.0, start=(-135.0, -8.0, 34.0), target=(-12.0, -24.0, 22.0),
                  move_back=24.0, rise=4.0, ease_in=0.10, decel_sec=1.5)   # dolly-out + 상승 + 감속
 

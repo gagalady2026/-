@@ -258,7 +258,7 @@ def setup_cut_02(ctx):
     s = m.dims["scale"]
     pos = Vector((-0.44, -0.30, zu))
     facing = heading_vec(24.0)                      # 대문 남쪽 절반 앞, 몸을 카메라(북) 쪽으로 튼 자세 → 명찰이 보임
-    knock_pt = Vector((-0.055, 0.06, zu + 1.16))    # 철대문 바깥면 (문짝 가운데)
+    knock_pt = Vector((-0.012, 0.06, zu + 1.16))    # 철대문 바깥면(살 표면 x≈0.013)에 주먹 끝이 닿는 점, 문짝 가운데
     knock_dir = Vector((1.0, 0.35, -0.12)).normalized()
     ready = knock_pt - knock_dir * 0.075
 
@@ -621,7 +621,7 @@ def setup_cut_07(ctx):
     end_main = _cut7_main_head(m, f1) - Vector((0, 0, 0.5))
     lx, ly = config.LIGHTHOUSE_XY
     lh = Vector((lx, ly, config.LIGHTHOUSE_BASE_Z + config.LIGHTHOUSE_HEIGHT * 0.45))
-    cam1 = cam0 - fwd * cc["back"] + Vector((0, 0, cc["rise"]))
+    cam1 = cam0 + heading_vec(cc["back_heading"]) * cc["back"] + Vector((0, 0, cc["rise"]))
     d_main = (end_main - cam1).normalized()
     d_lh = (lh - cam1).normalized()
     end_t = cam1 + (d_main * 0.45 + d_lh * 0.55).normalized() * 10.0
