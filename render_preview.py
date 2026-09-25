@@ -5,7 +5,7 @@ render_preview.py — 30초 프리뷰 MP4 / 컷별 '이미지용 한 순간' 스
   blender -b -P render_preview.py                          # 씬 생성 + Eevee 30초 MP4
   blender -b -P render_preview.py -- --engine workbench    # 가장 빠른 Workbench 프리뷰
   blender -b -P render_preview.py -- --stills              # 컷별 스틸 PNG 8장
-  blender -b build/donghae_previs.blend -P render_preview.py   # 저장된 .blend 로 렌더
+  blender -b donghae_previs_30s.blend -P render_preview.py    # 저장된 .blend 로 렌더
 옵션: --engine eevee|workbench|cycles   --scale 50 (해상도 %)   --frames 241-312   --no-burnin
 출력: renders/donghae_previs_30s.mp4 , renders/stills/CUT01_F0046.png ...
 Blender UI 에서는 이 파일을 Run Script 하면 현재 씬을 같은 설정으로 렌더합니다.

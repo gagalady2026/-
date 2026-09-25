@@ -2,17 +2,20 @@
 main.py — 「똑똑, 괜찮으세요?」 30초 프리비즈 씬 생성 (Blender 4.0.2 / bpy)
 
 실행 방법
+  0) 바로 보기  : 이 폴더의 donghae_previs_30s.blend 를 Blender 4.0.2 로 열고 Space (스크립트 실행 불필요)
   A) Blender UI : Scripting 탭 → Open → main.py → Run Script
-                  (새 파일에서 실행하세요. 현재 파일의 오브젝트·재질을 모두 지우고 다시 만듭니다.)
-  B) 명령줄     : blender -b -P main.py              → 씬 생성 + build/donghae_previs.blend 저장
+                  (현재 파일의 오브젝트·재질을 모두 지우고 다시 만듭니다. 저장은 File > Save)
+  B) 명령줄     : blender -b -P main.py              → 씬 생성 + donghae_previs_30s.blend 저장
                   blender -b -P main.py -- --render  → 씬 생성 + 저장 + 30초 MP4 렌더
 config.py 값을 고친 뒤 다시 실행하면 전체가 새로 만들어집니다.
 """
 import importlib
+import math
 import os
 import sys
 
 import bpy
+from mathutils import Vector
 
 
 def _project_dir():
@@ -49,7 +52,7 @@ import config         # noqa: E402
 import environments   # noqa: E402
 import render_preview  # noqa: E402
 import timeline       # noqa: E402
-from utils import get_collection  # noqa: E402
+from utils import get_collection, heading_vec  # noqa: E402
 
 
 def reset_scene():
@@ -112,16 +115,73 @@ def build_previs():
     timeline.verify_timeline(scene)
     cameras.report_framing(scene, render_preview.still_frames())
     cameras.check_camera_paths(scene)
+    setup_review_view()
     scene.frame_set(config.FRAME_START)
     print("[previs] 생성 완료: %d프레임 (%.1f초), 컷 %d개, 카메라 %d대"
           % (config.FRAME_END - config.FRAME_START + 1, total, len(config.CUTS), len(cams)))
     return ctx
 
 
+def setup_review_view():
+    """열자마자 Space 로 컷 화면을 재생해 볼 수 있게 3D 뷰 정리.
+
+    - 모든 3D 뷰: Solid + 재질색 + 하늘색 배경 + 외곽선 (Workbench 프리뷰와 같은 느낌, 가볍게 재생)
+    - Layout 탭의 3D 뷰, Animation 탭의 작은 3D 뷰: 카메라 시점(Numpad 0),
+      다른 카메라·조명·빈 오브젝트 표시(Overlays > Extras)와 바닥 격자·3D 커서는 숨김
+    - Animation 탭의 큰 3D 뷰: 마을 전체 조감(자유 시점) → 카메라가 움직이는 모습을 밖에서 확인
+    """
+    for ob in bpy.context.scene.objects:
+        ob.select_set(False)
+    bpy.context.view_layer.objects.active = None
+    # 카메라 뷰 확대값: 프레임 가로 비율 = ((√2 + zoom/50)^2)/4 (Blender 카메라 뷰 줌 공식)
+    cam_zoom = 50.0 * (2.0 * math.sqrt(config.REVIEW_CAMERA_FRAME) - math.sqrt(2.0))
+    ovw = config.REVIEW_OVERVIEW
+    target = Vector(ovw["target"])
+    el = math.radians(ovw["elevation"])
+    eye = target + (heading_vec(ovw["heading"]) * math.cos(el) + Vector((0.0, 0.0, math.sin(el)))) * ovw["distance"]
+    for screen in bpy.data.screens:
+        views = sorted((a for a in screen.areas if a.type == 'VIEW_3D'), key=lambda a: a.width * a.height)
+        for area in views:
+            sh = area.spaces.active.shading
+            sh.type = 'SOLID'
+            sh.light = 'STUDIO'
+            sh.color_type = 'MATERIAL'
+            sh.background_type = 'WORLD'
+            sh.show_object_outline = True
+            sh.show_cavity = True
+            sh.show_shadows = True
+            sh.shadow_intensity = 0.35
+            sh.show_specular_highlight = False
+        for area in {"Layout": views[-1:], "Animation": views[:1]}.get(screen.name, []):
+            space = area.spaces.active
+            space.region_3d.view_perspective = 'CAMERA'
+            space.region_3d.view_camera_zoom = cam_zoom
+            space.region_3d.view_camera_offset = (0.0, 0.0)
+            ov = space.overlay
+            ov.show_extras = False
+            ov.show_relationship_lines = False
+            ov.show_floor = False
+            ov.show_axis_x = ov.show_axis_y = False
+            ov.show_cursor = False
+        if screen.name == "Animation" and len(views) > 1:
+            rv3d = views[-1].spaces.active.region_3d
+            rv3d.view_perspective = 'PERSP'
+            rv3d.view_location = target
+            rv3d.view_rotation = (target - eye).to_track_quat('-Z', 'Y')
+            rv3d.view_distance = ovw["distance"]
+
+
 def save_blend(path=None):
-    path = path or config.BLEND_PATH
+    path = os.path.abspath(path or config.BLEND_PATH)
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=path)
+    scene = bpy.context.scene
+    try:        # 렌더 출력 경로를 .blend 기준 상대 경로(//renders/...)로 → 다른 PC에서 열어도 이 폴더의 renders/ 로 나감
+        rel = os.path.relpath(config.OUTPUT_DIR, os.path.dirname(path)).replace(os.sep, "/")
+        scene.render.filepath = "//%s/%s_" % (rel, config.MOVIE_NAME)
+    except ValueError:                                  # (Windows) 드라이브가 다르면 절대 경로 유지
+        pass
+    scene.frame_set(config.FRAME_START)
+    bpy.ops.wm.save_as_mainfile(filepath=path, compress=True)
     print("[previs] 저장:", path)
     return path
 

@@ -166,7 +166,11 @@ LIGHTING = {
 OUTPUT_DIR = os.path.join(PROJECT_DIR, "renders")          # 렌더 출력 폴더
 MOVIE_NAME = "donghae_previs_30s"                           # → renders/donghae_previs_30s.mp4
 STILLS_DIR = os.path.join(OUTPUT_DIR, "stills")            # 컷별 '이미지용 한 순간' PNG
-BLEND_PATH = os.path.join(PROJECT_DIR, "build", "donghae_previs.blend")
+BLEND_PATH = os.path.join(PROJECT_DIR, "donghae_previs_30s.blend")   # 바로 열어 보는 씬 파일 (저장소에 포함)
+# 저장 파일을 열었을 때의 화면: 카메라 뷰에서 컷 프레임이 3D 뷰 가로의 몇 %를 차지할지,
+# Animation 탭 큰 3D 뷰의 전체 조감 시점(바라보는 점, 보는 방위각·내려다보는 각도, 거리 m)
+REVIEW_CAMERA_FRAME = 0.80
+REVIEW_OVERVIEW = dict(target=(-4.0, -8.0, 18.5), heading=215.0, elevation=55.0, distance=40.0)
 PREVIEW_ENGINE = "EEVEE"        # "EEVEE"(시간대 조명 보임) | "WORKBENCH"(가장 빠름) | "CYCLES"
 EEVEE_SAMPLES = 8
 BURN_IN = True                  # 프레임·컷(마커)·카메라·렌즈 번인

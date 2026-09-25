@@ -10,30 +10,52 @@
 
 ---
 
+## 바로 보기 — `donghae_previs_30s.blend`
+
+스크립트를 실행하지 않아도 됩니다. 이 폴더의 **`donghae_previs_30s.blend`** 를 Blender 4.0.2로 여세요.
+(Blender 4.0.2로 만들고 저장한 파일이라 버전 경고 없이 열립니다. 4.2에서도 열리는 것을 확인했습니다 — Eevee 설정은 새 Eevee로 자동 변환)
+
+1. `Layout` 탭이 **CAM_CUT01 카메라 시점**으로 열립니다. **Space** 로 재생하면 마커(CUT_01~08)마다
+   카메라가 CAM_CUT01~08 로 자동 전환됩니다. (Space 한 번 더 = 정지, Shift+← = 처음으로)
+   카메라 시점이 아니면 3D 뷰에서 Numpad 0 (또는 `View > Cameras > Active Camera`).
+2. 처음 화면은 Solid 표시(재질색 + 외곽선)라 가볍게 재생됩니다.
+   시간대 조명·하늘·창문 불빛까지 보려면 3D 뷰에서 **Z → Rendered** (Eevee).
+3. `Animation` 탭: 왼쪽 = 컷 카메라 화면, 오른쪽 = 마을 조감(카메라 8대의 위치·이동을 밖에서 확인), 아래 = 마커.
+4. 아래 타임라인에 30초(1~720) 전체가 안 보이면 타임라인 위에 마우스를 두고 **Home**.
+   카메라 프레임을 3D 뷰에 꽉 맞추려면 3D 뷰 위에서 **Home**.
+5. MP4로 뽑기: `Render > Render Animation` (Ctrl+F12)
+   → `renders/donghae_previs_30s_0001-0720.mp4` (1280×720, 24fps, H.264, 컷·프레임 번인 포함).
+
+> 카메라 시점 화면에서는 다른 카메라·조명 아이콘, 바닥 격자, 3D 커서를 숨겨 두었습니다
+> (3D 뷰 오른쪽 위 `Overlays` 에서 `Extras` 등을 켜면 다시 보입니다).
+> `config.py` 를 고쳐 다시 만들 때는 아래 2~3 항목대로 `main.py` 를 실행합니다.
+
 ## 1. Blender 버전
 
 - **기준: Blender 4.0.2** (Python `bpy`)
-- 4.0의 `BLENDER_EEVEE`와 4.2 이후의 `BLENDER_EEVEE_NEXT`를 모두 처리하도록 작성했습니다.
-  개발 중 검증은 PyPI `bpy` 4.2 모듈로 헤드리스 실행했습니다(4.0.2 모듈은 배포되지 않음).
-  4.0.2에서 처음 실행할 때 콘솔에 오류가 없는지 한 번 확인해 주세요.
+- 실제 **Blender 4.0.2**(Ubuntu 24.04 공식 패키지 `4.0.2+dfsg`)로 씬 생성·저장·다시 열기·GUI 재생·렌더까지
+  확인했습니다. 저장소의 `.blend` 도 이 4.0.2로 만든 것입니다.
+- 4.0의 `BLENDER_EEVEE`와 4.2 이후의 `BLENDER_EEVEE_NEXT`를 모두 처리합니다.
+  같은 코드를 `bpy` 4.2에서도 실행해 비교했고, 모든 오브젝트·카메라·조명 값이 4.0.2 결과와 같습니다.
 
 ## 2. 실행 순서 · 3. 먼저 실행할 파일
 
 **`main.py` 를 먼저 실행합니다.** 나머지 파일은 `main.py` 가 불러옵니다.
+(`.blend` 를 열어 보기만 할 때는 실행할 필요가 없습니다. 위 '바로 보기' 참고)
 
 ### A. Blender 화면에서
 
-1. Blender 4.0.2 실행 → **새 파일**(General)
+1. Blender 4.0.2 실행 → **새 파일**(General) 또는 `donghae_previs_30s.blend`
    > `main.py` 는 현재 파일의 오브젝트·재질·카메라·조명을 모두 지우고 다시 만듭니다.
 2. `Scripting` 탭 → `Open` → 이 폴더의 `main.py` → `Run Script`
-3. 타임라인에서 재생(Space). 카메라 뷰(Numpad 0)로 보면 마커마다 CAM_CUT01~08 로 자동 전환됩니다.
-   - 시간대 조명까지 보려면 뷰포트 셰이딩을 `Rendered`(또는 Material Preview + Scene Lights/World)로 바꾸세요.
-4. `config.py` 를 고친 뒤 `main.py` 를 다시 Run 하면 전체가 새로 만들어집니다.
+3. `Layout` 탭 3D 뷰가 카메라 시점으로 바뀝니다. 타임라인에서 재생(Space) → 마커마다 CAM_CUT01~08 로 자동 전환.
+   - 시간대 조명까지 보려면 뷰포트 셰이딩을 `Rendered`(Z 키)로 바꾸세요.
+4. `config.py` 를 고친 뒤 `main.py` 를 다시 Run 하면 전체가 새로 만들어집니다. 결과를 남기려면 `File > Save`.
 
 ### B. 명령줄에서 (이 폴더에서 실행)
 
 ```bash
-blender -b -P main.py                    # 씬 생성 → build/donghae_previs.blend 저장
+blender -b -P main.py                    # 씬 생성 → donghae_previs_30s.blend 저장(덮어씀)
 blender -b -P main.py -- --render        # 씬 생성 + 저장 + 30초 MP4 렌더
 blender -b -P render_preview.py          # (씬 생성 포함) 30초 MP4만 렌더
 ```
@@ -91,6 +113,7 @@ blender -b -P render_preview.py          # (씬 생성 포함) 30초 MP4만 렌�
 | 시간대 조명 | `SUN_AZIMUTH`, `LIGHTING` (컷 묶음별 태양 고도·색·세기, 하늘 지평선/천정 색) |
 | 렌더 엔진·샘플·번인 | `PREVIEW_ENGINE`, `EEVEE_SAMPLES`, `BURN_IN`, `BURN_IN_NOTE` |
 | 출력 폴더·파일명 | `OUTPUT_DIR`, `MOVIE_NAME`, `STILLS_DIR`, `BLEND_PATH` |
+| 저장 파일을 열었을 때 화면 | `REVIEW_CAMERA_FRAME`(카메라 프레임 크기), `REVIEW_OVERVIEW`(Animation 탭 조감 시점) |
 | 컷별 '이미지용 한 순간' 프레임 | `STILL_MOMENTS` (컷 길이 대비 비율) |
 
 좌표 약속: X = 동, Y = 북, Z = 해발(m). 방위각 0 = 북, 90 = 동. **대문 중심 = (0, 0, 20m)**, 대문은 서쪽(계단 쪽)을 향함.
@@ -104,11 +127,11 @@ blender -b -P render_preview.py -- --engine workbench      # 가장 빠른 Workb
 blender -b -P render_preview.py -- --scale 50              # 해상도 50%로 빠르게
 blender -b -P render_preview.py -- --frames 409-504        # CUT 6만
 blender -b -P render_preview.py -- --stills                # 컷별 '이미지용 한 순간' PNG 8장 (번인 없음)
-blender -b build/donghae_previs.blend -P render_preview.py # 저장해 둔 .blend 로 렌더
+blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blend 로 렌더 (씬 다시 만들지 않음)
 ```
 
 - 기본 번인(좌상단 메모, 하단에 마커·타임코드·프레임·카메라·렌즈)이 들어갑니다. `--no-burnin` 으로 끔.
-- Blender 화면에서는 `render_preview.py` 를 Run Script 해도 같은 설정으로 렌더합니다.
+- Blender 화면에서는 `Render > Render Animation`(Ctrl+F12) 또는 `render_preview.py` 를 Run Script 하면 같은 설정으로 렌더합니다.
 - 참고 속도(GPU 없는 4코어 클라우드, 소프트웨어 GL): Workbench 1280×720 전체 30초 약 8분(≈0.7초/프레임),
   Eevee 스틸 8장 약 1분. GPU가 있는 PC에서는 Eevee 전체 렌더도 몇 분 안에 끝납니다.
 - 렌더한 MP4의 컷 전환 검수: `python check_cuts.py renders/donghae_previs_30s.mp4`
@@ -121,10 +144,11 @@ blender -b build/donghae_previs.blend -P render_preview.py # 저장해 둔 .blen
 |---|---|
 | 30초 프리뷰 MP4 | `renders/donghae_previs_30s.mp4` (구간 렌더는 `…_F0409-0504.mp4`) |
 | 컷별 스틸 PNG | `renders/stills/CUT01_F0047.png` … `CUT08_F0666.png` |
-| 저장된 씬 | `build/donghae_previs.blend` |
+| 저장된 씬 | `donghae_previs_30s.blend` (저장소에 포함. `blender -b -P main.py` 로 다시 만들면 덮어씀) |
 | 이 저장소에 첨부한 샘플 결과 | `preview/donghae_previs_30s_workbench.mp4`, `preview/stills/*.jpg`(Eevee 스틸 8장), `preview/storyboard_8cuts.jpg` |
 
-`renders/`, `build/` 는 `.gitignore` 에 들어 있습니다.
+`renders/` 와 Blender 백업 파일(`*.blend1`)은 `.gitignore` 에 들어 있습니다.
+`.blend` 안의 렌더 출력 경로는 `//renders/…`(.blend 기준 상대 경로)라 다른 PC에서 열어도 이 폴더의 `renders/` 로 나갑니다.
 
 ## 10. 프리비즈 범위와 한계
 
@@ -137,12 +161,15 @@ blender -b build/donghae_previs.blend -P render_preview.py # 저장해 둔 .blen
 
 ## 검증 결과 (이 저장소 코드 기준)
 
-지시문 26번 완료 기준을 아래 방법으로 확인했습니다. (헤드리스 `bpy` 4.2 모듈 + 소프트웨어 GL)
+지시문 26번 완료 기준을 아래 방법으로 확인했습니다. (**Blender 4.0.2** 헤드리스 + 가상 디스플레이·소프트웨어 GL.
+같은 코드를 `bpy` 4.2 모듈에서도 실행해 결과가 같은지 비교)
 
 | 완료 기준 | 결과 | 확인 방법 |
 |---|---|---|
-| Frame 1~720 정상 재생, 30초 이하 | 통과 | `verify_timeline` + MP4 720프레임·30.000초·24fps·1280×720·H.264 (ffprobe) |
-| 8개 컷이 정확한 시간에 전환 / 카메라 8개 정상 전환 | 통과 | 1~720 모든 프레임의 활성 카메라 점검 + `check_cuts.py`: 검출 전환 85·145·241·313·409·505·577 = 기대값 |
+| Blender 4.0.2에서 `.blend` 열기 | 통과 | 저장한 파일을 새 4.0.2 프로세스로 열어 오브젝트 108개, 마커 8개(카메라 연결), 1~720 모든 프레임의 카메라 확인. 표본 116프레임에서 모든 오브젝트 위치가 저장 전과 같음. 4.0.2 GUI로 열어 카메라 시점 재생·Rendered 화면 확인 |
+| 4.0.2 ↔ 4.2 결과 일치 | 통과 | 116프레임 × 108개 오브젝트의 위치·회전, 카메라·렌즈, 조명·하늘색 비교: 차이 0 (소수점 5자리) |
+| Frame 1~720 정상 재생, 30초 이하 | 통과 | `verify_timeline` + MP4 720프레임·30.000초·24fps·1280×720·H.264 (ffprobe, MP4는 bpy 4.2 렌더본) |
+| 8개 컷이 정확한 시간에 전환 / 카메라 8개 정상 전환 | 통과 | 1~720 모든 프레임의 활성 카메라 점검 + `check_cuts.py`(bpy 4.2 렌더 MP4): 검출 전환 85·145·241·313·409·505·577 = 기대값 |
 | CUT1 계단 오르기 | 통과 | 모든 프레임에서 한 발은 디딤판에 정확히 닿음(틈 0mm), 발바닥 파고듦 없음, 몸 7/7 부위 보임 |
 | CUT2 노크 / CUT3 목례 | 통과 | 노크 2회(주먹이 문 표면까지), 목례 13°(몸통 40%+고개 60%) |
 | CUT4 같은 높이로 앉음 | 통과 | 두 사람 모두 평상 위 양반다리 (서 있는 사람 없음) |
@@ -150,12 +177,13 @@ blender -b build/donghae_previs.blend -P render_preview.py # 저장해 둔 .blen
 | CUT6 분납 → 복지 연계 구분 | 통과 | 손가락이 ① 영역(막대) → ② 영역(하트)으로 이동, 시민 끄덕임·손 모음 |
 | CUT7 배웅 흐름 | 통과 | 목례 → 손 들어 화답 → 돌아서기 → 계단 내려가기, 크레인 경로가 세트 안을 지나가지 않음 |
 | CUT8 뒤로 빠지며 엔딩 구도 안착 | 통과 | 마지막 1.5초 감속 정지, 마지막 프레임 하늘 약 34%(상단 1/3 자막 여백) |
-| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s_workbench.mp4` |
+| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s_workbench.mp4` (bpy 4.2 렌더본. 스틸 8장·스토리보드는 4.0.2 Eevee 렌더) |
 
 ## 파일 구조
 
 ```
-main.py            씬 전체 생성 (reset_scene → 세트 → 인물 → 카메라 → 컷별 연기 → 마커·조명 → 점검)
+donghae_previs_30s.blend  바로 여는 씬 파일 (Blender 4.0.2로 main.py 를 실행해 저장한 결과)
+main.py            씬 전체 생성 (reset_scene → 세트 → 인물 → 카메라 → 컷별 연기 → 마커·조명 → 점검 → 저장)
 config.py          모든 조정값 (타임라인, 크기, 카메라, 조명, 출력)
 materials.py       팔레트(캐릭터 시트 색 그대로)·재질, 일렁이는 바다
 characters.py      build_main_character(), build_citizen_proxy() — 관절 = 부위 원점인 퍼펫 리그 + FK/IK
