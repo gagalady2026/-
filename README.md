@@ -132,8 +132,8 @@ blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blen
 
 - 기본 번인(좌상단 메모, 하단에 마커·타임코드·프레임·카메라·렌즈)이 들어갑니다. `--no-burnin` 으로 끔.
 - Blender 화면에서는 `Render > Render Animation`(Ctrl+F12) 또는 `render_preview.py` 를 Run Script 하면 같은 설정으로 렌더합니다.
-- 참고 속도(GPU 없는 4코어 클라우드, 소프트웨어 GL): Workbench 1280×720 전체 30초 약 8분(≈0.7초/프레임),
-  Eevee 스틸 8장 약 1분. GPU가 있는 PC에서는 Eevee 전체 렌더도 몇 분 안에 끝납니다.
+- 참고 속도(GPU 없는 4코어 클라우드, 소프트웨어 GL): Workbench 1280×720 전체 30초 8~20분(0.7~1.6초/프레임),
+  Eevee 스틸 8장 약 30초~1분. GPU가 있는 PC에서는 Eevee 전체 렌더도 몇 분 안에 끝납니다.
 - 렌더한 MP4의 컷 전환 검수: `python check_cuts.py renders/donghae_previs_30s.mp4`
   (프레임 간 변화가 가장 큰 7곳이 컷 시작 프레임과 일치하는지 확인. ffmpeg·numpy 필요.
   나중에 Seedance/Kling 컷을 이어 붙인 편집본에도 같은 방법으로 쓸 수 있습니다.)
@@ -168,8 +168,8 @@ blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blen
 |---|---|---|
 | Blender 4.0.2에서 `.blend` 열기 | 통과 | 저장한 파일을 새 4.0.2 프로세스로 열어 오브젝트 108개, 마커 8개(카메라 연결), 1~720 모든 프레임의 카메라 확인. 표본 116프레임에서 모든 오브젝트 위치가 저장 전과 같음. 4.0.2 GUI로 열어 카메라 시점 재생·Rendered 화면 확인 |
 | 4.0.2 ↔ 4.2 결과 일치 | 통과 | 116프레임 × 108개 오브젝트의 위치·회전, 카메라·렌즈, 조명·하늘색 비교: 차이 0 (소수점 5자리) |
-| Frame 1~720 정상 재생, 30초 이하 | 통과 | `verify_timeline` + MP4 720프레임·30.000초·24fps·1280×720·H.264 (ffprobe, MP4는 bpy 4.2 렌더본) |
-| 8개 컷이 정확한 시간에 전환 / 카메라 8개 정상 전환 | 통과 | 1~720 모든 프레임의 활성 카메라 점검 + `check_cuts.py`(bpy 4.2 렌더 MP4): 검출 전환 85·145·241·313·409·505·577 = 기대값 |
+| Frame 1~720 정상 재생, 30초 이하 | 통과 | `verify_timeline` + MP4 720프레임·30.000초·24fps·1280×720·H.264 (ffprobe) |
+| 8개 컷이 정확한 시간에 전환 / 카메라 8개 정상 전환 | 통과 | 1~720 모든 프레임의 활성 카메라 점검 + `check_cuts.py`: 검출 전환 85·145·241·313·409·505·577 = 기대값 |
 | CUT1 계단 오르기 | 통과 | 모든 프레임에서 한 발은 디딤판에 정확히 닿음(틈 0mm), 발바닥 파고듦 없음, 몸 7/7 부위 보임 |
 | CUT2 노크 / CUT3 목례 | 통과 | 노크 2회(주먹이 문 표면까지), 목례 13°(몸통 40%+고개 60%) |
 | CUT4 같은 높이로 앉음 | 통과 | 두 사람 모두 평상 위 양반다리 (서 있는 사람 없음) |
@@ -177,7 +177,7 @@ blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blen
 | CUT6 분납 → 복지 연계 구분 | 통과 | 손가락이 ① 영역(막대) → ② 영역(하트)으로 이동, 시민 끄덕임·손 모음 |
 | CUT7 배웅 흐름 | 통과 | 목례 → 손 들어 화답 → 돌아서기 → 계단 내려가기, 크레인 경로가 세트 안을 지나가지 않음 |
 | CUT8 뒤로 빠지며 엔딩 구도 안착 | 통과 | 마지막 1.5초 감속 정지, 마지막 프레임 하늘 약 34%(상단 1/3 자막 여백) |
-| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s_workbench.mp4` (bpy 4.2 렌더본. 스틸 8장·스토리보드는 4.0.2 Eevee 렌더) |
+| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s_workbench.mp4` (Blender 4.0.2 로 `.blend` 를 열어 렌더. 스틸 8장·스토리보드는 4.0.2 Eevee) |
 
 ## 파일 구조
 
@@ -194,7 +194,7 @@ timeline.py        setup_timeline_markers(), setup_lighting(), 컷 경계 정리
 render_preview.py  configure_preview_render(), MP4/스틸 렌더 (명령줄 옵션)
 utils.py           공용 도우미 (이징 곡선, 방향 계산, 로우폴리 메시, 키프레임)
 check_cuts.py      렌더한 MP4 의 컷 전환 검출 (검수용, Blender 없이 실행 가능)
-preview/           이 코드로 렌더한 샘플: 30초 Workbench MP4, 컷별 Eevee 스틸 8장, 8컷 스토리보드
+preview/           Blender 4.0.2 로 렌더한 샘플: 30초 Workbench MP4, 컷별 Eevee 스틸 8장, 8컷 스토리보드
 ```
 
 ### 구현 메모
