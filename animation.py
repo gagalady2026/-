@@ -450,22 +450,31 @@ def setup_cut_05(ctx):
 
 
 # =============================================================================
-# CUT 6 — 분납과 복지 연계를 안내하다 (자료의 두 영역을 순서대로 가리킴 → 시민 끄덕임·손 모음)
+# CUT 6 — 분납과 복지 연계를 안내하다
+#   주인공: ① 분납 영역을 짚어 두 번 톡톡 → 멈추고 시민 얼굴 확인 → 손을 들어 ② 복지 연계 영역으로 옮겨 톡톡
+#   시민  : 손가락을 따라 ①을 보다가 ②로 시선 이동 → 몸을 조금 기울이며 두 번 끄덕 → 마지막 약 1초 자세가 풀림
 # =============================================================================
 def _tablet_pose(L):
-    tilt = 24.0
-    loc = L.plat(0.03, -0.30)
-    loc.z = L.pl_top + 0.125 * math.sin(math.radians(tilt)) + 0.004
+    td, tilt = config.TABLET_SIZE[1], config.TABLET_TILT
+    loc = L.plat(*config.TABLET_POS_LOCAL)
+    loc.z = L.pl_top + 0.5 * td * math.sin(math.radians(tilt)) + 0.004     # 앞(카메라 쪽) 가장자리가 평상에 닿음
     rot = Euler((math.radians(tilt), 0.0, L.plat_rot_z()), 'XYZ')
     return loc, rot
 
 
 def tablet_point(L, which, lift=0.018):
-    """태블릿 두 영역의 중심 (1 = 왼쪽 분납, 2 = 오른쪽 복지)."""
+    """태블릿 두 영역의 아이콘 중심 (1 = 왼쪽 분납, 2 = 오른쪽 복지 연계)에서 화면 위로 lift 만큼 뜬 점."""
     loc, rot = _tablet_pose(L)
     mtx = Matrix.Translation(loc) @ rot.to_matrix().to_4x4()
-    x = -0.09 if which == 1 else 0.09
-    return mtx @ Vector((x, 0.005, lift))
+    x = config.TABLET_SIZE[0] * (-0.25 if which == 1 else 0.25)
+    return mtx @ Vector((x, 0.0, 0.024 + lift))
+
+
+def _double_tap(t, span):
+    """span 동안 두 번 톡톡 (두 번째는 조금 약하게)."""
+    a, e = span
+    mid = (a + e) * 0.5
+    return max(bump(t, a, mid, hold=0.25), 0.75 * bump(t, mid, e, hold=0.25))
 
 
 def setup_cut_06(ctx):
@@ -474,48 +483,52 @@ def setup_cut_06(ctx):
     top = L.pl_top
     f0, f1 = config.cut_range(6)
     tloc, trot = _tablet_pose(L)
-    p1, p2 = tablet_point(L, 1), tablet_point(L, 2)
-    screen = (p1 + p2) * 0.5
+    hov1, hov2 = tablet_point(L, 1, lift=0.035), tablet_point(L, 2, lift=0.035)
+    touch1, touch2 = tablet_point(L, 1, lift=0.004), tablet_point(L, 2, lift=0.004)
+    ms, cs = m.dims["scale"], c.dims["scale"]
+    a0, a1 = b["point_1"]
+    m0, m1 = b["move_to_2"]
+    h1 = b["point_2_hold"][1]
     for f in _frames(6):
         t = _t(f, 6)
         _seat(ctx)
-        # 주인공: 태블릿 쪽으로 몸을 기울이고 오른손 검지로 ① 분납 → ② 복지 영역을 차례로 가리킴
-        m.set_rot("torso", 11.0, 0, 6.0)
+        # ---- 주인공: 태블릿 쪽으로 몸을 기울이고 오른손 검지로 ① → ② ----
+        m.set_rot("torso", 11.0 + 3.0 * window(t, a0, a1) * (1.0 - window(t, *b["check_2"])), 0, 6.0)
         rest = m.local_point("hand_R", (0, 0, -m.dims["hand"] * 1.12))
-        a0, a1 = b["point_1"]
-        reach_w = window(t, a0, a1) * (1.0 - window(t, 0.86, 1.0) * 0.75)
-        move = window(t, *b["move_to_2"])
-        tip = p1.lerp(p2, move) + Vector((0, 0, 0.02 * bump(t, b["move_to_2"][0], b["move_to_2"][1])))
-        tap = 0.012 * (bump(t, a1 - 0.04, a1 + 0.06) + bump(t, b["point_2_hold"][0], b["point_2_hold"][0] + 0.1))
-        tip = rest.lerp(tip - Vector((0, 0, tap)), reach_w)
-        m.point_finger(window(t, a0 - 0.05, a0 + 0.06) * (1.0 - window(t, 0.88, 0.98)))
+        reach_w = window(t, a0, a1) * (1.0 - 0.7 * window(t, h1, h1 + 0.12))
+        move = window(t, m0, m1)
+        hover = hov1.lerp(hov2, move) + Vector((0, 0, 0.07 * bump(t, m0, m1)))   # 옮길 때 손을 들어 호를 그림
+        tap = max(_double_tap(t, b["tap_1"]), _double_tap(t, b["tap_2"]))
+        tip = rest.lerp(hover.lerp(touch1.lerp(touch2, move), tap), reach_w)
+        m.point_finger(window(t, a0 - 0.03, a0 + 0.08) * (1.0 - window(t, h1 + 0.02, h1 + 0.14)))
         m.reach("R", tip, direction=(tip - m.joint_pos("upper_arm_R") + Vector((0, 0, -0.35))).normalized(),
                 elbow_dir=m.to_char_space((-0.6, 0.5, -0.6)), pointing=True)
-        glance = bump(t, 0.80, 0.98, hold=0.3)
-        m.look_at(screen.lerp(_face(c, c.dims["scale"]), glance))
-        # 시민: 자료 쪽으로 몸을 기울여 함께 보고, 두 번째 영역에서 끄덕이며 손을 가볍게 모음
-        c.set_rot("torso", 9.0, 0, -5.0)
-        c.look_at(screen)
-        nod = (bump(t, b["citizen_nod"][0], b["citizen_nod"][0] + 0.11) +
-               bump(t, b["citizen_nod"][0] + 0.11, b["citizen_nod"][1])) * 8.0
-        c.add_rot("head", nod, 0, 0)
-        hands = window(t, *b["citizen_hands"])
-        cs = c.dims["scale"]
+        chk = max(bump(t, *b["check_1"], hold=0.35), window(t, *b["check_2"]))   # 설명 사이·끝에 시민 얼굴 확인
+        m.look_at(hover.lerp(_face(c, cs), chk))
+        # ---- 시민: 손가락을 따라 보고, ②에서 기울여 끄덕, 끝에 자세가 풀리며 주인공을 봄 ----
+        relax = window(t, *b["citizen_relax"])
+        lean_in = window(t, *b["citizen_lean"]) * (1.0 - relax)
+        c.set_rot("torso", 9.0 + 6.0 * lean_in - 7.0 * relax, 0, -5.0 * (1.0 - relax))
+        follow = hov1.lerp(hov2, window(t, *b["citizen_follow_2"]))
+        c.look_at(follow.lerp(_face(m, ms), 0.85 * relax))
+        n0, n1 = b["citizen_nod"]
+        nm = (n0 + n1) * 0.5
+        c.add_rot("head", (bump(t, n0, nm) + 0.8 * bump(t, nm, n1)) * 8.0, 0, 0)
         clasp = c.root.location + c.to_char_space((0.0, -0.20 * cs, 0.0))
         clasp.z = top + 0.24
         for sd, sgn in (("L", 1.0), ("R", -1.0)):
-            rest = c.local_point("hand_" + sd, (0, 0, -c.dims["hand"] * 1.12))
-            c.reach(sd, rest.lerp(clasp + c.to_char_space((sgn * 0.035, 0, 0)), hands),
+            rest_c = c.local_point("hand_" + sd, (0, 0, -c.dims["hand"] * 1.12))
+            c.reach(sd, rest_c.lerp(clasp + c.to_char_space((sgn * 0.035, 0, 0)), relax),
                     direction=c.to_char_space((-sgn * 0.8, -0.3, -0.3)).normalized().lerp(
-                        c.to_char_space((-sgn * 0.25, -0.9, -0.35)), 1.0 - hands),
+                        c.to_char_space((-sgn * 0.25, -0.9, -0.35)), 1.0 - relax),
                     elbow_dir=c.to_char_space((sgn * 0.8, 0.3, -0.6)))
         ctx.key_chars(f)
         if f in (f0, f1):
             _key_obj(L.props["tablet"], f, loc=tloc, rot=trot)
-            st = tloc + (trot.to_matrix() @ Vector((0, 0.10, 0)))
+            st = tloc + (trot.to_matrix() @ Vector((0, config.TABLET_SIZE[1] * 0.5 - 0.035, 0)))
             st.z = top
             _key_obj(L.props["tablet_stand"], f, loc=st, rot=(0, 0, L.plat_rot_z()))
-            cm, cc, pen = L.plat(0.36, -0.40), L.plat(-0.34, -0.42), L.plat(0.20, -0.46)
+            cm, cc, pen = L.plat(0.36, -0.40), L.plat(-0.36, -0.42), L.plat(0.44, -0.54)
             for v in (cm, cc, pen):
                 v.z = top
             _key_obj(L.props["cup_main"], f, loc=cm, rot=_cup_rot(L))
@@ -667,6 +680,11 @@ def setup_cut_08(ctx):
             k = (i - n0 + 1) / max(1, len(lights) - n0)
             on = int(f0 + 10 + (last_on - f0 - 10) * (k ** 0.9))
             key_visible(ob, on, True)
+    # 가로등: 컷8 첫 2초 동안 차례로 켜짐 (창문보다 먼저)
+    lamps = getattr(L, "street_lamps", [])
+    for i, ob in enumerate(lamps):
+        key_visible(ob, config.FRAME_START, False)
+        key_visible(ob, int(f0 + 4 + 44 * i / max(1, len(lamps) - 1)), True)
     cameras.camera_cut08(ctx.cams[8], L)
 
 

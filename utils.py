@@ -228,6 +228,49 @@ class MeshBuilder:
         res = bmesh.ops.create_uvsphere(self.bm, u_segments=segments, v_segments=rings, radius=1.0, matrix=m)
         return self._tag(res['verts'], mat)
 
+    def lathe(self, profile, segments=16, center=(0, 0, 0), scale_y=1.0, mat=0):
+        """(반지름, 높이) 단면을 Z축으로 돌린 회전체. 첫 점 반지름이 0이면 꼭짓점 하나로 닫음 (머리카락 캡 등)."""
+        cx, cy, cz = center
+        bm = self.bm
+        rings = []
+        for r, z in profile:
+            if r <= 1e-6:
+                rings.append([bm.verts.new((cx, cy, cz + z))])
+                continue
+            rings.append([bm.verts.new((cx + r * math.cos(2 * math.pi * k / segments),
+                                        cy + r * scale_y * math.sin(2 * math.pi * k / segments), cz + z))
+                          for k in range(segments)])
+        for a, b in zip(rings, rings[1:]):
+            for k in range(segments):
+                k1 = (k + 1) % segments
+                if len(a) == 1:
+                    bm.faces.new((a[0], b[k], b[k1]))
+                elif len(b) == 1:
+                    bm.faces.new((a[k], b[0], a[k1]))
+                else:
+                    bm.faces.new((a[k], b[k], b[k1], a[k1]))
+        verts = [v for ring in rings for v in ring]
+        return self._tag(verts, mat)
+
+    def tube(self, pts, r0, r1, segments=6, mat=0):
+        """점들을 잇는 가늘어지는 관 (머리카락 한 가닥 등). 반지름 r0 → r1."""
+        pts = [Vector(p) for p in pts]
+        n = len(pts) - 1
+        verts = []
+        for i in range(n):
+            a, b = pts[i], pts[i + 1]
+            ra = r0 + (r1 - r0) * i / n
+            rb = r0 + (r1 - r0) * (i + 1) / n
+            axis = b - a
+            rot = axis.to_track_quat('Z', 'Y').to_matrix().to_4x4()
+            m = Matrix.Translation((a + b) * 0.5) @ rot
+            res = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=segments,
+                                        radius1=ra, radius2=rb, depth=axis.length, matrix=m)
+            verts += res['verts']
+            if i < n - 1:     # 마디를 둥글게 이음
+                verts += self.sphere((rb, rb, rb), center=b, segments=segments, rings=4, mat=mat)
+        return self._tag(verts, mat)
+
     def prism(self, pts, z0, z1, mat=0):
         """평면 다각형(반시계 순서) pts 를 z0~z1 로 세운 기둥 (지형 테라스 등)."""
         bm = self.bm

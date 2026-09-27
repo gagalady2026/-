@@ -264,6 +264,51 @@ class Puppet:
 # =============================================================================
 # 부위 메시
 # =============================================================================
+# 주인공 헤어 (캐릭터 시트 정면·3/4·측면·후면 기준). 머리 피벗(목) 로컬 좌표, 1.70m 기준 치수.
+#   얼굴 앞면 y≈-0.16, 눈 위끝 z≈0.206, 귀 위끝 z≈0.21, 머리 꼭대기 z≈0.34
+# 캡 단면: 정수리에서 둥글게 내려와 관자놀이 높이(z≈0.26)에서 가장 넓고, 아래 테두리가 귀 위를 덮으며
+# 살짝 말려 들어가는 '버섯' 모양. 테두리는 한 덩어리로 두고 높낮이만 물결/톱니로 바꿔 머리 뭉치를 표현.
+HAIR_CAP_PROFILE = [(0.000, 0.468), (0.072, 0.462), (0.132, 0.441), (0.180, 0.406), (0.214, 0.360),
+                    (0.234, 0.308), (0.241, 0.264), (0.236, 0.234), (0.218, 0.214), (0.190, 0.207),
+                    (0.160, 0.214)]
+HAIR_SEGMENTS = 28           # 캡 둘레 분할 (앞머리 끝 5갈래를 만들 만큼만)
+HAIR_FRINGE_ARC = 66.0       # 정면 ±66° = 앞머리 (테두리를 톱니처럼 내려 이마를 덮는 뭉치 끝)
+HAIR_FRINGE_TIP = 0.020      # 앞머리 뭉치 끝이 테두리보다 내려오는 길이 (m) — 눈썹 위에서 멈춤
+HAIR_RIM_WAVE = 0.012        # 옆·뒤 테두리의 뭉치 물결 깊이 (m)
+HAIR_AHOGE = [(0.012, 0.030, 0.452), (0.016, 0.014, 0.505), (0.030, 0.004, 0.546), (0.058, 0.016, 0.561),
+              (0.080, 0.046, 0.546), (0.083, 0.072, 0.518)]
+
+
+def _main_hair(mb, s):
+    """둥근 버섯형 캡(테두리가 뭉치로 물결치고, 앞은 이마를 덮는 톱니 앞머리) + 뒤통수·목덜미 + 정수리 한 가닥."""
+    cy = 0.012 * s
+    n = HAIR_SEGMENTS
+    cap = mb.lathe([(r * s, z * s) for r, z in HAIR_CAP_PROFILE], segments=n, center=(0, cy, 0), scale_y=0.95, mat=1)
+    front = -0.5 * math.pi                    # 정면(-Y) 방향 각
+    for v in cap:
+        w = clamp((0.30 * s - v.co.z) / (0.09 * s))       # 아래 테두리 쪽일수록 1
+        if w <= 0.0:
+            continue
+        ang = math.atan2((v.co.y - cy) / 0.95, v.co.x)
+        k = round((ang % (2 * math.pi)) / (2 * math.pi) * n) % n
+        off = math.degrees(abs((ang - front + math.pi) % (2 * math.pi) - math.pi))   # 정면에서 벌어진 각
+        dz = -0.085 * (v.co.y - cy)                        # 앞은 올리고(눈이 보이게) 뒤는 내림(뒤통수 덮기)
+        if off < HAIR_FRINGE_ARC:                          # 앞머리: 짝수 칸 = 뭉치 끝, 홀수 칸 = 갈라진 틈
+            fade = 1.0 - (off / HAIR_FRINGE_ARC) ** 3
+            dz += (-HAIR_FRINGE_TIP if k % 2 == 0 else 0.004) * s * fade
+        else:                                              # 옆·뒤: 완만한 물결 7개
+            dz += -HAIR_RIM_WAVE * s * 0.5 * (1.0 + math.cos(7.0 * ang))
+        v.co.z += dz * w
+    # 뒤통수~목덜미: 머리보다 살짝 큰 껍질에서 귀 뒤쪽 절반만 남김 (측면에서 귀는 보이고, 귀 뒤~목덜미는 머리카락)
+    back = mb.sphere((0.167 * s, 0.158 * s, 0.166 * s), center=(0, -0.006 * s, 0.180 * s), segments=16, rings=10, mat=1)
+    bmesh.ops.delete(mb.bm, geom=[v for v in back if v.co.y < 0.036 * s or v.co.z < 0.07 * s - 0.25 * (v.co.y - 0.10 * s)],
+                     context='VERTS')
+    for sx in (1, -1):                        # 짧은 구레나룻 (귀 앞)
+        mb.box((0.016 * s, 0.030 * s, 0.046 * s), center=(sx * 0.151 * s, -0.036 * s, 0.198 * s), mat=1)
+    # 정수리 한 가닥: 가운데서 살짝 비껴 솟았다가 뒤·왼쪽으로 말리는 갈고리 (먼 거리에서도 보이게 굵게)
+    mb.tube([Vector(p) * s for p in HAIR_AHOGE], 0.022 * s, 0.006 * s, segments=7, mat=1)
+
+
 def _part(name, collection, mats, build_fn, parent, location):
     mb = MeshBuilder()
     build_fn(mb)
@@ -320,16 +365,12 @@ def _build_puppet(prefix, height, build, style, collection):
         for ex in (1, -1):
             mb.sphere((0.034 * s, 0.022 * s, 0.040 * s), center=(ex * 0.156 * s, 0.01 * s, 0.17 * s), segments=6, rings=4, mat=0)
             mb.sphere((0.016 * s, 0.008 * s, 0.024 * s), center=(ex * 0.056 * s, -0.152 * s, 0.182 * s), segments=6, rings=4, mat=2)
-        if is_main:   # 둥근 버섯형 + 이마를 덮는 앞머리
-            hv = mb.sphere((0.218 * s, 0.207 * s, 0.190 * s), center=(0, 0.014 * s, 0.262 * s), segments=16, rings=12, mat=1)
-            cut = lambda co: co.z < 0.162 * s - 0.37 * co.y
+        if is_main:
+            _main_hair(mb, s)
         else:         # 짧은 머리
             hv = mb.sphere((0.170 * s, 0.170 * s, 0.150 * s), center=(0, 0.02 * s, 0.232 * s), segments=14, rings=10, mat=1)
             cut = lambda co: co.z < 0.215 * s - 0.42 * co.y
-        bmesh.ops.delete(mb.bm, geom=[v for v in hv if cut(v.co)], context='VERTS')
-        if is_main:   # 정수리 삐죽 한 가닥
-            m = Matrix.Translation((0.0, 0.03 * s, 0.445 * s)) @ Matrix.Rotation(math.radians(-38), 4, 'X')
-            mb.cylinder(0.02 * s, 0.003 * s, 0.0, 0.10 * s, segments=6, mat=1, matrix=m)
+            bmesh.ops.delete(mb.bm, geom=[v for v in hv if cut(v.co)], context='VERTS')
     parts["head"] = _part(prefix + "head", collection, [M.get(skin), M.get(hair), M.get("eye")], head, parts["torso"], (0, 0, d["torso_h"]))
 
     # --- 팔 ---

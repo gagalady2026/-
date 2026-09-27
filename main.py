@@ -88,6 +88,7 @@ def build_previs():
     environments.build_gate_set(layout, env)
     environments.build_yard_set(layout, env)
     environments.build_village_set(layout, env)
+    environments.build_locality_set(layout, env)          # v2: 묵호·논골담길 로컬리티
 
     # 인물 · 카메라
     main_char = characters.build_main_character(root)

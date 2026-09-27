@@ -59,8 +59,11 @@ BEATS = {
     3: dict(door_half=(0.04, 0.28), bow=(0.33, 0.58), door_full=(0.62, 0.88), turn_to_yard=(0.66, 0.92)),
     4: dict(push_cup=(0.12, 0.45), receive=(0.40, 0.75)),
     5: dict(look_away=(0.00, 0.34), look_back=(0.34, 0.52), nod=(0.58, 0.86)),
-    6: dict(point_1=(0.08, 0.30), move_to_2=(0.42, 0.56), point_2_hold=(0.56, 0.78),
-            citizen_nod=(0.60, 0.82), citizen_hands=(0.66, 0.90)),
+    # CUT 6: ① 분납 영역 짚기(두 번 톡톡) → 멈춰 시민 확인 → ② 복지 연계 영역으로 옮겨 짚기 → 시민 끄덕임 → 자세가 풀림
+    6: dict(point_1=(0.05, 0.20), tap_1=(0.20, 0.31), check_1=(0.28, 0.42), move_to_2=(0.42, 0.54),
+            tap_2=(0.55, 0.66), point_2_hold=(0.54, 0.78), check_2=(0.78, 0.96),
+            citizen_follow_2=(0.44, 0.58), citizen_lean=(0.50, 0.64), citizen_nod=(0.58, 0.76),
+            citizen_relax=(0.76, 0.96)),
     7: dict(bow=(0.00, 0.26), wave=(0.10, 0.62), turn=(0.28, 0.44), descend_start=0.44),
 }
 
@@ -108,12 +111,19 @@ PYEONGSANG_CENTER_XY = (3.4, 1.6)
 PYEONGSANG_FRONT_HEADING = 45.0  # 두 사람이 비스듬히 함께 향하는 '앞' 방향 (컷4 카메라 쪽)
 SEAT_OFFSET = 0.42              # 평상 중심에서 두 좌석까지 거리 (시민 = 왼쪽, 주인공 = 오른쪽)
 SEAT_TURN = 35.0                # 정면으로 마주 보는 방향에서 '앞'으로 튼 각도 → 비스듬히 마주 앉기
+# CUT 6 안내 자료(큰 태블릿): 가로 × 세로(m), 평상 로컬 위치(두 사람 사이 앞쪽), 기울기(°, 카메라 쪽으로 세움)
+TABLET_SIZE = (0.48, 0.34)
+TABLET_POS_LOCAL = (0.0, -0.36)
+TABLET_TILT = 32.0
 
 LIGHTHOUSE_XY = (-42.0, -78.0)  # 등대 곶 위치 (대문에서 내려다본 계단 방향 끝, 남서쪽)
 LIGHTHOUSE_BASE_Z = 20.0        # 곶 꼭대기 높이
 LIGHTHOUSE_HEIGHT = 17.0
-WINDOW_LIGHTS_AT_START = 3      # 컷8 시작 때 켜져 있는 창문 수
-WINDOW_LIGHTS_AT_END = 17       # 컷8 끝까지 켜지는 창문 수
+WINDOW_LIGHTS_AT_START = 6      # 컷8 시작 때 켜져 있는 창문 수
+WINDOW_LIGHTS_AT_END = 44       # 컷8 끝까지 켜지는 창문 수 (v2: 17 → 44, 집집마다 불이 들어오게)
+WINDOW_LIGHT_EMISSION = 8.0     # 켜진 창문 밝기 (v2: 6 → 8)
+STREET_LAMP_EMISSION = 12.0     # 컷8 가로등 밝기
+HILL_RIDGE_HEIGHT = 6.0         # 윗동네 언덕 능선이 가운데서 솟는 높이(m) — CUT8 마을 실루엣
 RANDOM_SEED = 7                 # 마을 주택 배치 난수
 
 # =============================================================================
@@ -126,18 +136,18 @@ RANDOM_SEED = 7                 # 마을 주택 배치 난수
 # =============================================================================
 SENSOR_WIDTH = 36.0
 
-CAM_CUT01 = dict(lens=24.0, height=0.55, start_xy=(-11.6, -18.5), heading=13.0, pitch=2.5,
-                 move_dist=1.6, ease_in=0.45, ease_out=0.0)        # Low forward tracking
+CAM_CUT01 = dict(lens=28.0, height=0.55, start_xy=(-10.95, -15.70), heading=13.0, pitch=2.5,
+                 move_dist=1.6, ease_in=0.45, ease_out=0.0)        # Low forward tracking (v2: 주인공 머리가 읽히게 약 3m 앞으로, 24→28mm)
 CAM_CUT02 = dict(lens=85.0, height=0.95, start_xy=(-0.10, 3.40), end_xy=(-0.46, 2.80),
                  target=(-0.27, -0.10, 0.96), ease_in=0.10, ease_out=0.65)  # 좌→우 표면 트랙, 감속
-CAM_CUT03 = dict(lens=50.0, height=1.50, start_xy=(-2.05, -0.92), move_dist=0.36, move_angle=10.0,
-                 target=(0.18, -0.26, 1.40), stop_at=0.88, ease_in=0.10, ease_out=0.55)  # 짧은 사선 push-in
+CAM_CUT03 = dict(lens=45.0, height=1.42, start_xy=(-3.00, -1.40), move_dist=0.36, move_angle=10.0,
+                 target=(0.25, -0.30, 1.36), stop_at=0.88, ease_in=0.10, ease_out=0.55)  # 짧은 사선 push-in (v2: 어깨 너머 주인공 머리 윤곽이 보이게 뒤로)
 CAM_CUT04 = dict(lens=28.0, height=1.40, start_xy=(6.05, 5.55), end_xy=(6.75, 6.45),
                  target_local=(0.0, 0.0, 1.15), ease_in=0.25, ease_out=0.30)  # dolly-out
-CAM_CUT05 = dict(lens=70.0, height=1.12, pos_local=(1.40, -1.33), target_local=(-0.18, 0.02, 1.10),
-                 move_dist=0.14, ease_in=0.0, ease_out=0.0)          # 가장 느린 등속 측면 이동(우→좌)
-CAM_CUT06 = dict(lens=50.0, height=1.32, pos_local=(0.95, -2.75), target_local=(-0.03, -0.12, 0.86),
-                 drift=(0.05, 0.0, -0.02), ease_in=0.5, ease_out=0.5)   # 거의 정적(아주 미세한 드리프트)
+CAM_CUT05 = dict(lens=50.0, height=1.18, pos_local=(1.85, -2.30), target_local=(0.10, 0.0, 1.14),
+                 move_dist=0.14, ease_in=0.0, ease_out=0.0)          # 가장 느린 등속 측면 이동(우→좌) (v2: 경청하는 주인공 머리 전체가 보이게)
+CAM_CUT06 = dict(lens=43.0, height=1.55, pos_local=(0.75, -2.75), target_local=(0.0, -0.16, 0.86),
+                 drift=(0.05, 0.0, -0.02), ease_in=0.5, ease_out=0.5)   # 거의 정적(아주 미세한 드리프트) (v2: 안내 자료 전체가 보이게)
 CAM_CUT07 = dict(lens_start=50.0, lens_end=28.0, height=1.47, over_shoulder=(1.30, 0.50), rise=2.2,
                  back=0.6, back_heading=340.0, ease_in=0.45, ease_out=0.20)   # 눈높이(시민 어깨 옆) → crane-up
 CAM_CUT08 = dict(lens=24.0, start=(-135.0, -8.0, 34.0), target=(-12.0, -24.0, 22.0),
@@ -155,9 +165,9 @@ LIGHTING = {
                              sky=("#F0DFC8", "#A7B9D0", 0.80)),
     "golden":           dict(cuts=(7,), sun_elev=12.0, sun_color="#FFC98F", sun_strength=2.2,
                              sky=("#F7C9A4", "#A3AFCB", 0.70)),
-    "dusk":             dict(cuts=(8,), sun_elev=3.0, sun_color="#FFB08A", sun_strength=1.1,
-                             sky=("#F2B89C", "#8C87B2", 0.50),
-                             end_sun_strength=0.55, end_sky=("#E6A792", "#6F6C9C", 0.34)),
+    "dusk":             dict(cuts=(8,), sun_elev=3.0, sun_color="#FFA878", sun_strength=1.2,
+                             sky=("#F5B38E", "#8C87B2", 0.50),
+                             end_sun_strength=0.6, end_sky=("#EDA27F", "#6F6C9C", 0.34)),   # v2: 조금 더 따뜻한 해질녘
 }
 
 # =============================================================================

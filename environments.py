@@ -14,7 +14,7 @@ from mathutils import Matrix, Vector
 
 import config
 import materials as M
-from utils import MeshBuilder, get_collection, heading_vec, rot2
+from utils import MeshBuilder, get_collection, heading_vec, rot2, smoothstep
 
 
 class Layout:
@@ -346,7 +346,7 @@ def build_yard_set(layout, parent):
     mb.box((0.06, 0.95, 2.0), center=(house_x0 - 0.02, 1.2, zu + 1.0), mat=0)
     for yy in (-1.8, 3.8):
         mb.box((0.06, 1.3, 1.0), center=(house_x0 - 0.02, yy, zu + 1.45), mat=1)
-    mb.to_object("C_집_문창", col, [M.get("wood_dark"), M.get("window_dark", roughness=0.3)])
+    mb.to_object("C_집_문창", col, [M.get("gate_jade", roughness=0.45), M.get("window_dark", roughness=0.3)])   # v2: 옥색 문
 
     # 평상 (나무판 6장 + 다리) — 나무판 결 = 평상 로컬 X 방향
     sx_, sy_ = config.PYEONGSANG_SIZE
@@ -416,7 +416,6 @@ def _net_mesh(p0, p1, drop, col, name="C_그물", cols=16, rows=10):
 
 def _build_yard_props(L, col):
     """찻잔 2개, 태블릿(분납/복지 두 영역), 평상 위 클리어파일."""
-    top = L.pl_top
     for name in ("cup_citizen", "cup_main"):
         mb = MeshBuilder()
         mb.cylinder(0.034, 0.042, 0.0, 0.075, segments=12, mat=0)
@@ -425,25 +424,57 @@ def _build_yard_props(L, col):
                           [M.get("cup", roughness=0.4), M.get("tea", roughness=0.2)])
         L.props[name] = ob
 
-    # 안내 자료 태블릿: 왼쪽 = 분납 안내(단계 막대 아이콘), 오른쪽 = 복지서비스 연계(하트 아이콘). 글자 없음.
+    # 안내 자료(큰 태블릿): 왼쪽 = ① 분납 안내, 오른쪽 = ② 복지서비스 연계. 글자 없이 색·모양으로 구분.
+    #   ① 차가운 파랑 + 네모난 아이콘: 달력(3칸 표시 = 달마다 나눠 냄) + 세 토막 막대, 위쪽 점 1개
+    #   ② 따뜻한 산호색 + 둥근 아이콘: 손잡은 사람 둘 + 하트 + 이어진 점 셋(기관 연결), 위쪽 점 2개
+    # 로컬 +Y = 두 사람 쪽(화면에서 위), 로컬 +X = 주인공 쪽(화면 오른쪽)
     mb = MeshBuilder()
-    tw, td = 0.36, 0.25
-    mb.box((tw, td, 0.012), center=(0, 0, 0.006), mat=0)
-    mb.box((tw - 0.02, td - 0.02, 0.002), center=(0, 0, 0.0125), mat=1)
-    mb.box((tw * 0.5 - 0.025, td - 0.045, 0.003), center=(-tw * 0.25 + 0.002, 0, 0.0145), mat=2)
-    mb.box((tw * 0.5 - 0.025, td - 0.045, 0.003), center=(tw * 0.25 - 0.002, 0, 0.0145), mat=3)
-    for k in range(3):   # 분납: 점점 높아지는 막대 3개 (나눠서 내기)
-        hh = 0.035 + k * 0.026
-        mb.box((0.026, hh, 0.004), center=(-tw * 0.25 - 0.042 + k * 0.042, -0.04 + hh * 0.5, 0.0165), mat=4)
-    for sx in (-1, 1):   # 복지: 하트
-        mb.cylinder(0.026, 0.026, 0.015, 0.019, center_xy=(tw * 0.25 + sx * 0.022, 0.014), segments=12, mat=4)
-    mb.box((0.05, 0.05, 0.004), center=(tw * 0.25, -0.007, 0.017), rot_z=math.radians(45), mat=4)
+    tw, td = config.TABLET_SIZE
+    mb.box((tw, td, 0.014), center=(0, 0, 0.007), mat=0)
+    mb.box((tw - 0.024, td - 0.024, 0.002), center=(0, 0, 0.0145), mat=1)
+    pw, ph = tw * 0.5 - 0.03, td - 0.05
+    for sx, pm in ((-1, 2), (1, 3)):
+        mb.box((pw, ph, 0.003), center=(sx * tw * 0.25, 0, 0.0165), mat=pm)
+    z1, z2 = 0.0195, 0.0225                    # 아이콘 판 높이 (겹침 방지용 층)
+    cxl, cxr = -tw * 0.25, tw * 0.25
+    # ① 분납: 달력
+    mb.box((0.14, 0.13, 0.003), center=(cxl, 0.02, z1), mat=4)
+    mb.box((0.14, 0.03, 0.003), center=(cxl, 0.07, z2), mat=5)
+    for rx in (-0.038, 0.038):
+        mb.box((0.012, 0.026, 0.004), center=(cxl + rx, 0.088, z2 + 0.001), mat=5)
+    for col_ in range(3):
+        for row in range(2):
+            hot = row == 0
+            mb.box((0.03, 0.026, 0.003), center=(cxl - 0.042 + col_ * 0.042, 0.022 - row * 0.036, z2), mat=5 if hot else 6)
+    for k in range(3):                         # 세 토막 막대 (나눠 내기)
+        mb.box((0.046, 0.024, 0.003), center=(cxl - 0.052 + k * 0.052, -0.085, z1), mat=5)
+    mb.cylinder(0.011, 0.011, z1 - 0.0015, z1 + 0.0015, center_xy=(cxl - pw * 0.5 + 0.025, ph * 0.5 - 0.022),
+                segments=10, mat=4)                # 위쪽 점 1개 (①)
+    # ② 복지 연계: 사람 둘(머리+몸) + 맞잡은 손 + 하트 + 연결된 점 셋
+    for sx in (-1, 1):
+        x = cxr + sx * 0.052
+        mb.cylinder(0.021, 0.021, z1 - 0.0015, z1 + 0.0015, center_xy=(x, 0.052), segments=14, mat=4)
+        mb.cylinder(0.034, 0.034, z1 - 0.0015, z1 + 0.0015, center_xy=(x, -0.004), segments=14, mat=4)
+        mb.box((0.068, 0.034, 0.003), center=(x, -0.021, z1), mat=4)
+    mb.box((0.05, 0.012, 0.003), center=(cxr, -0.004, z2), mat=4)
+    for sx in (-1, 1):                         # 하트 (원 두 개 + 45° 네모)
+        mb.cylinder(0.013, 0.013, z2 - 0.0015, z2 + 0.0015, center_xy=(cxr + sx * 0.0095, 0.066), segments=12, mat=7)
+    mb.box((0.024, 0.024, 0.003), center=(cxr, 0.057, z2), rot_z=math.radians(45), mat=7)
+    for k in (-1, 0, 1):
+        mb.cylinder(0.012, 0.012, z1 - 0.0015, z1 + 0.0015, center_xy=(cxr + k * 0.055, -0.085), segments=12, mat=4)
+    mb.box((0.11, 0.006, 0.003), center=(cxr, -0.085, z1 - 0.0005), mat=4)
+    for k in (0, 1):                           # 위쪽 점 2개 (②)
+        mb.cylinder(0.011, 0.011, z1 - 0.0015, z1 + 0.0015,
+                    center_xy=(cxr - pw * 0.5 + 0.025 + k * 0.03, ph * 0.5 - 0.022), segments=10, mat=4)
     tab = mb.to_object("C_안내태블릿", col, [M.get("tablet_body", roughness=0.4), M.get("screen_base", emission=0.25),
                                                M.get("panel_installment", emission=0.35),
-                                               M.get("panel_welfare", emission=0.35), M.get("icon_white", emission=0.5)])
+                                               M.get("panel_welfare", emission=0.35), M.get("icon_white", emission=0.5),
+                                               M.get("icon_navy", emission=0.3), M.get("icon_cell", emission=0.4),
+                                               M.get("icon_heart", emission=0.45)])
     L.props["tablet"] = tab
-    mb = MeshBuilder()   # 받침대 (태블릿 뒤쪽을 들어 올림)
-    mb.box((0.30, 0.03, 0.10), center=(0, 0.0, 0.05), mat=0)
+    mb = MeshBuilder()   # 받침대 (태블릿 뒤쪽 = 두 사람 쪽 가장자리를 들어 올림)
+    stand_h = td * math.sin(math.radians(config.TABLET_TILT)) - 0.012
+    mb.box((tw * 0.8, 0.03, stand_h), center=(0, 0.0, stand_h * 0.5), mat=0)
     L.props["tablet_stand"] = mb.to_object("C_태블릿받침", col, [M.get("tablet_body")])
 
     mb = MeshBuilder()
@@ -490,13 +521,22 @@ def build_village_set(layout, parent):
     mb = MeshBuilder()
     y0, y1 = -54.0, 84.0
 
+    def ridge(x, y):
+        """v2: 윗동네 테라스를 가운데가 솟은 언덕 모양으로 (CUT8 마을 실루엣이 평평한 탁자처럼 보이지 않게)."""
+        return config.HILL_RIDGE_HEIGHT * math.exp(-((y - 14.0) / 42.0) ** 2) * smoothstep((x - 18.0) / 30.0)
+
     def segmented(a, b, zz, zbase, mat):
         """테라스를 길이 방향으로 잘라 높이를 조금씩 달리함 (일직선 옹벽 느낌 줄이기)."""
         yy = y0
         while yy < y1:
             ln = rng.uniform(14.0, 30.0)
             dz = rng.uniform(-0.35, 0.35)
-            mb.prism([(a, yy), (b, yy), (b, min(y1, yy + ln)), (a, min(y1, yy + ln))], zbase, zz + dz, mat=mat)
+            ye = min(y1, yy + ln)
+            ys = yy
+            while ys < ye - 1e-6:                   # 언덕 높이를 따라가도록 8m 이하로 나눠 세움
+                yn = min(ye, ys + 8.0)
+                mb.prism([(a, ys), (b, ys), (b, yn), (a, yn)], zbase, zz + dz + ridge((a + b) * 0.5, (ys + yn) * 0.5), mat=mat)
+                ys = yn
             yy += ln
     for (a, b, zz) in terraces:
         segmented(a, b, zz, -2.0, 0)
@@ -504,7 +544,18 @@ def build_village_set(layout, parent):
     for (a, b, zz) in up_terraces:
         segmented(a, b, zz, zu - 1.0, 2)
     last = up_terraces[-1]
-    mb.prism([(last[1], y0), (last[1] + 60.0, y0), (last[1] + 60.0, y1), (last[1], y1)], zu, last[2] + 3.0, mat=3)
+    yy = y0
+    while yy < y1:                                  # 마을 뒤 언덕 (가운데가 솟은 능선)
+        yn = min(y1, yy + 8.0)
+        mb.prism([(last[1], yy), (last[1] + 60.0, yy), (last[1] + 60.0, yn), (last[1], yn)], zu,
+                 last[2] + 3.0 + ridge(last[1] + 6.0, (yy + yn) * 0.5), mat=3)
+        yy = yn
+    # v2: 대문·마당 북쪽으로 계단처럼 올라가는 윗동네 (CUT1 계단 너머로 겹겹이 쌓인 집, CUT8 실루엣 보강)
+    north_rows = []
+    for k, (ya_, yb_) in enumerate(((11.0, 18.0), (18.0, 25.0), (25.0, 32.0), (32.0, 46.0), (46.0, 84.0))):
+        zz = zu + 2.3 * (k + 1)
+        north_rows.append((ya_, yb_, zz))
+        mb.prism([(-0.6, ya_), (11.8, ya_), (11.8, yb_), (-0.6, yb_)], zu - 1.0, zz, mat=0)
     mb.to_object("D_지형_테라스", col, [M.get("retaining"), M.get("quay"), M.get("retaining"), M.get("hill_grass")])
 
     # --- 주택 배치 (세트 주변·등대 시야선은 비워 둠) ---
@@ -524,6 +575,8 @@ def build_village_set(layout, parent):
     roofs = MeshBuilder()
     wins = MeshBuilder()
     trees = MeshBuilder()
+    tanks = MeshBuilder()
+    rng3 = random.Random(config.RANDOM_SEED + 2)     # v2 추가 요소용 (기존 배치 난수 순서는 그대로)
     lit_candidates = []
     all_rows = [(a, b, zz, "down") for (a, b, zz) in terraces] + [(a, b, zz, "up") for (a, b, zz) in up_terraces]
     all_rows.append((L.terrace_edge[2].x + 0.6, -0.4, zu, "mid"))   # 윗단(대문 레벨)의 계단 남쪽 집들 — CUT1 오른쪽 위
@@ -541,6 +594,8 @@ def build_village_set(layout, parent):
             rot = math.radians(rng.uniform(-9.0, 9.0))
             skip = rng.random() < 0.10
             if not skip and not blocked(x, y, max(w, d) * 0.5):
+                zz0 = zz
+                zz = zz0 + (ridge(x, y) if kind == "up" else 0.0)
                 if kind != "mid" and rng.random() < 0.09:     # 나무 한 그루
                     trees.cylinder(0.12, 0.10, zz, zz + 1.6, center_xy=(x, y), segments=6, mat=0)
                     trees.sphere((1.5, 1.5, 1.3), center=(x, y, zz + 2.4), segments=8, rings=6, mat=1)
@@ -562,11 +617,44 @@ def build_village_set(layout, parent):
                             p = m_rot @ Vector((wx, wy, wz))
                             wins.box((0.05, 0.85, 0.8), center=p, rot_z=rot, mat=0)
                             lit_candidates.append((p, rot))
+                    if roof == "flat" and rng3.random() < 0.45:   # v2: 옥상 파란 물탱크
+                        tanks.cylinder(0.42, 0.42, zz + h + 0.18, zz + h + 1.0, center_xy=(x + w * 0.2, y - d * 0.15),
+                                       segments=10, mat=0)
+                zz = zz0
             y += d + rng.uniform(1.4, 3.6)
+    for (ya_, yb_, zz) in north_rows:               # v2: 윗동네 집 (서쪽 창 = CUT8, 남쪽 창 = CUT1)
+        yc = ya_
+        while yc + 6.5 <= yb_ + 1e-6:
+            x = -0.2 + rng3.uniform(0.0, 1.2)
+            while x + 3.4 < 11.6:                    # 윗동네 테라스(x -0.6 ~ 11.8) 안에서만
+                w, d = min(rng3.uniform(3.4, 5.0), 11.6 - x), rng3.uniform(3.4, 5.0)
+                h = 5.0 if rng3.random() < 0.15 else rng3.uniform(2.4, 3.2)
+                cx, cy = x + w * 0.5, yc + 3.5 + rng3.uniform(-0.6, 0.6)
+                rot = math.radians(rng3.uniform(-7.0, 7.0))
+                roof = "gable" if rng3.random() < 0.6 else "flat"
+                _house(walls, cx, cy, zz, w, d, h, rot=rot, roof="none", mat_wall=rng3.randrange(len(WALL_MATS)))
+                _roof_only(roofs, cx, cy, zz, w, d, h, roof, rng3.randrange(len(ROOF_MATS)), rot)
+                if roof == "flat" and rng3.random() < 0.5:
+                    tanks.cylinder(0.42, 0.42, zz + h + 0.18, zz + h + 1.0, center_xy=(cx - w * 0.2, cy), segments=10, mat=0)
+                m_rot = Matrix.Translation((cx, cy, 0)) @ Matrix.Rotation(rot, 4, 'Z') @ Matrix.Translation((-cx, -cy, 0))
+                wz = zz + (1.45 if h > 4.5 else h * 0.55)
+                p = m_rot @ Vector((cx - w * 0.5 - 0.03, cy, wz))
+                wins.box((0.05, 0.85, 0.8), center=p, rot_z=rot, mat=0)
+                lit_candidates.append((p, rot))
+                ps = m_rot @ Vector((cx, cy - d * 0.5 - 0.03, wz))
+                wins.box((0.85, 0.05, 0.8), center=ps, rot_z=rot, mat=0)
+                x += w + rng3.uniform(0.8, 2.2)
+            yc += 7.0
     walls.to_object("D_주택_벽", col, [M.get(n) for n in WALL_MATS])
     roofs.to_object("D_주택_지붕", col, [M.get(n) for n in ROOF_MATS])
     wins.to_object("D_창문_꺼짐", col, [M.get("window_dark", roughness=0.35)])
+    for k in range(9):                               # v2: 능선 위 나무
+        tx, ty = last[1] + rng3.uniform(2.0, 14.0), -30.0 + k * 11.0 + rng3.uniform(-3.0, 3.0)
+        tz = last[2] + 3.0 + ridge(last[1] + 6.0, ty)
+        trees.cylinder(0.15, 0.12, tz, tz + 2.0, center_xy=(tx, ty), segments=6, mat=0)
+        trees.sphere((2.0, 2.0, 1.7), center=(tx, ty, tz + 2.9), segments=8, rings=6, mat=1)
     trees.to_object("D_나무", col, [M.get("wood_dark"), M.get("leaf")])
+    tanks.to_object("D_옥상물탱크", col, [M.get("water_tank")])
 
     # --- 켜지는 창문 (Emission 판을 하나씩 보이게) ---
     rng2 = random.Random(config.RANDOM_SEED + 1)
@@ -579,7 +667,7 @@ def build_village_set(layout, parent):
     for i, (p, rot) in enumerate(pick[:config.WINDOW_LIGHTS_AT_END]):
         mb = MeshBuilder()
         mb.box((0.04, 0.82, 0.77), mat=0)
-        ob = mb.to_object("D_창문불_%02d" % (i + 1), lcol, [M.get("window_lit", emission=6.0)],
+        ob = mb.to_object("D_창문불_%02d" % (i + 1), lcol, [M.get("window_lit", emission=config.WINDOW_LIGHT_EMISSION)],
                           location=p + Vector((-0.02, 0, 0)))
         ob.rotation_euler = (0.0, 0.0, rot)
         L.window_lights.append(ob)
@@ -589,13 +677,12 @@ def build_village_set(layout, parent):
     mb.box_between(Vector((quay_x0 - 4, -24, 0.9)), Vector((quay_x0 - 50, 20, 0.9)), 6.0, 2.6, mat=0)
     mb.box_between(Vector((quay_x0 - 2, 40, 0.9)), Vector((quay_x0 - 40, 48, 0.9)), 5.0, 2.6, mat=0)
     mb.to_object("D_방파제", col, [M.get("quay")])
-    mb = MeshBuilder()
-    for (bx, by, rot) in [(-14, -6, 8), (-15, 3, -5), (-18, 12, 12), (-13, 20, 0), (-20, -14, -10)]:
-        bxw = quay_x0 + bx
-        m = Matrix.Translation((bxw, by, 0.35)) @ Matrix.Rotation(math.radians(rot + 90), 4, 'Z')
-        mb.box((7.5, 2.3, 1.2), mat=0, matrix=m)
-        mb.box((2.2, 1.8, 1.4), center=(0.8, 0, 1.2), mat=1, matrix=m)
-    mb.to_object("D_배", col, [M.get("boat_hull"), M.get("boat_blue")])
+    mb = MeshBuilder()   # v2: 선체 + 이물 + 조타실 + 돛대 모양의 어선
+    for k, (bx, by, rot) in enumerate([(-14, -6, 8), (-15, 3, -5), (-18, 12, 12), (-13, 20, 0), (-20, -14, -10),
+                                       (-12, 30, 4), (-17, -22, -6)]):
+        _boat(mb, quay_x0 + bx, by, 180.0 + rot, 7.5, hull=(0, 2, 3)[k % 3], cabin=1, mast=4)
+    mb.to_object("D_배", col, [M.get("boat_hull"), M.get("boat_hull"), M.get("boat_blue"), M.get("boat_red"),
+                              M.get("rail")])
     mb = MeshBuilder()
     for k, yy in enumerate((-36, -20, 30, 50)):
         _house(mb, quay_x0 + 3.2, yy, 1.5, 5.5, 11.0, 4.2, roof="flat", mat_wall=0, mat_roof=1)
@@ -624,6 +711,8 @@ def build_village_set(layout, parent):
     mb.box((3000.0, 3000.0, 0.1), center=(-400.0, 0.0, config.SEA_LEVEL_Z - 0.05), mat=0)
     L.props["sea"] = mb.to_object("D_바다", col, [M.sea_material()])
     L.quay_x = quay_x1
+    L.quay_x0 = quay_x0
+    L.terraces = terraces
     return col
 
 
@@ -641,3 +730,287 @@ def _roof_only(mb, x, y, zz, w, d, h, roof, rm, rot=0.0):
         mb.box((w * 0.9, d * 0.96, w * 0.14), center=(0, 0, zz + h + w * 0.07), mat=rm, matrix=m)
     else:
         mb.box((w + 0.3, d + 0.3, 0.18), center=(0, 0, zz + h + 0.09), mat=rm, matrix=m)
+
+
+# =============================================================================
+# E. 묵호·논골담길 로컬리티 (v2) — 단순 프록시만
+#   골목(CUT1·7): 벽화, 계단 화분, 전봇대·전선, 골목을 가로지르는 빨래, 벽 설비(계량기·실외기·방범창·파란 문)
+#   마당(CUT3~6): 부표, 그물 더미, 스티로폼 상자 텃밭, 빨간 고무대야, 오징어 덕장
+#   엔딩(CUT7·8): 등대 곶 옆 방파제 + 빨간 등대, 어선, 가로등(컷8에 켜짐)
+# =============================================================================
+def _frame(origin, ax_u, ax_n):
+    """벽면 로컬 좌표계: u = 벽을 따라, n = 벽에서 바깥(보는 쪽), z = 위."""
+    u = Vector((ax_u[0], ax_u[1], 0.0)).normalized()
+    n = Vector((ax_n[0], ax_n[1], 0.0)).normalized()
+    m = Matrix.Identity(4)
+    for i in range(3):
+        m[i][0], m[i][1], m[i][2], m[i][3] = u[i], n[i], (0.0, 0.0, 1.0)[i], origin[i]
+    return m
+
+
+def _wall_disc(mb, fr, u, z, r, layer, mat, segments=14):
+    """벽면(fr)에 붙는 원판. layer = 벽에서 띄우는 거리(겹침 방지)."""
+    m = fr @ Matrix.Translation((u, layer, z)) @ Matrix.Rotation(-math.pi / 2, 4, 'X')
+    mb.cylinder(r, r, -0.004, 0.004, segments=segments, mat=mat, matrix=m)
+
+
+def _wall_rect(mb, fr, u0, u1, z0, z1, layer, mat, rot=0.0):
+    mb.box((u1 - u0, 0.008, z1 - z0), center=((u0 + u1) * 0.5, layer, (z0 + z1) * 0.5), mat=mat,
+           matrix=fr @ Matrix.Translation(((u0 + u1) * 0.5, 0, (z0 + z1) * 0.5)) @ Matrix.Rotation(rot, 4, 'Y')
+           @ Matrix.Translation((-(u0 + u1) * 0.5, 0, -(z0 + z1) * 0.5)))
+
+
+MURAL_MATS = ["mural_sky", "mural_sea", "icon_white", "mural_sun", "mural_fish", "mural_dark", "lighthouse",
+              "mural_red", "mural_yellow", "mural_green", "roof_slate"]
+
+
+def _mural_sea(mb, fr, u0, u1, z0, z1):
+    """바다 벽화: 하늘 · 물결(반원 파도 + 물결선) · 해 · 큰 물고기 · 작은 등대 · 갈매기 (묵호 바다 풍경)."""
+    w, h = u1 - u0, z1 - z0
+    _wall_rect(mb, fr, u0, u1, z0, z1, 0.010, 0)                              # 하늘
+    _wall_rect(mb, fr, u0, u1, z0, z0 + h * 0.42, 0.020, 1)                   # 바다 (파도 원판 아래 절반을 가림)
+    k = 0
+    while u0 + 0.10 + k * 0.20 < u1 - 0.05:                                   # 파도 마루: 반원이 이어진 물결
+        _wall_disc(mb, fr, u0 + 0.10 + k * 0.20, z0 + h * 0.42, 0.10, 0.015, 2)
+        k += 1
+    for row, zz in enumerate((0.30, 0.17)):                                   # 바다 속 물결선
+        k = 0
+        while u0 + 0.12 + k * 0.42 + row * 0.2 < u1 - 0.3:
+            uu = u0 + 0.12 + k * 0.42 + row * 0.2
+            _wall_rect(mb, fr, uu, uu + 0.24, z0 + h * zz, z0 + h * zz + 0.035, 0.026, 2)
+            k += 1
+    _wall_disc(mb, fr, u1 - w * 0.18, z0 + h * 0.78, h * 0.12, 0.014, 3)       # 해
+    fu, fz = u0 + w * 0.52, z0 + h * 0.64                                     # 물고기
+    mb.sphere((w * 0.16, 0.012, h * 0.11), center=(fu, 0.026, fz), segments=14, rings=6, mat=4, matrix=fr)
+    _wall_rect(mb, fr, fu + w * 0.13, fu + w * 0.22, fz - h * 0.07, fz + h * 0.07, 0.024, 4, rot=math.radians(45))
+    _wall_disc(mb, fr, fu - w * 0.09, fz + h * 0.02, h * 0.022, 0.040, 5)
+    lu = u0 + w * 0.13                                                        # 등대
+    _wall_rect(mb, fr, lu - 0.09, lu + 0.09, z0 + h * 0.40, z0 + h * 0.80, 0.030, 6)
+    _wall_rect(mb, fr, lu - 0.11, lu + 0.11, z0 + h * 0.80, z0 + h * 0.90, 0.032, 7)
+    for gu, gz in ((0.30, 0.86), (0.36, 0.80)):                               # 갈매기
+        _wall_rect(mb, fr, u0 + w * gu - 0.07, u0 + w * gu, z0 + h * gz, z0 + h * gz + 0.025, 0.030, 5, rot=math.radians(25))
+        _wall_rect(mb, fr, u0 + w * gu, u0 + w * gu + 0.07, z0 + h * gz, z0 + h * gz + 0.025, 0.030, 5, rot=math.radians(-25))
+
+
+def _mural_houses(mb, fr, u0, u1, z0, z1):
+    """언덕 마을 벽화: 노란 바탕 + 계단처럼 올라가는 박공지붕 집들 + 파란 물결 띠 + 해."""
+    w, h = u1 - u0, z1 - z0
+    _wall_rect(mb, fr, u0, u1, z0, z1, 0.010, 8)
+    _wall_rect(mb, fr, u0, u1, z0, z0 + h * 0.16, 0.018, 1)
+    walls_ = [7, 9, 0, 4, 1, 7]
+    roofs_ = [10, 5, 7, 10, 5, 10]
+    n = 6
+    for k in range(n):
+        cu = u0 + w * (k + 0.5) / n
+        base = z0 + h * (0.20 + 0.085 * k)
+        hw = w / n * 0.36
+        top = base + h * 0.20
+        a = 1.1 * hw * math.sqrt(2.0)                                         # 45° 돌린 정사각형의 윗 절반 = 박공지붕
+        _wall_rect(mb, fr, cu - a * 0.5, cu + a * 0.5, top - a * 0.5, top + a * 0.5, 0.016, roofs_[k], rot=math.radians(45))
+        _wall_rect(mb, fr, cu - hw, cu + hw, base, top, 0.020, walls_[k])
+        _wall_rect(mb, fr, cu - hw * 0.62, cu - hw * 0.12, base + h * 0.09, base + h * 0.15, 0.026, 2)
+        _wall_rect(mb, fr, cu + hw * 0.18, cu + hw * 0.55, base, base + h * 0.11, 0.026, 5)
+    _wall_disc(mb, fr, u1 - w * 0.10, z1 - h * 0.16, h * 0.09, 0.020, 3)
+
+
+def _utility_pole(mb, x, y, z, h):
+    mb.cylinder(0.13, 0.10, z, z + h, center_xy=(x, y), segments=8, mat=0)
+    mb.box((1.3, 0.10, 0.10), center=(x, y, z + h - 0.35), mat=0)
+    mb.box((0.9, 0.10, 0.10), center=(x, y, z + h - 0.9), mat=0)
+    mb.cylinder(0.16, 0.16, z + h - 1.7, z + h - 1.2, center_xy=(x + 0.25, y), segments=8, mat=0)   # 변압기
+    return Vector((x, y, z + h - 0.3))
+
+
+def _wire(mb, p0, p1, sag, mat=1, segs=10, r=0.018):
+    pts = []
+    for i in range(segs + 1):
+        t = i / segs
+        p = p0.lerp(p1, t)
+        p.z -= sag * 4.0 * t * (1.0 - t)
+        pts.append(p)
+    for a, b in zip(pts, pts[1:]):
+        mb.box_between(a, b, r, r, mat=mat)
+
+
+def _laundry(col, pa, pb, items, name, cloths):
+    mb = MeshBuilder()
+    mb.box_between(pa, pb, 0.012, 0.012, mat=0)
+    mb.to_object(name + "_줄", col, [M.get("rail")])
+    for k, (t, w, h, cm) in enumerate(items):
+        p = pa.lerp(pb, t)
+        mb = MeshBuilder()
+        mb.box((0.012, w, h), center=(0, 0, -h * 0.5), mat=0)
+        ob = mb.to_object("%s_%d" % (name, k + 1), col, [M.get(cm)], location=p)
+        ob.rotation_euler = (0, 0, math.atan2(pb.y - pa.y, pb.x - pa.x) - math.pi * 0.5)
+        cloths.append(ob)
+
+
+def _float(mb, x, y, z, r, mat):
+    mb.sphere((r, r, r * 0.92), center=(x, y, z), segments=10, rings=7, mat=mat)
+
+
+def _styro_box(mb, x, y, z, rot=0.0):
+    """스티로폼 생선 상자에 심은 상추·파 (바닷마을 텃밭)."""
+    m = Matrix.Translation((x, y, 0)) @ Matrix.Rotation(rot, 4, 'Z')
+    mb.box((0.62, 0.42, 0.30), center=(0, 0, z + 0.15), mat=0, matrix=m)
+    for k in range(3):
+        mb.sphere((0.13, 0.11, 0.09), center=(-0.19 + k * 0.19, 0, z + 0.32), segments=8, rings=5, mat=1, matrix=m)
+
+
+def _boat(mb, x, y, heading, length, hull, cabin, mast):
+    """어선: 선체 + 뾰족한 이물 + 조타실 + 돛대·깃발."""
+    m = Matrix.Translation((x, y, 0.0)) @ Matrix.Rotation(math.radians(90.0 - heading), 4, 'Z')
+    L_, W_ = length, length * 0.30
+    mb.box((L_ * 0.8, W_, 0.9), center=(-L_ * 0.1, 0, 0.35), mat=hull, matrix=m)
+    mb.box((L_ * 0.28, W_ * 0.72, 0.9), center=(L_ * 0.38, 0, 0.42), rot_z=math.radians(45), mat=hull, matrix=m)
+    mb.box((L_ * 0.22, W_ * 0.72, 1.1), center=(-L_ * 0.24, 0, 1.3), mat=cabin, matrix=m)
+    mb.cylinder(0.07, 0.05, 0.8, 0.8 + L_ * 0.42, center_xy=(L_ * 0.05, 0), segments=6, mat=mast, matrix=m)
+    mb.box((0.6, 0.04, 0.35), center=(L_ * 0.05 - 0.3, 0, 0.8 + L_ * 0.40), mat=cabin, matrix=m)
+
+
+def build_locality_set(layout, parent):
+    col = get_collection("SET_E_묵호_로컬리티", parent)
+    L = layout
+    zl, zu = L.z_low, L.z_up
+    x_west = config.LOWER_STREET_WEST_X
+    br, tr = L.terrace_edge[2], L.terrace_edge[1]
+    cloths = L.props.setdefault("laundry", [])
+
+    # --- A. 골목 벽화 (CUT1 오른쪽 벽) ---
+    mb = MeshBuilder()
+    face = Vector((br.x - 0.035, 0.0, 0.0))                     # 아랫골목 동쪽 벽(서쪽을 봄)
+    fr = _frame(face, (0.0, -1.0), (-1.0, 0.0))                # u = 남쪽(-Y)으로, n = 서쪽(-X)
+    y_end = br.y - 0.55                                          # CUT1 화면에 보이는 벽 구간: y ≈ -12.7 ~ -9.5
+    _mural_sea(mb, fr, -y_end, -y_end + 2.9, zl + 0.45, zl + 2.30)
+    # 윗단 남쪽 담벼락 벽화 (CUT7 에서 계단 왼쪽, CUT2 배경) — 북쪽을 보는 벽
+    wall_y = -9.05
+    mb2 = MeshBuilder()
+    mb2.box((4.4, 0.22, 2.25), center=(-2.25, wall_y - 0.11, zu + 1.125), mat=0)
+    mb2.to_object("E_윗단_담벼락", col, [M.get("wall_white")])
+    fr2 = _frame(Vector((0.0, wall_y, 0.0)), (1.0, 0.0), (0.0, 1.0))
+    _mural_houses(mb, fr2, -4.35, -2.15, zu + 0.35, zu + 2.05)
+    mb.to_object("E_벽화", col, [M.get(n) for n in MURAL_MATS])
+
+    # --- 벽 설비: 방범창 창문·파란 문·가스계량기·배관·에어컨 실외기 (CUT1 오른쪽 벽) ---
+    mb = MeshBuilder()
+    fx = br.x - 0.03
+    mb.box((0.18, 0.26, 0.34), center=(fx - 0.09, y_end + 0.3, zl + 1.15), mat=3)             # 가스계량기
+    mb.cylinder(0.025, 0.025, zl + 0.2, zl + 2.85, center_xy=(fx - 0.06, y_end + 0.12), segments=6, mat=3)
+    mb.box((0.30, 0.75, 0.52), center=(fx - 0.15, y_end - 1.2, zl + 2.62), mat=3)             # 에어컨 실외기
+    m = Matrix.Translation((fx - 0.31, y_end - 1.2, zl + 2.62)) @ Matrix.Rotation(math.pi / 2, 4, 'Y')
+    mb.cylinder(0.19, 0.19, -0.005, 0.005, segments=14, mat=1, matrix=m)
+    mb.box((0.72, 0.07, 1.95), center=(-1.59, wall_y + 0.035, zu + 0.975), mat=2)                 # 윗단 담벼락 파란 문
+    mb.box((0.8, 0.06, 0.55), center=(-0.55, wall_y + 0.03, zu + 1.55), mat=0)                   # 방범창 창
+    for k in range(4):
+        mb.box((0.025, 0.03, 0.55), center=(-0.85 + k * 0.2, wall_y + 0.075, zu + 1.55), mat=1)
+    mb.to_object("E_벽_설비", col, [M.get("window_dark", roughness=0.3), M.get("rail"), M.get("door_blue"),
+                                    M.get("meter_grey")])
+
+    # --- 화분: 계단 가장자리(벽 쪽)·계단 아래·담장 위, 스티로폼 텃밭 ---
+    mb = MeshBuilder()
+    for i, (r, fl) in zip((2, 5, 8, 11, 14), ((0.13, True), (0.11, False), (0.12, True), (0.10, True), (0.12, False))):
+        p = L.stair_point((i + 0.5) * L.st_run, -(L.st_w * 0.5 - 0.17))
+        _pot(mb, p.x, p.y, p.z, r=r, h=r * 1.9, flower=fl)
+    for (dx, dy, r, fl) in ((-0.5, -0.45, 0.17, True), (-0.9, -0.2, 0.13, False), (-0.35, -1.25, 0.15, True)):
+        _pot(mb, br.x + dx, br.y + dy, zl, r=r, h=r * 1.8, flower=fl)
+    for k in range(6):                                          # 벽화 벽 아래 화분 줄
+        _pot(mb, br.x - 0.3, y_end - 0.5 - k * 0.62, zl, r=0.11 + 0.03 * (k % 2), h=0.24, flower=k % 3 != 1)
+    for t in (0.25, 0.55, 0.8):                                 # 계단 옆 담장 위
+        p = br.lerp(tr, t)
+        _pot(mb, p.x + 0.12, p.y - 0.09, zu + 0.9, r=0.1, h=0.18, flower=True)
+    mb.to_object("E_골목화분", col, _pot_mats())
+    mb = MeshBuilder()
+    bl = L.terrace_edge[3]
+    _styro_box(mb, bl.x - 0.55, bl.y - 0.75, zl, rot=math.radians(35))
+    _styro_box(mb, x_west + 0.45, config.CAM_CUT01["start_xy"][1] + 9.0, zl, rot=math.radians(90))
+    _styro_box(mb, 1.5, -4.6, zu)
+    _styro_box(mb, 2.25, -4.6, zu, rot=math.radians(4))
+    _styro_box(mb, 0.75, 2.75, zu, rot=math.radians(90))
+    mb.to_object("E_스티로폼텃밭", col, [M.get("styrofoam"), M.get("leaf")])
+
+    # --- 전봇대와 전선 (골목 하늘을 가로지름) ---
+    mb = MeshBuilder()
+    pa = _utility_pole(mb, x_west + 0.3, br.y - 0.2, zl, 7.6)
+    pb = _utility_pole(mb, tr.x - 0.85, tr.y + 2.8, zu, 6.4)
+    pc = _utility_pole(mb, x_west + 0.3, 7.0, zl, 7.6)
+    for dz in (0.0, -0.55, -1.1):
+        _wire(mb, pa + Vector((0, 0, dz)), pb + Vector((0, 0, dz)), 0.45 + 0.05 * dz, mat=1)
+        _wire(mb, pa + Vector((0, 0, dz)), pc + Vector((0, 0, dz)), 0.9, mat=1)
+    _wire(mb, pa + Vector((0, 0, -1.4)), Vector((br.x - 0.1, br.y - 3.0, zl + 3.0)), 0.3, mat=1)
+    mb.to_object("E_전봇대_전선", col, [M.get("pole_grey"), M.get("wire")])
+
+    # --- 골목을 가로지르는 빨랫줄 (CUT1: 계단 왼쪽 너머) ---
+    _laundry(col, Vector((x_west + 0.3, 1.2, zl + 2.7)), Vector((L.terrace_edge[0].x - 0.05, 1.9, zl + 2.55)),
+             [(0.15, 0.45, 0.6, "cloth_2"), (0.33, 0.38, 0.5, "cloth_3"), (0.52, 0.5, 0.7, "cloth_1"),
+              (0.70, 0.36, 0.45, "mural_red"), (0.86, 0.42, 0.55, "cloth_2")], "E_골목빨래", cloths)
+
+    # --- B. 마당: 오징어 덕장, 부표, 그물 더미, 빨간 고무대야 ---
+    mb = MeshBuilder()
+    ya, yb = -3.95, -2.05
+    for yy in (ya, yb):
+        mb.cylinder(0.035, 0.035, zu, zu + 1.6, center_xy=(0.62, yy), segments=6, mat=0)
+    mb.box_between(Vector((0.62, ya, zu + 1.55)), Vector((0.62, yb, zu + 1.55)), 0.035, 0.035, mat=0)
+    n_sq = 6
+    for k in range(n_sq):                                       # 반쯤 말린 오징어 (몸통 + 지느러미 + 다리)
+        yy = ya + (k + 0.5) * (yb - ya) / n_sq
+        mb.box((0.012, 0.13, 0.26), center=(0.62, yy, zu + 1.36), mat=1)
+        mb.box((0.012, 0.09, 0.09), center=(0.62, yy, zu + 1.50), rot_z=0.0, mat=1,
+               matrix=Matrix.Translation((0.62, yy, zu + 1.50)) @ Matrix.Rotation(math.radians(45), 4, 'X')
+               @ Matrix.Translation((-0.62, -yy, -(zu + 1.50))))
+        for j in (-1, 0, 1):
+            mb.box((0.01, 0.014, 0.17), center=(0.62, yy + j * 0.035, zu + 1.14), mat=1)
+    mb.to_object("E_오징어덕장", col, [M.get("wood_dark"), M.get("squid")])
+    mb = MeshBuilder()
+    for k, (x, y, z, r) in enumerate([(5.66, 3.55, zu + 1.10, 0.11), (5.66, 3.55, zu + 0.88, 0.10),
+                                      (6.30, 4.70, zu + 1.30, 0.13), (1.55, 6.88, zu + 0.78, 0.15),
+                                      (1.95, 6.88, zu + 0.80, 0.14), (2.35, 6.88, zu + 0.78, 0.15),
+                                      (6.05, 5.00, zu + 0.14, 0.14), (6.35, 5.25, zu + 0.14, 0.15),
+                                      (6.20, 5.12, zu + 0.38, 0.13), (0.62, -2.18, zu + 1.30, 0.12)]):
+        _float(mb, x, y, z, r, k % 2)
+    for (x, y, sx, sy, sz) in ((2.55, 6.35, 0.55, 0.38, 0.28), (3.05, 6.45, 0.45, 0.32, 0.22), (2.85, 6.1, 0.4, 0.3, 0.2)):
+        mb.sphere((sx, sy, sz), center=(x, y, zu + sz * 0.6), segments=10, rings=6, mat=2)
+    for (x, y) in ((2.7, 6.0), (3.2, 6.25)):
+        _float(mb, x, y, zu + 0.32, 0.11, 0)
+    mb.cylinder(0.34, 0.37, zu, zu + 0.26, center_xy=(4.75, -4.3), segments=16, mat=3)
+    mb.cylinder(0.30, 0.30, zu + 0.2, zu + 0.24, center_xy=(4.75, -4.3), segments=16, mat=4)
+    mb.to_object("E_부표_그물더미_대야", col, [M.get("float_orange"), M.get("float_white"), M.get("net"),
+                                              M.get("basin_red"), M.get("sea_deep")])
+
+    # --- C. 항구: 방파제 끝 빨간·흰 등대, 등대 곶 옆 방파제(CUT7 끝 화면), 어선, 가로등 ---
+    qx = L.quay_x0
+    lx, ly = config.LIGHTHOUSE_XY
+    mb = MeshBuilder()
+    bw0, bw1 = Vector((lx - 13.0, ly + 18.0, 0.9)), Vector((lx - 30.0, ly + 31.0, 0.9))
+    mb.box_between(bw0, bw1, 4.5, 2.6, mat=0)
+    mb.to_object("E_곶방파제", col, [M.get("quay")])
+    mb = MeshBuilder()
+    for (x, y, red) in ((bw1.x, bw1.y, True), (qx - 50.0, 20.0, False), (qx - 40.0, 48.0, True)):
+        mb.cylinder(1.0, 0.8, 2.2, 8.2, center_xy=(x, y), segments=12, mat=0 if red else 1)
+        mb.cylinder(0.85, 0.85, 5.2, 5.9, center_xy=(x, y), segments=12, mat=1 if red else 0)
+        mb.cylinder(0.6, 0.6, 8.2, 9.2, center_xy=(x, y), segments=10, mat=2)
+        mb.cylinder(0.8, 0.1, 9.2, 9.9, center_xy=(x, y), segments=10, mat=0 if red else 1)
+    mb.to_object("E_방파제등대", col, [M.get("harbor_red"), M.get("lighthouse"), M.get("lantern")])
+    mb = MeshBuilder()
+    for k, (dx, dy, hd) in enumerate(((-14.0, 21.0, 215.0), (-19.0, 26.0, 230.0), (-10.0, 27.0, 200.0))):
+        _boat(mb, lx + dx, ly + dy, hd, 6.8, hull=(3, 0, 2)[k], cabin=1, mast=4)
+    mb.to_object("E_곶어선", col, [M.get("boat_hull"), M.get("boat_hull"), M.get("boat_blue"), M.get("boat_red"),
+                                  M.get("rail")])
+
+    # 가로등: 기둥은 늘 보이고, 따뜻한 전구는 CUT8 에 하나씩 켜짐 (animation.setup_cut_08)
+    spots = [(x_west + 0.3, yy, zl) for yy in (-38.0, -26.0, 16.0, 28.0)]
+    spots += [(qx + 1.2, yy, 1.5) for yy in (-30.0, -14.0, 2.0, 18.0, 34.0)]
+    for (x0, x1, zz) in L.terraces[:3]:
+        spots += [(x1 - 0.5, yy, zz) for yy in (-22.0, 8.0)]
+    mb = MeshBuilder()
+    lcol = get_collection("E_가로등_전구", col)
+    L.street_lamps = []
+    for i, (x, y, z) in enumerate(spots):
+        mb.cylinder(0.07, 0.06, z, z + 4.2, center_xy=(x, y), segments=6, mat=0)
+        mb.box((0.5, 0.08, 0.08), center=(x + 0.2, y, z + 4.2), mat=0)
+        b = MeshBuilder()
+        b.sphere((0.28, 0.28, 0.24), segments=10, rings=6, mat=0)
+        L.street_lamps.append(b.to_object("E_가로등불_%02d" % (i + 1), lcol,
+                                          [M.get("lamp_warm", emission=config.STREET_LAMP_EMISSION)],
+                                          location=(x + 0.42, y, z + 4.05)))
+    mb.to_object("E_가로등_기둥", col, [M.get("pole_grey")])
+    return col
