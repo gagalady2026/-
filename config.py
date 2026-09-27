@@ -184,7 +184,7 @@ REVIEW_OVERVIEW = dict(target=(-4.0, -8.0, 18.5), heading=215.0, elevation=55.0,
 PREVIEW_ENGINE = "EEVEE"        # "EEVEE"(시간대 조명 보임) | "WORKBENCH"(가장 빠름) | "CYCLES"
 EEVEE_SAMPLES = 8
 BURN_IN = True                  # 프레임·컷(마커)·카메라·렌즈 번인
-BURN_IN_NOTE = "DONGHAE PREVIS v1 - not for final"
+BURN_IN_NOTE = "DONGHAE PREVIS v2 - not for final"
 
 # 컷별 '이미지용 한 순간' (설계안의 GPT 이미지용 구도 추출 프레임, 컷 길이 대비 비율)
 STILL_MOMENTS = {1: 0.55, 2: 0.60, 3: 0.24, 4: 0.30, 5: 0.20, 6: 0.25, 7: 0.14, 8: 0.62}

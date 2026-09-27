@@ -171,8 +171,8 @@ blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blen
 
 - 기본 번인(좌상단 메모, 하단에 마커·타임코드·프레임·카메라·렌즈)이 들어갑니다. `--no-burnin` 으로 끔.
 - Blender 화면에서는 `Render > Render Animation`(Ctrl+F12) 또는 `render_preview.py` 를 Run Script 하면 같은 설정으로 렌더합니다.
-- 참고 속도(GPU 없는 4코어 클라우드, 소프트웨어 GL): Workbench 1280×720 전체 30초 8~20분(0.7~1.6초/프레임),
-  Eevee 스틸 8장 약 30초~1분. GPU가 있는 PC에서는 Eevee 전체 렌더도 몇 분 안에 끝납니다.
+- 참고 속도(GPU 없는 4코어 클라우드, 소프트웨어 GL): Eevee 1280×720 전체 30초 약 36분(≈3초/프레임),
+  Workbench 전체 8~20분, Eevee 스틸 8장 약 30초. GPU가 있는 PC에서는 Eevee 전체 렌더도 몇 분 안에 끝납니다.
 - 렌더한 MP4의 컷 전환 검수: `python check_cuts.py renders/donghae_previs_30s.mp4`
   (프레임 간 변화가 가장 큰 7곳이 컷 시작 프레임과 일치하는지 확인. ffmpeg·numpy 필요.
   나중에 Seedance/Kling 컷을 이어 붙인 편집본에도 같은 방법으로 쓸 수 있습니다.)
@@ -219,7 +219,7 @@ blender -b donghae_previs_30s.blend -P render_preview.py   # 저장해 둔 .blen
 | CUT6 분납 → 복지 연계 구분 | 통과 | 자료 전체가 화면 안(가로 약 24%, 아래 여백 5%), 손끝이 ① 영역(F433) → ② 영역(F468)을 각각 짚음, 사이에 시민 얼굴 확인, 시민 따라 보기·끄덕임·자세 풀림 |
 | CUT7 배웅 흐름 | 통과 | 목례 → 손 들어 화답 → 돌아서기 → 계단 내려가기, 크레인 경로가 세트 안을 지나가지 않음 |
 | CUT8 뒤로 빠지며 엔딩 구도 안착 | 통과 | 마지막 1.5초 감속 정지, 마지막 프레임 하늘 약 34%(상단 1/3 자막 여백) |
-| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s_workbench.mp4` (Blender 4.0.2 로 `.blend` 를 열어 렌더. 스틸 8장·스토리보드는 4.0.2 Eevee) |
+| 프리뷰 MP4 출력 | 통과 | `preview/donghae_previs_30s.mp4` — v2 `.blend` 를 Blender 4.0.2 Eevee 로 렌더, 720프레임·30.000초, `check_cuts.py` 여유 34.5 / 10.2 (스틸·스토리보드도 4.0.2 Eevee) |
 
 ## 파일 구조
 
