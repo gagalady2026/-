@@ -1,0 +1,78 @@
+{
+ "note": "3/4 busts cut from the expression sheet (img_01). Coordinates in sheet pixels of the keyed crops; layer PNGs are 3x.",
+ "scale": 3,
+ "inset": [
+  3,
+  3
+ ],
+ "align_body": [
+  11,
+  1
+ ],
+ "align_head": [
+  -3,
+  5
+ ],
+ "listening": {
+  "cell": [
+   615,
+   371,
+   984,
+   686
+  ],
+  "eyes": [
+   {
+    "x": 118.6,
+    "y": 134.4,
+    "w": 8,
+    "h": 19
+   },
+   {
+    "x": 162.9,
+    "y": 131.0,
+    "w": 9,
+    "h": 19
+   }
+  ],
+  "skin": [
+   248,
+   218,
+   184
+  ],
+  "pivot": [
+   165,
+   197
+  ]
+ },
+ "smile": {
+  "cell": [
+   615,
+   693,
+   984,
+   1008
+  ],
+  "eyes": [
+   {
+    "x": 119.0,
+    "y": 127.3,
+    "w": 9,
+    "h": 19
+   },
+   {
+    "x": 164.0,
+    "y": 127.1,
+    "w": 9,
+    "h": 19
+   }
+  ],
+  "skin": [
+   252,
+   217,
+   187
+  ],
+  "pivot": [
+   154,
+   196
+  ]
+ }
+}

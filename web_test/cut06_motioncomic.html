@@ -1,0 +1,354 @@
+<title>CUT 6 모션코믹 시험</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<style>
+/* Layout: one column — 16:9 stage on top, transport bar under it, then the beats of the shot in order */
+:root {
+  --bg: #F3EFE6;
+  --surface: #FFFFFF;
+  --fg: #2A2421;
+  --muted: #6B625B;
+  --line: #DDD5C8;
+  --jade: #23927F;
+  --installment: #3B87B8;
+  --welfare: #D9704B;
+  --stage: #E9E2D3;
+  --font-display: "Gowun Dodum", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+    --jade: #4CC3AF; --installment: #6CB2DE; --welfare: #F09673; --stage: #2A2622; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+  --jade: #4CC3AF; --installment: #6CB2DE; --welfare: #F09673; --stage: #2A2622; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.6; }
+.wrap {
+  max-width: 1120px; margin: 0 auto; display: grid; gap: 20px;
+  padding-block: 28px 44px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { margin: 0; font-size: 0.8rem; letter-spacing: 0.06em; color: var(--muted); }
+h1 { margin: 4px 0 6px; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.25; text-wrap: balance; }
+h1 .cut { color: var(--jade); }
+.lead { margin: 0; max-width: 68ch; color: var(--muted); }
+.stage { position: relative; margin: 0; aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 12px; overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg); font-size: 0.95rem; background: var(--stage); text-align: center; padding: 16px; }
+.stage .status[hidden] { display: none; }
+.transport { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.transport button {
+  font: 500 0.92rem var(--font-body); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px; cursor: pointer;
+}
+.transport button.primary { background: var(--jade); border-color: var(--jade); color: #FFFFFF; min-width: 92px; }
+.transport button:focus-visible, .transport input:focus-visible { outline: 3px solid var(--installment); outline-offset: 2px; }
+.scrub { flex: 1 1 260px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.scrub input { flex: 1; min-width: 0; accent-color: var(--jade); }
+.timecode { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.88rem; color: var(--muted); white-space: nowrap; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--muted); cursor: pointer; }
+.beats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.beat { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); min-width: 0; }
+.beat .no { grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 500 0.8rem var(--font-mono); border: 1px solid var(--line); color: var(--muted); }
+.beat .what { font-weight: 500; font-size: 0.93rem; line-height: 1.45; }
+.beat .when { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--muted); }
+.beat.is-now { border-color: var(--jade); }
+.beat.is-now .no { background: var(--jade); border-color: var(--jade); color: #FFFFFF; }
+.split { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 0; padding: 0; list-style: none; }
+.split li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 0.9rem; }
+.split b { display: block; font-weight: 700; margin-bottom: 2px; }
+.note { margin: 0; font-size: 0.85rem; color: var(--muted); max-width: 72ch; }
+/* 1920×1080 render mode used to export the MP4 (canvas only) */
+body.capture { margin: 0; background: #000000; }
+body.capture .wrap { display: block; max-width: none; padding: 0; }
+body.capture .wrap > :not(.stage) { display: none; }
+body.capture .stage { width: 1920px; height: 1080px; aspect-ratio: auto; border-radius: 0; }
+body.capture .stage .status { display: none; }
+@media (prefers-reduced-motion: reduce) { .transport button { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">동해시 지방세입 체납관리단 · 30초 홍보영상 「똑똑, 괜찮으세요?」 · 2번 시험: 그림 + 코드 움직임(모션코믹)</p>
+    <h1><span class="cut">CUT 6</span> 리액션 클로즈업 · 모션코믹</h1>
+    <p class="lead">주인공은 보내주신 표정 시트의 3/4 얼굴 그림(‘귀 기울임’, ‘미소’ 두 장)을 그대로 잘라 얼굴·몸 레이어로 나눈 것이고, 움직임은 모두 코드입니다. 카메라 접근과 깊이감, 숨쉬기, 고개 기울임·끄덕임, 눈 깜빡임, 깜빡이는 순간의 표정 교체, 자막 칩이 코드로 붙어 있어요.</p>
+  </header>
+
+  <figure class="stage" id="stage">
+    <canvas id="view" width="1920" height="1080" aria-label="CUT 6 모션코믹: 관리단원이 어르신 쪽을 보며 귀 기울이다가 미소 지으며 고개를 끄덕이는 클로즈업, 화면 왼쪽에 분납 안내와 복지서비스 연계 자막 칩"></canvas>
+    <div class="status" id="status">그림을 불러오는 중…</div>
+  </figure>
+
+  <div class="transport">
+    <button type="button" class="primary" id="play">일시정지</button>
+    <button type="button" id="restart">처음부터</button>
+    <label class="scrub" for="frame"><span class="timecode" id="tc">0.00초 · 0/95</span><input type="range" id="frame" min="0" max="95" step="1" value="0" aria-label="프레임 위치"></label>
+    <label class="toggle" for="labels"><input type="checkbox" id="labels" checked> 자막 칩</label>
+  </div>
+
+  <ol class="beats" id="beats">
+    <li class="beat" data-a="0" data-b="0.30"><span class="no">1</span><span class="what">어르신 쪽을 보며 귀 기울이는 얼굴, 카메라가 천천히 다가감</span><span class="when">0.0–1.2초</span></li>
+    <li class="beat" data-a="0.30" data-b="0.52"><span class="no">2</span><span class="what">자막 칩 ① 분납 안내, ② 복지서비스 연계가 차례로 들어옴</span><span class="when">0.3–2.1초</span></li>
+    <li class="beat" data-a="0.52" data-b="0.60"><span class="no">3</span><span class="what">눈을 감는 순간 ‘귀 기울임’ 그림에서 ‘미소’ 그림으로 교체</span><span class="when">2.1–2.4초</span></li>
+    <li class="beat" data-a="0.60" data-b="0.84"><span class="no">4</span><span class="what">미소 지으며 두 번 고개 끄덕임</span><span class="when">2.4–3.3초</span></li>
+    <li class="beat" data-a="0.84" data-b="1.01"><span class="no">5</span><span class="what">미소 유지, 빛이 살짝 번짐</span><span class="when">3.3–4.0초</span></li>
+  </ol>
+
+  <ul class="split">
+    <li><b>그림(시트에서 가져온 것)</b>주인공 얼굴·머리·옷 그림 두 장. 다시 그린 곳은 없고, 배경을 지우고 얼굴과 몸을 잘라 나눴습니다.</li>
+    <li><b>코드(움직임)</b>카메라 접근·패럴랙스, 흐림으로 만든 깊이감, 숨쉬기, 고개 기울임·끄덕임, 눈꺼풀 깜빡임, 표정 교체, 자막 칩과 빛.</li>
+    <li><b>임시로 채운 것</b>배경 판과 앞쪽 태블릿은 1번(코드 2D)의 그림을 흐리게 깔았습니다. 실제로는 GPT로 뽑은 마당 배경과 태블릿 그림이 들어갑니다.</li>
+  </ul>
+
+  <p class="note">Canvas 2D · 24fps 4초(96프레임). 시트의 얼굴 그림은 한 칸이 가로 370px 정도라 1080p 클로즈업에 맞추려고 약 3배 키웠고, 그래서 선이 조금 흐립니다. 처음부터 크게 뽑은 GPT 그림(인물만 따로, 배경 따로)을 쓰면 선명해집니다.</p>
+</main>
+
+<script>
+(function () {
+'use strict';
+const CAPTURE = new URLSearchParams(location.search).has('capture');
+if (CAPTURE) document.body.classList.add('capture');
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FPS = 24, NF = 96, W = 1920, H = 1080;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smoother = (x) => { x = clamp(x); return x * x * x * (x * (6 * x - 15) + 10); };
+const win = (t, a, b) => (b <= a ? (t >= b ? 1 : 0) : smoother((t - a) / (b - a)));
+function bump(t, a, b, hold = 0) {
+  if (t <= a || t >= b) return 0;
+  const u = (t - a) / (b - a), h = clamp(hold, 0, 0.9), r = (1 - h) / 2;
+  if (u < r) return smoother(u / r);
+  if (u > 1 - r) return smoother((1 - u) / r);
+  return 1;
+}
+const easeOutBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const D2R = Math.PI / 180;
+
+// ---------------------------------------------------------------- assets: two drawings of the same pose, each split into head / body
+// (cut from the 3/4 column of the expression sheet; layers are 3× the sheet pixels, metadata in sheet pixels)
+const A = { bg: 'assets/mc_bg_plate.jpg', fg: 'assets/mc_fg_tablet.png', lh: 'assets/mc_listening_head.png', lb: 'assets/mc_listening_body.png',
+  sh: 'assets/mc_smile_head.png', sb: 'assets/mc_smile_body.png' };
+const META = {
+  listening: { eyes: [{ x: 118.6, y: 134.4, w: 8, h: 19 }, { x: 162.9, y: 131.0, w: 9, h: 19 }], skin: 'rgb(248,218,184)', pivot: [165, 197], off: [0, 0] },
+  smile: { eyes: [{ x: 119.0, y: 127.3, w: 9, h: 19 }, { x: 164.0, y: 127.1, w: 9, h: 19 }], skin: 'rgb(252,217,187)', pivot: [154, 196], off: [11, 1] },
+};
+const LAYER_W = 369, LAYER_H = 315;        // sheet pixels
+const S = 2.9;                             // sheet px → frame px
+const BX = 700, BY = 1090 - LAYER_H * S;   // bust placed bottom-right, looking left toward the citizen (off screen)
+
+const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const img = {};
+function load(key, src) {
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => { img[key] = im; res(); }; im.onerror = () => rej(new Error(src)); im.src = src; });
+}
+
+// ---------------------------------------------------------------- the shot, as pure functions of t ∈ [0,1]
+function stateAt(t) {
+  t = clamp(t);
+  const sec = t * (NF - 1) / FPS;
+  const st = { t, sec };
+  const ce = smoother(t);
+  st.cam = { s: 1 + 0.065 * ce, fx: 1150, fy: 560, dx: -26 * ce, dy: -6 * ce };
+  st.breath = Math.sin(2 * Math.PI * 0.32 * sec + 0.3);
+  // listening: head tilts a little toward the citizen; smile: two small nods
+  const nod = 0.95 * bump(t, 0.62, 0.72) + 0.7 * bump(t, 0.72, 0.82);
+  st.roll = -2.6 * win(t, 0.04, 0.30) + 1.2 * win(t, 0.55, 0.66) - 1.4 * nod;
+  st.headDy = 9 * nod;
+  // listening → smile: a hard swap while the eyes are shut, under a quick push-in on the face (a 'reaction zoom').
+  // The two drawings hold the head a little differently over the same body; the push makes that read as intended.
+  st.swap = t >= 0.553 ? 1 : 0;
+  const punch = win(t, 0.548, 0.585);
+  st.cam.s += 0.07 * punch; st.cam.fx += 30 * punch; st.cam.fy -= 30 * punch;
+  st.blink = Math.max(bump(t, 0.205, 0.245), bump(t, 0.522, 0.600, 0.55), bump(t, 0.865, 0.905));
+  st.chip = [easeOutBack(win(t, 0.07, 0.17)), easeOutBack(win(t, 0.28, 0.38))];
+  st.chipDim = 0.25 * win(t, 0.56, 0.64);
+  st.glow2 = bump(t, 0.56, 0.80, 0.3);
+  st.heart = easeOutBack(win(t, 0.585, 0.65));
+  st.sweep = win(t, 0.58, 0.80);
+  return st;
+}
+
+// camera with depth: k = how strongly a layer follows the push (background < character < foreground)
+function camXf(c, k) {
+  const s = 1 + (c.s - 1) * k;
+  return [s, 0, 0, s, c.fx + c.dx * k - c.fx * s, c.fy + c.dy * k - c.fy * s];
+}
+function drawBust(g, which, st) {
+  const m = META[which], ox = BX + m.off[0] * S, oy = BY + m.off[1] * S;
+  const head = img[which === 'listening' ? 'lh' : 'sh'], body = img[which === 'listening' ? 'lb' : 'sb'];
+  const px = ox + m.pivot[0] * S, py = oy + m.pivot[1] * S, bottom = oy + LAYER_H * S;
+  const br = 0.0065 * st.breath;                               // shoulders rise and fall from the bust's base
+  const lift = -(bottom - py) * br;
+  // head (drawn first: the collar of the body layer overlaps the neck)
+  g.save();
+  g.translate(px, py + lift + st.headDy); g.rotate(st.roll * D2R); g.translate(-px, -py);
+  g.drawImage(head, ox, oy, LAYER_W * S, LAYER_H * S);
+  // eyelids close from the top, then a soft closed-eye line
+  const c = st.blink;
+  if (c > 0.02) {
+    for (const e of m.eyes) {
+      const cx = ox + e.x * S, cy = oy + e.y * S, rx = (e.w / 2 + 2.6) * S, ry = (e.h / 2 + 2.4) * S;
+      g.save();
+      g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.clip();
+      g.fillStyle = m.skin; g.fillRect(cx - rx, cy - ry, rx * 2, ry * 2 * Math.min(1, c * 1.15));
+      g.restore();
+      if (c > 0.72) {
+        g.save();
+        g.globalAlpha = clamp((c - 0.72) / 0.2);
+        g.strokeStyle = '#2B2321'; g.lineWidth = 2.6 * S; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(cx - e.w * 0.8 * S, cy + 1.5 * S); g.quadraticCurveTo(cx, cy + 5.2 * S, cx + e.w * 0.8 * S, cy + 1.5 * S); g.stroke();
+        g.restore();
+      }
+    }
+  }
+  g.restore();
+  // body
+  g.save();
+  g.translate(0, bottom); g.scale(1, 1 + br); g.translate(0, -bottom);
+  g.drawImage(body, ox, oy, LAYER_W * S, LAYER_H * S);
+  g.restore();
+}
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function heartPath(g, x, y, s) {
+  g.beginPath();
+  g.moveTo(x, y + 9 * s);
+  g.bezierCurveTo(x - 15 * s, y - 2 * s, x - 13 * s, y - 15 * s, x - 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x - 1.5 * s, y - 15 * s, x, y - 12 * s, x, y - 11 * s);
+  g.bezierCurveTo(x, y - 12 * s, x + 1.5 * s, y - 15 * s, x + 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x + 13 * s, y - 15 * s, x + 15 * s, y - 2 * s, x, y + 9 * s);
+  g.closePath();
+}
+const CHIPS = [{ n: '1', text: '분납 안내', col: '#3B87B8', y: 150 }, { n: '2', text: '복지서비스 연계', col: '#D9704B', y: 248 }];
+let labelsOn = true;
+function drawChips(g, st) {
+  g.save();
+  g.font = '800 38px "Noto Sans KR", "WenQuanYi Zen Hei", sans-serif';
+  g.textBaseline = 'middle';
+  CHIPS.forEach((c, i) => {
+    const k = st.chip[i];
+    if (k <= 0.001) return;
+    const tw = g.measureText(c.text).width, w = tw + 128, h = 78, x = 96 - (1 - k) * 520, y = c.y;
+    g.globalAlpha = clamp(k * 1.4) * (i === 0 ? 1 - st.chipDim : 1);
+    if (i === 1 && st.glow2 > 0) { g.shadowColor = 'rgba(242,148,110,0.85)'; g.shadowBlur = 34 * st.glow2; }
+    else { g.shadowColor = 'rgba(40,28,20,0.18)'; g.shadowBlur = 18; g.shadowOffsetY = 6; }
+    g.fillStyle = 'rgba(255,255,255,0.94)'; roundRect(g, x, y, w, h, h / 2); g.fill();
+    g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0;
+    g.lineWidth = 4; g.strokeStyle = c.col; g.stroke();
+    g.fillStyle = c.col; g.beginPath(); g.arc(x + 42, y + h / 2, 25, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#FFFFFF'; g.font = '800 30px "Noto Sans KR", "WenQuanYi Zen Hei", sans-serif'; g.textAlign = 'center';
+    g.fillText(c.n, x + 42, y + h / 2 + 1);
+    g.fillStyle = '#2A2421'; g.font = '800 38px "Noto Sans KR", "WenQuanYi Zen Hei", sans-serif'; g.textAlign = 'left';
+    g.fillText(c.text, x + 82, y + h / 2 + 2);
+    if (i === 1 && st.heart > 0.001) {
+      const hs = 1.9 * st.heart;
+      g.fillStyle = '#E2604A'; heartPath(g, x + w + 40, y + h / 2, hs); g.fill();
+    }
+  });
+  g.restore();
+}
+// soft out-of-focus lights drifting in the background
+const BOKEH = Array.from({ length: 16 }, (_, i) => ({ x: (i * 397) % 1920, y: 120 + ((i * 211) % 640), r: 18 + ((i * 53) % 46), a: 0.10 + ((i * 7) % 5) * 0.035, v: 6 + (i % 4) * 4, ph: i * 0.9 }));
+function render(st) {
+  const g = ctx;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#E9E2D3'; g.fillRect(0, 0, W, H);
+  // background plate (already blurred) — moves least
+  g.setTransform(...camXf(st.cam, 0.35));
+  const pad = 40;
+  g.drawImage(img.bg, -pad, -pad, W + pad * 2, H + pad * 2);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = 'screen';
+  for (const b of BOKEH) {
+    const y = b.y - b.v * st.sec, x = b.x + 8 * Math.sin(st.sec * 0.8 + b.ph), a = b.a * (0.75 + 0.25 * Math.sin(st.sec * 1.6 + b.ph));
+    const gr = g.createRadialGradient(x, y, 0, x, y, b.r);
+    gr.addColorStop(0, `rgba(255,246,226,${a})`); gr.addColorStop(0.7, `rgba(255,246,226,${a * 0.6})`); gr.addColorStop(1, 'rgba(255,246,226,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, b.r, 0, Math.PI * 2); g.fill();
+  }
+  g.globalCompositeOperation = 'source-over';
+  // character
+  g.setTransform(...camXf(st.cam, 1.0));
+  drawBust(g, st.swap ? 'smile' : 'listening', st);
+  // out-of-focus tablet in the foreground — moves most
+  g.setTransform(...camXf(st.cam, 1.6));
+  g.drawImage(img.fg, -470, H - 600, img.fg.width * 2.05, img.fg.height * 2.05);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  // warm light from the upper right, and a soft sweep when the smile lands
+  g.globalCompositeOperation = 'screen';
+  const lg = g.createRadialGradient(1780, 60, 0, 1780, 60, 900);
+  lg.addColorStop(0, `rgba(255,214,160,${0.30 + 0.04 * Math.sin(st.sec * 1.3)})`); lg.addColorStop(1, 'rgba(255,214,160,0)');
+  g.fillStyle = lg; g.fillRect(0, 0, W, H);
+  if (st.sweep > 0 && st.sweep < 1) {
+    const sx = -400 + 2800 * st.sweep;
+    const sg = g.createLinearGradient(sx - 260, 0, sx + 260, 0);
+    sg.addColorStop(0, 'rgba(255,240,215,0)'); sg.addColorStop(0.5, `rgba(255,240,215,${0.16 * Math.sin(Math.PI * st.sweep)})`); sg.addColorStop(1, 'rgba(255,240,215,0)');
+    g.save(); g.translate(sx, H / 2); g.rotate(-0.35); g.translate(-sx, -H / 2); g.fillStyle = sg; g.fillRect(-600, -400, W + 1200, H + 800); g.restore();
+  }
+  g.globalCompositeOperation = 'source-over';
+  if (labelsOn) drawChips(g, st);
+  // vignette
+  const vg = g.createRadialGradient(W / 2, H * 0.52, H * 0.45, W / 2, H * 0.52, H * 1.05);
+  vg.addColorStop(0, 'rgba(40,28,18,0)'); vg.addColorStop(1, 'rgba(40,28,18,0.30)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- playback / UI
+const playBtn = document.getElementById('play'), restartBtn = document.getElementById('restart');
+const frameIn = document.getElementById('frame'), tcEl = document.getElementById('tc'), labelsIn = document.getElementById('labels');
+const beatEls = [...document.querySelectorAll('.beat')];
+let frame = 0, playing = !REDUCED && !CAPTURE, startMs = 0, ready = false;
+function renderFrame(f) {
+  frame = f;
+  const t = clamp(f / (NF - 1));
+  if (ready) render(stateAt(t));
+  frameIn.value = String(Math.round(f));
+  tcEl.textContent = `${(f / FPS).toFixed(2)}초 · ${Math.round(f)}/95`;
+  for (const b of beatEls) b.classList.toggle('is-now', t >= +b.dataset.a && t < +b.dataset.b);
+}
+function tick(now) {
+  if (playing) renderFrame(((now - startMs) / 1000 * FPS) % NF);
+  requestAnimationFrame(tick);
+}
+function setPlaying(p) {
+  playing = p; playBtn.textContent = p ? '일시정지' : '재생';
+  if (p) startMs = performance.now() - frame / FPS * 1000;
+}
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { frame = 0; setPlaying(true); });
+frameIn.addEventListener('input', () => { setPlaying(false); renderFrame(+frameIn.value); });
+labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!playing) renderFrame(frame); });
+
+(async () => {
+  try {
+    await Promise.all(Object.entries(A).map(([k, v]) => load(k, v)));
+  } catch (e) {
+    statusEl.textContent = '그림 파일(assets 폴더)을 불러오지 못했습니다. 페이지와 같은 위치에 assets 폴더가 있는지 확인해 주세요. 같은 장면의 MP4도 함께 드렸습니다.';
+    return;
+  }
+  try {
+    const CHIP_TEXT = '분납 안내 복지서비스 연계 12';
+    await Promise.race([Promise.all([document.fonts.load('800 38px "Noto Sans KR"', CHIP_TEXT), document.fonts.load('800 30px "Noto Sans KR"', '12')]),
+      new Promise((r) => setTimeout(r, CAPTURE ? 30000 : 4000))]);
+  } catch (e) { /* system Korean font */ }
+  document.fonts.addEventListener('loadingdone', () => { if (!playing) renderFrame(frame); });
+  ready = true;
+  renderFrame(REDUCED ? 66 : 0);
+  statusEl.hidden = true;
+  setPlaying(playing);
+  requestAnimationFrame(tick);
+  window.__renderAt = (f) => { renderFrame(f); return true; };
+  window.__ready = true;
+})();
+})();
+</script>

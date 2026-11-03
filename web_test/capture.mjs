@@ -1,4 +1,5 @@
 // usage: node capture.mjs <html> <outDir> <frames: "0,24,48" | "all">
+// works for <canvas id="view"> and <svg id="view"> pages that expose window.__renderAt(frame) and window.__ready
 import { chromium } from 'playwright-core';
 import fs from 'fs';
 import path from 'path';
@@ -20,10 +21,23 @@ await page.route(/cdn\.jsdelivr\.net\/npm\/three@0\.160\.0\/(.*)$/, async (route
 await page.goto('file://' + path.resolve(htmlPath) + '?capture');
 await page.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });
 const frames = which === 'all' ? [...Array(96).keys()] : which.split(',').map(Number);
+// <canvas id="view"> pages (three.js, 2D canvas) are read back with toDataURL; <svg id="view"> pages — and canvases that
+// draw local image files (a file:// page taints the canvas, so toDataURL is refused) — are screenshotted instead
+let isCanvas = await page.evaluate(() => {
+  const v = document.getElementById('view');
+  if (!(v instanceof HTMLCanvasElement)) return false;
+  try { window.__renderAt(0); v.toDataURL('image/png'); return true; } catch (e) { return false; }
+});
 const t0 = Date.now();
 for (const f of frames) {
-  const data = await page.evaluate((fr) => { window.__renderAt(fr); return document.getElementById('view').toDataURL('image/png'); }, f);
-  fs.writeFileSync(path.join(outDir, `f${String(f).padStart(4, '0')}.png`), Buffer.from(data.split(',')[1], 'base64'));
+  const out = path.join(outDir, `f${String(f).padStart(4, '0')}.png`);
+  if (isCanvas) {
+    const data = await page.evaluate((fr) => { window.__renderAt(fr); return document.getElementById('view').toDataURL('image/png'); }, f);
+    fs.writeFileSync(out, Buffer.from(data.split(',')[1], 'base64'));
+  } else {
+    await page.evaluate((fr) => window.__renderAt(fr), f);
+    await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1920, height: 1080 } });
+  }
 }
 console.log(`rendered ${frames.length} frames in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 await browser.close();
