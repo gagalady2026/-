@@ -105,7 +105,7 @@ body.capture .stage .status { display: none; }
       <li>핵심 장면인 ‘이야기를 듣다’와 ‘분납·복지 연계 안내’를 1초씩 늘렸습니다.</li>
       <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초로 나눴습니다.</li>
     </ul>
-    <p class="lead">보내주신 GPT 그림이 있는 컷은 그 그림을 코드로 움직였습니다. 아직 그림이 없는 컷은 프리비즈 구도를 임시로 깔고, 필요한 그림을 화면에 적어 두었습니다.</p>
+    <p class="lead">보내주신 GPT 그림이 있는 컷은 그 그림을 코드로 움직였습니다. 어르신 시트(턴어라운드·표정·자세)가 들어와 CUT 3–7을 실제 그림으로 바꿨고, 태블릿 안내는 다시 그린 ② 짚기 그림에 맞춰 ① 그림을 좌우로 뒤집어 짝을 맞췄습니다. 아직 그림이 없는 CUT 1과 CUT 8은 프리비즈 구도를 임시로 깔고, 필요한 그림을 화면에 적어 두었습니다.</p>
   </header>
 
   <figure class="stage" id="stage">
@@ -156,35 +156,39 @@ const easeOutBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; retu
 const D2R = Math.PI / 180;
 
 // ---------------------------------------------------------------- the 36-second cut list (the 8-cut script, stretched and framed)
-// kind: est = opening plate · ph = placeholder (previs composition, picture still to come) · talk / react / tablet = the user's GPT art · end = end card
+// Each cut is one or more shots. Shot kinds: est = opening plate · ph = placeholder (previs composition, picture still to come)
+// gate / react / offer / given / czTalk / listen / tablet / relief / bowHim / bowCz = the user's GPT art moved by code · end = end card
 const CUTS = [
-  { n: 0, sec: 3.0, kind: 'est', src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)' },
-  { n: 1, sec: 3.5, kind: 'ph', src: 'temp', still: 'CUT01', title: '바닷가 마을로 들어서다', act: '계단 골목을 오르고, 중간에 담장 너머 집을 봄',
-    need: '계단 골목 배경 + 계단을 오르는 주인공 뒷모습 2장' },
-  { n: 2, sec: 2.5, kind: 'gate', src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! 두 번 두드리는 소리, 끼익 문이 열림' },
-  { n: 3, sec: 4.5, kind: 'react', src: 'gpt', title: '문이 열린다', act: '살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 천천히 다가감(+0.5초)' },
-  { n: 4, sec: 3.0, kind: 'ph', src: 'temp', still: 'CUT04', title: '평상에 마주 앉다', act: '평상에 비스듬히 마주 앉음, 찻잔을 밀어 주고 두 손으로 받음',
-    need: '평상에 마주 앉은 두 사람 · 찻잔 건네기 / 받기 2장' },
-  { n: 5, sec: 5.0, kind: 'ph', src: 'temp', still: 'CUT05', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기, 주인공은 몸을 기울여 듣고 한 번 끄덕임(+1초)',
-    need: '이야기하는 어르신(입 2장) + 듣고 끄덕이는 주인공(2장)' },
-  { n: 6, sec: 5.0, kind: 'tablet', src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 미소(+1초)' },
-  { n: 7, sec: 3.5, kind: 'ph', src: 'temp', still: 'CUT07', title: '배웅', act: '목례 → 어르신이 손 들어 화답 → 계단을 내려감, 골목과 등대가 드러남(+0.5초)',
-    need: '노을 진 대문 앞 배경 + 목례 · 화답 · 내려가는 뒷모습' },
-  { n: 8, sec: 4.0, kind: 'ph', src: 'temp', still: 'CUT08', msg: true, title: '집집마다 불이 켜진다', act: '가로등이 먼저, 이어 창문 불빛이 하나씩 켜지는 메시지 컷(문구는 설계안 확인 뒤)',
-    need: '해질녘 마을 전경 2장(불 꺼짐 / 같은 구도로 불 켜짐)' },
-  { n: 9, sec: 2.0, kind: 'end', src: 'code', title: '엔드 카드', act: '「똑똑, 괜찮으세요?」와 동해시 지방세입 체납관리단' },
+  { n: 0, src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)', shots: [{ kind: 'est', sec: 3.0 }] },
+  { n: 1, src: 'temp', title: '바닷가 마을로 들어서다', act: '계단 골목을 오르고, 중간에 담장 너머 집을 봄',
+    need: '계단 골목 배경 + 계단을 오르는 주인공 뒷모습 2장', shots: [{ kind: 'ph', sec: 3.5, still: 'CUT01' }] },
+  { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! 두 번 두드리는 소리, 끼익 문이 열림', shots: [{ kind: 'gate', sec: 2.5 }] },
+  { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감(+0.5초)', shots: [{ kind: 'react', sec: 4.5 }] },
+  { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '어르신이 김 나는 종이컵 차를 건넴 → 주인공 손으로 넘어감', shots: [{ kind: 'offer', sec: 1.75 }, { kind: 'given', sec: 1.25 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기 → 주인공이 귀 기울이고 끄덕임(+1초)', shots: [{ kind: 'czTalk', sec: 2.75 }, { kind: 'listen', sec: 2.25 }] },
+  { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 어르신의 안도하는 미소(+1초)', shots: [{ kind: 'tablet', sec: 4.0 }, { kind: 'relief', sec: 1.0 }] },
+  { n: 7, src: 'gpt', title: '배웅', act: '노을빛 속 주인공 목례 → 어르신이 웃으며 화답(+0.5초). 계단을 내려가는 장면은 그림 대기', shots: [{ kind: 'bowHim', sec: 1.75 }, { kind: 'bowCz', sec: 1.75 }] },
+  { n: 8, src: 'temp', title: '집집마다 불이 켜진다', act: '가로등이 먼저, 이어 창문 불빛이 하나씩 켜지는 메시지 컷(문구는 설계안 확인 뒤)',
+    need: '해질녘 마을 전경 2장(불 꺼짐 / 같은 구도로 불 켜짐)', shots: [{ kind: 'ph', sec: 4.0, still: 'CUT08', msg: true }] },
+  { n: 9, src: 'code', title: '엔드 카드', act: '「똑똑, 괜찮으세요?」와 동해시 지방세입 체납관리단', shots: [{ kind: 'end', sec: 2.0 }] },
 ];
 let acc = 0;
-for (const c of CUTS) { c.nf = Math.round(c.sec * FPS); c.f0 = acc; acc += c.nf; }
+for (const c of CUTS) {
+  c.f0 = acc;
+  for (const s of c.shots) { s.nf = Math.round(s.sec * FPS); s.f0 = acc; acc += s.nf; }
+  c.nf = acc - c.f0; c.sec = c.nf / FPS;
+}
 const NF = acc;                                         // 864
 
 // ---------------------------------------------------------------- the user's GPT images (cleaned, see assets_v2) + placeholders
 const SRC = {
   far: 'assets_v3/v3_plate_far.jpg', gate: 'assets_v3/v3_plate_gate.jpg', bgGate: 'assets_v2/v2_bg_gate.jpg', bgWall: 'assets_v2/v2_bg_wall.jpg',
   neutral: 'assets_v2/v2_st_neutral.png', listen: 'assets_v2/v2_st_listen.png', smile: 'assets_v2/v2_st_smile.png', talkMouth: 'assets_v2/v2_st_talk_mouth.png',
-  p1: 'assets_v2/v2_sit_point1.png', p2: 'assets_v2/v2_sit_point2.png', p1c: 'assets_v2/v2_sit_point1_closed.png', p2c: 'assets_v2/v2_sit_point2_closed.png',
-  p1m: 'assets_v2/v2_sit_point1_panelmask.png', p2m: 'assets_v2/v2_sit_point2_panelmask.png',
-  CUT01: 'assets_v3/CUT01_F0047.jpg', CUT04: 'assets_v3/CUT04_F0262.jpg', CUT05: 'assets_v3/CUT05_F0332.jpg', CUT07: 'assets_v3/CUT07_F0515.jpg', CUT08: 'assets_v3/CUT08_F0666.jpg',
+  p1: 'assets_v4/v4_sit_p1.png', p2: 'assets_v4/v4_sit_p2.png', p1c: 'assets_v4/v4_sit_p1_closed.png', p2c: 'assets_v4/v4_sit_p2_closed.png',
+  p1m: 'assets_v4/v4_sit_p1_panelmask.png', p2m: 'assets_v4/v4_sit_p2_panelmask.png',
+  czSide: 'assets_v4/v4_cz_side_neutral.png', czSideTalk: 'assets_v4/v4_cz_side_talk.png', cz34: 'assets_v4/v4_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png',
+  czOffer: 'assets_v4/v4_cz_offer.png', czGiven: 'assets_v4/v4_cz_given.png', czFront: 'assets_v4/v4_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
+  CUT01: 'assets_v3/CUT01_F0047.jpg', CUT08: 'assets_v3/CUT08_F0666.jpg',
 };
 const STAND = {
   pivotX: 558, talkMouth: [511, 289],
@@ -193,12 +197,23 @@ const STAND = {
   smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)' },
 };
 const FRAME_A = { s: 1.2, ox: 48, oy: 18 };            // the v2 standing framing (shot A)
+const FRAME_B = { s: 1.8, ox: 173, oy: -22 };           // close on his face (CUT 5 listening): face near (1150, 430)
+// seated pair (assets_v4): the redrawn ② holds the tablet on the screen-left side, toward the citizen, so ① is mirrored to match.
+// Measured by tools/v4_prep.py: eyes [x, y, w, h], closed-mouth patch, tablet panels ① a / ② b (TL, TR, BR, BL), fingertip, panel-mask origin
 const SIT = {
-  s: 1.05, ox: 175, oy: 42, pivotX: 560, mask: [620, 480],
-  p1: { off: [0, 0], eyes: [[459.9, 342, 25, 45], [578.7, 319.6, 23, 44]], skin: 'rgb(253,216,193)', closed: [494, 395],
-    a: [[728, 520], [975, 517], [962, 661], [709, 662]], b: [[703, 691], [947, 690], [931, 825], [684, 820]], tip: [753, 589] },
-  p2: { off: [34, 0], eyes: [[430.7, 347.1, 24, 43], [546.3, 327.3, 22, 43]], skin: 'rgb(252,214,189)', closed: [465, 404],
-    a: [[721, 574], [952, 576], [935, 705], [701, 697]], b: [[691, 729], [929, 735], [913, 880], [667, 872]], tip: [751, 801] },
+  s: 1.05, ox: 526, oy: 42, pivotX: 561,
+  p1: { off: [0, 0], eyes: [[542.3, 319.6, 24, 44], [661.1, 341.9, 25, 45]], skin: 'rgb(253,215,192)', closed: [551, 395], mask: [122, 480],
+    a: [[146, 517], [393, 520], [412, 662], [159, 661]], b: [[174, 690], [418, 691], [437, 820], [190, 825]], tip: [368, 589] },
+  p2: { off: [7.7, -4.2], eyes: [[534.1, 341.8, 25, 44], [654.0, 328.2, 25, 43]], skin: 'rgb(252,213,190)', closed: [563, 398], mask: [100, 500],
+    a: [[171, 580], [382, 575], [400, 692], [185, 699]], b: [[190, 738], [408, 728], [429, 863], [207, 877]], tip: [361, 796] },
+};
+// the citizen (assets_v4, keyed off the user's sheets and upscaled 3x): eyes for blinks, eyelid skin, cup rims for the steam
+const CZ = {
+  side: { eyes: [[422.7, 371.1, 29, 67]], skin: 'rgb(254,215,176)' },
+  q34: { eyes: [[667.4, 369.9, 32, 67], [815.3, 370.0, 28, 66]], skin: 'rgb(254,214,175)', smileOff: [0, 3] },
+  front: { eyes: [[321.7, 315.0, 26, 52], [460.3, 314.8, 27, 52]], skin: 'rgb(254,216,181)' },
+  offer: { eyes: [[834.4, 223.8, 26, 47], [933.6, 199.7, 21, 44]], skin: 'rgb(253,214,178)', cup: [1309, 398] },
+  given: { eyes: [[735.4, 244.7, 26, 50], [828.7, 211.8, 21, 46]], skin: 'rgb(254,213,177)', cup: [1279, 391] },
 };
 
 const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
@@ -234,9 +249,9 @@ function stReact(c, u) {                // CUT 3: the gate has opened — a smal
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.0); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.7);
   return st;
 }
-function stTablet(c, u) {               // CUT 6: the v2 tablet shot, given one more second
+function stTablet(c, u) {               // CUT 6a: the tablet shot with the redrawn pair (tablet held out on the screen-left side)
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1 + 0.1 * e, fx: 980, fy: 620, dx: -20 * e, dy: -10 * e };
+  st.cam = { s: 1 + 0.1 * e, fx: 840, fy: 680, dx: 20 * e, dy: -10 * e };
   st.swap = clamp((u - 0.455) / 0.03);
   const talk = (u > 0.03 && u < 0.27) || (u > 0.52 && u < 0.76);
   st.closed = !(talk && Math.sin(2 * Math.PI * 4.4 * st.sec) > -0.1);
@@ -256,6 +271,66 @@ function stTablet(c, u) {               // CUT 6: the v2 tablet shot, given one 
   st.press = Math.max(bump(u, 0.095, 0.125), bump(u, 0.165, 0.195), bump(u, 0.56, 0.59), bump(u, 0.63, 0.66));
   st.speed = bump(u, 0.43, 0.5, 0.2);
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.1); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.5);
+  return st;
+}
+function stOffer(c, u) {                // CUT 4a: he holds out the paper cup of tea, leaning a little toward the official (off screen right)
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.035 * e, fx: 1100, fy: 560, dx: 0, dy: 0 };
+  st.lean = 14 * smoother(u / 0.6);
+  st.blink = bump(u, 0.62, 0.74);
+  st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 0.3);
+  return st;
+}
+function stGiven(c, u) {                // CUT 4b: the cup is in the official's hand now; a small nod, “drink up”
+  const st = base(c, u);
+  st.cam = { s: 1.035 + 0.02 * smoother(u), fx: 1100, fy: 560, dx: 0, dy: 0 };
+  st.bow = 0.45 * bump(u, 0.25, 0.62, 0.2);
+  st.blink = bump(u, 0.28, 0.58, 0.5);
+  st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 1.6);
+  return st;
+}
+function stCzTalk(c, u) {               // CUT 5a: in profile, looking out toward the sea, he talks
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.05 * e, fx: 760, fy: 560, dx: 0, dy: 0 };
+  const talking = (u > 0.07 && u < 0.46) || (u > 0.56 && u < 0.93);
+  st.open = talking && Math.sin(2 * Math.PI * 4.2 * st.sec + 0.6) > 0.05;
+  st.blink = bump(u, 0.48, 0.55);
+  st.breath = Math.sin(2 * Math.PI * 0.26 * st.sec + 0.9); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.18 * st.sec);
+  return st;
+}
+function stListen(c, u) {               // CUT 5b: close on the official, listening (head tilted), one slow nod
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.04 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
+  st.frame = FRAME_B; st.variant = 'listen'; st.open = false;
+  st.bow = 0.8 * bump(u, 0.38, 0.66, 0.15);
+  st.blink = Math.max(bump(u, 0.4, 0.64, 0.55), bump(u, 0.9, 0.97));
+  st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 1.3);
+  return st;
+}
+function stRelief(c, u) {               // CUT 6b: the citizen, facing the official: his face softens into a relieved smile
+  const st = base(c, u);
+  st.cam = { s: 1 + 0.03 * smoother(u), fx: 900, fy: 560, dx: 0, dy: 0 };
+  st.smile = smoother((u - 0.2) / 0.16);
+  st.sigh = bump(u, 0.22, 0.75, 0.3);
+  st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec);
+  return st;
+}
+function stBowHim(c, u) {               // CUT 7a: at the gate in the evening light, he bows goodbye and smiles
+  const st = base(c, u);
+  st.cam = { s: 1.02 + 0.03 * smoother(u), fx: 700, fy: 360, dx: 0, dy: 0 };
+  st.frame = FRAME_A; st.open = false;
+  st.variant = u < 0.42 ? 'neutral' : 'smile';
+  st.bow = bump(u, 0.12, 0.62, 0.35);
+  st.blink = bump(u, 0.14, 0.6, 0.62);
+  st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.4); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec);
+  return st;
+}
+function stBowCz(c, u) {                // CUT 7b: by the house, the citizen smiles and bows back
+  const st = base(c, u);
+  st.cam = { s: 1 + 0.03 * smoother(u), fx: 1150, fy: 500, dx: 0, dy: 0 };
+  st.bow = bump(u, 0.2, 0.68, 0.3);
+  st.blink = bump(u, 0.22, 0.66, 0.6);
+  st.breath = Math.sin(2 * Math.PI * 0.27 * st.sec + 2.0);
   return st;
 }
 
@@ -354,7 +429,7 @@ function drawPose(g, key, st) {
   const masked = (paint) => {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, W, H);
     c.setTransform(m); paint(c);
-    c.globalCompositeOperation = 'destination-in'; c.drawImage(img[key + 'm'], SIT.mask[0], SIT.mask[1]);
+    c.globalCompositeOperation = 'destination-in'; c.drawImage(img[key + 'm'], P.mask[0], P.mask[1]);
     c.globalCompositeOperation = 'source-over';
   };
   masked((cc) => { cc.fillStyle = 'rgba(255,255,255,0.7)'; for (const q of [P.a, P.b]) { cc.beginPath(); q.forEach(([x, y], i) => (i ? cc.lineTo(x, y) : cc.moveTo(x, y))); cc.closePath(); cc.fill(); } });
@@ -389,6 +464,50 @@ function drawStanding(g, st) {
   eyelids(g, v.eyes, v.skin, st.blink);
   g.restore();
 }
+// a keyed citizen picture at scale s with its top-left at (x, y), under the camera (k = parallax). A bow or a sigh is a dip
+// about a point below the frame (his feet or the bench); eyelids close over the measured eyes. Returns the picture → frame transform.
+function drawCz(g, im, st, x, y, s, eyes, skin, k = 1) {
+  g.save();
+  g.setTransform(...camXf(st.cam, k));
+  const bx = x + im.width * s / 2, by = H + 60;
+  g.translate(bx, by); g.rotate((st.sway || 0) * D2R);
+  g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - 0.03 * (st.bow || 0)) * (1 - 0.012 * (st.sigh || 0))); g.translate(-bx, -by);
+  g.translate(x, y); g.scale(s, s);
+  g.drawImage(im, 0, 0);
+  if (eyes && st.blink) eyelids(g, eyes, skin, st.blink);
+  const m = g.getTransform();
+  g.restore();
+  return m;
+}
+function steam(g, x, y, s, sec) {          // three wisps rising from a cup rim at (x, y), each on its own loop
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';
+  for (let i = 0; i < 3; i++) {
+    const ph = (sec * 0.5 + i / 3) % 1, a = Math.sin(Math.PI * ph);
+    const x0 = x + (i - 1) * 15 * s, y0 = y - 8 * s - ph * 70 * s;
+    const path = () => {
+      g.beginPath();
+      for (let q = 0; q <= 12; q++) {
+        const t = q / 12, yy = y0 - t * 60 * s, xx = x0 + 9 * s * Math.sin(t * 5.5 + sec * 2.6 + i * 2.1);
+        q ? g.lineTo(xx, yy) : g.moveTo(xx, yy);
+      }
+    };
+    path(); g.strokeStyle = `rgba(150,140,128,${0.16 * a})`; g.lineWidth = 9 * s; g.stroke();
+    path(); g.strokeStyle = `rgba(255,255,255,${0.75 * a})`; g.lineWidth = 4.5 * s; g.stroke();
+  }
+  g.restore();
+}
+function dusk(g, k) {                      // evening light over a finished shot: a warm multiply and a low sun glow, top right
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = 'multiply';
+  const lg = g.createLinearGradient(0, 0, 0, H);
+  lg.addColorStop(0, `rgba(255,170,112,${k})`); lg.addColorStop(0.55, `rgba(252,196,150,${k})`); lg.addColorStop(1, `rgba(206,150,146,${k})`);
+  g.fillStyle = lg; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'screen';
+  const rg = g.createRadialGradient(W * 0.86, H * 0.1, 0, W * 0.86, H * 0.1, H * 0.95);
+  rg.addColorStop(0, `rgba(255,150,70,${0.42 * k})`); rg.addColorStop(1, 'rgba(255,150,70,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, W, H);
+  g.restore();
+}
 function drawBg(g, im, cam, k, zoom = 1, zx = W / 2, zy = H / 2) {
   g.save();
   g.setTransform(...camXf(cam, k));
@@ -416,25 +535,26 @@ function outlinedText(g, text, x, y, fill, stroke, lw) {
   g.lineJoin = 'round'; g.lineWidth = lw; g.strokeStyle = stroke; g.strokeText(text, x, y); g.fillStyle = fill; g.fillText(text, x, y);
 }
 
-// ---------------------------------------------------------------- one cut
+// ---------------------------------------------------------------- one shot
 let labelsOn = true;
-function drawCut(g, c, u) {
-  const sec = u * (c.nf - 1) / FPS;
-  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+function drawShot(g, c, sh, u) {
+  const sec = u * (sh.nf - 1) / FPS, k = sh.kind;
+  let sub = null;                             // a subtitle the shot asks for: { text, a }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
   g.fillStyle = '#E9E2D3'; g.fillRect(0, 0, W, H);
-  if (c.kind === 'est') {                     // a slow pull-back from the lighthouse to the wall and gate
+  if (k === 'est') {                          // a slow pull-back from the lighthouse to the wall and gate
     const e = smoother(u), cam = { s: 1.16 - 0.13 * e, fx: 820, fy: 500, dx: 30 * e, dy: 0 };
     drawBg(g, img.far, cam, 1);
     g.setTransform(1, 0, 0, 1, 0, 0);
     gull(g, 520 + 140 * u, 230 - 20 * u, 1.2, 9 * Math.sin(2 * Math.PI * 2.3 * sec));
     gull(g, 650 + 110 * u, 175 - 12 * u, 0.9, 7 * Math.sin(2 * Math.PI * 2.7 * sec + 1.2));
     gull(g, 1420 + 90 * u, 260 - 8 * u, 0.75, 6 * Math.sin(2 * Math.PI * 2.5 * sec + 2.1));
-  } else if (c.kind === 'ph') {
+  } else if (k === 'ph') {
     const e = smoother(u), cam = { s: 1.02 + 0.05 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
     g.setTransform(...camXf(cam, 1));
-    g.filter = 'saturate(0.8)'; g.drawImage(img[c.still], 0, 0, W, H); g.filter = 'none';
+    g.filter = 'saturate(0.8)'; g.drawImage(img[sh.still], 0, 0, W, H); g.filter = 'none';
     g.setTransform(1, 0, 0, 1, 0, 0);
-    if (c.msg) {                              // where the message line goes, once the copy from the design doc is in
+    if (sh.msg) {                             // where the message line goes, once the copy from the design doc is in
       const a = win(u, 0.15, 0.3);
       g.save(); g.globalAlpha = a; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.setLineDash([14, 10]); g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,0.75)';
@@ -445,8 +565,8 @@ function drawCut(g, c, u) {
       g.fillText('설계안의 CUT 8 문구가 여기에 들어갑니다', W / 2, 328);
       g.restore();
     }
-  } else if (c.kind === 'gate') {
-    const st = stGate(c, u);
+  } else if (k === 'gate') {
+    const st = stGate(sh, u);
     if (st.shake) { const s = 4 * st.shake; st.cam.dx += s * Math.sin(sec * 90); st.cam.dy += s * Math.cos(sec * 77); }
     drawBg(g, img.gate, st.cam, 1);
     bokeh(g, st.sec);
@@ -467,15 +587,37 @@ function drawCut(g, c, u) {
       g.restore();
     }
     g.restore();
-  } else if (c.kind === 'react') {
-    const st = stReact(c, u);
+  } else if (k === 'react') {
+    const st = stReact(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
     drawStanding(g, st);
+    // over the citizen's shoulder: his back, out of focus in the foreground, slides out of frame as the camera moves in
+    g.save(); g.filter = 'brightness(0.84)';
+    drawCz(g, img.czBack, { cam: st.cam, breath: st.breath }, 1418, 403, 0.82, null, null, 1.6);
+    g.restore();
     if (st.flash > 0.001) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(255,247,230,${0.45 * st.flash})`; g.fillRect(0, 0, W, H); }
-    c._st = st;
-  } else if (c.kind === 'tablet') {
-    const st = stTablet(c, u);
+    if (st.sub > 0) sub = { text: '괜찮으세요?', a: st.sub };
+  } else if (k === 'offer' || k === 'given') {
+    const st = k === 'offer' ? stOffer(sh, u) : stGiven(sh, u);
+    drawBg(g, img.bgWall, st.cam, 0.4);
+    bokeh(g, st.sec);
+    const P = k === 'offer' ? CZ.offer : CZ.given;
+    const m = drawCz(g, k === 'offer' ? img.czOffer : img.czGiven, st, (k === 'offer' ? 60 : 174) + (st.lean || 0), k === 'offer' ? 226 : 208, 1.12, P.eyes, P.skin);
+    const p = m.transformPoint(new DOMPoint(P.cup[0], P.cup[1]));
+    steam(g, p.x, p.y, 1.12 * st.cam.s, st.sec + (k === 'given' ? 1.75 : 0));
+  } else if (k === 'czTalk') {
+    const st = stCzTalk(sh, u);
+    drawBg(g, img.bgGate, st.cam, 0.4);
+    bokeh(g, st.sec);
+    drawCz(g, st.open ? img.czSideTalk : img.czSide, st, 4, 124, 1.2, CZ.side.eyes, CZ.side.skin);
+  } else if (k === 'listen') {
+    const st = stListen(sh, u);
+    drawBg(g, img.bgWall, st.cam, 0.4);
+    bokeh(g, st.sec);
+    drawStanding(g, st);
+  } else if (k === 'tablet') {
+    const st = stTablet(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
     bokeh(g, st.sec);
     if (st.swap <= 0 || st.swap >= 1) drawPose(g, st.swap >= 1 ? 'p2' : 'p1', st);
@@ -494,9 +636,29 @@ function drawCut(g, c, u) {
       for (const o of [-16, 0, 16]) { g.lineWidth = o ? 3 : 4.5; g.beginPath(); g.moveTo(a.x + 30 + o, a.y + 6); g.quadraticCurveTo(a.x + 80 + o, (a.y + b.y) / 2, b.x + 26 + o, b.y - 30); g.stroke(); }
       g.restore();
     }
-  } else if (c.kind === 'end') {
+  } else if (k === 'relief') {
+    const st = stRelief(sh, u);
+    drawBg(g, img.bgGate, st.cam, 0.4);
+    bokeh(g, st.sec);
+    const x = 11, y = 124;
+    if (st.smile < 1) drawCz(g, img.cz34, st, x, y, 1.2, CZ.q34.eyes, CZ.q34.skin);
+    if (st.smile > 0) { g.save(); g.globalAlpha = st.smile; drawCz(g, img.cz34Smile, st, x + CZ.q34.smileOff[0] * 1.2, y + CZ.q34.smileOff[1] * 1.2, 1.2); g.restore(); }
+  } else if (k === 'bowHim') {
+    const st = stBowHim(sh, u);
+    drawBg(g, img.bgGate, st.cam, 0.4);
+    bokeh(g, st.sec);
+    drawStanding(g, st);
+    dusk(g, 0.85);
+  } else if (k === 'bowCz') {
+    const st = stBowCz(sh, u);
+    drawBg(g, img.bgWall, st.cam, 0.4);
+    bokeh(g, st.sec);
+    drawCz(g, img.czFront, st, 1150 - 405 * 0.85, 130, 0.85, CZ.front.eyes, CZ.front.skin);
+    dusk(g, 0.85);
+  } else if (k === 'end') {
     const e = smoother(u), cam = { s: 1.08 + 0.03 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
     g.filter = 'blur(5px)'; drawBg(g, img.bgGate, cam, 1); g.filter = 'none';
+    dusk(g, 0.7);
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.fillStyle = 'rgba(52,36,24,0.42)'; g.fillRect(0, 0, W, H);
     const t = win(u, 0.05, 0.35), o = win(u, 0.25, 0.55);
@@ -506,16 +668,16 @@ function drawCut(g, c, u) {
     g.globalAlpha = o; g.shadowBlur = 12; g.font = `500 46px ${FONT}`; g.fillStyle = '#F5EBDD'; g.fillText('동해시 지방세입 체납관리단', W / 2, H / 2 + 80);
     g.restore();
   }
-  // warm light, labels, subtitle, placeholder notes, vignette
-  g.setTransform(1, 0, 0, 1, 0, 0);
-  if (c.kind !== 'end') {
+  // warm light, placeholder notes, labels, subtitle, vignette
+  g.setTransform(1, 0, 0, 1, 0, 0); g.filter = 'none';
+  if (k !== 'end') {
     g.globalCompositeOperation = 'screen';
     const lg = g.createRadialGradient(1800, 40, 0, 1800, 40, 950);
     lg.addColorStop(0, `rgba(255,220,170,${0.24 + 0.03 * Math.sin(sec * 1.3)})`); lg.addColorStop(1, 'rgba(255,220,170,0)');
     g.fillStyle = lg; g.fillRect(0, 0, W, H);
     g.globalCompositeOperation = 'source-over';
   }
-  if (c.kind === 'ph') {                      // what picture this cut is waiting for
+  if (k === 'ph') {                           // what picture this cut is waiting for
     g.save(); g.textBaseline = 'middle';
     g.fillStyle = 'rgba(28,22,18,0.62)'; roundRect(g, 40, H - 150, W - 80, 110, 20); g.fill();
     g.fillStyle = '#F2C97A'; g.font = `800 30px ${FONT}`; g.fillText('그림 대기 · 프리비즈 구도 임시 화면', 76, H - 118);
@@ -524,12 +686,12 @@ function drawCut(g, c, u) {
   }
   if (labelsOn) {
     g.save(); g.textBaseline = 'middle';
-    if (c.kind === 'react' && c._st && c._st.sub > 0) {
-      g.font = `800 62px ${FONT}`; g.textAlign = 'center'; g.globalAlpha = c._st.sub;
-      outlinedText(g, '괜찮으세요?', 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12);
+    if (sub && sub.a > 0) {
+      g.font = `800 62px ${FONT}`; g.textAlign = 'center'; g.globalAlpha = sub.a;
+      outlinedText(g, sub.text, 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12);
       g.globalAlpha = 1; g.textAlign = 'left';
     }
-    if (c.kind !== 'end') {
+    if (k !== 'end') {
       const label = `CUT ${c.n} · ${c.title}`;
       g.font = `700 26px ${FONT}`;
       const lw = g.measureText(label).width;
@@ -542,16 +704,20 @@ function drawCut(g, c, u) {
   vg.addColorStop(0, 'rgba(40,28,18,0)'); vg.addColorStop(1, 'rgba(40,28,18,0.28)');
   g.fillStyle = vg; g.fillRect(0, 0, W, H);
 }
+function shotAt(f) {
+  const c = CUTS.find((q) => f < q.f0 + q.nf) || CUTS[CUTS.length - 1];
+  const sh = c.shots.find((s) => f < s.f0 + s.nf) || c.shots[c.shots.length - 1];
+  return [c, sh, Math.min(1, (f - sh.f0) / Math.max(1, sh.nf - 1))];
+}
 function render(f) {
-  const c = CUTS.find((k) => f < k.f0 + k.nf) || CUTS[CUTS.length - 1];
-  const u = (f - c.f0) / (c.nf - 1);
-  if (c.kind === 'end' && u < 0.25) {        // dissolve from the last frame of CUT 8 into the end card
+  const [c, sh, u] = shotAt(f);
+  if (sh.kind === 'end' && u < 0.25) {        // dissolve from the last frame of CUT 8 into the end card
     const prev = CUTS[CUTS.length - 2], eg = endBuf.getContext('2d');
-    drawCut(eg, prev, 1);
-    drawCut(ctx, c, u);
+    drawShot(eg, prev, prev.shots[prev.shots.length - 1], 1);
+    drawShot(ctx, c, sh, u);
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - smoother(u / 0.25); ctx.drawImage(endBuf, 0, 0); ctx.globalAlpha = 1;
   } else {
-    drawCut(ctx, c, u);
+    drawShot(ctx, c, sh, u);
   }
   if (f < 18) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${1 - smoother(f / 18)})`; ctx.fillRect(0, 0, W, H); }
   if (f > NF - 13) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${smoother((f - (NF - 13)) / 12)})`; ctx.fillRect(0, 0, W, H); }
@@ -574,17 +740,18 @@ for (const c of CUTS) {
 }
 const COMMON = '첨부한 캐릭터 시트(턴어라운드·표정)와 같은 인물, 같은 그림체로 그려 주세요. 둥근 버섯머리와 정수리 한 가닥, 점 눈, 볼터치, 검정 반팔 폴로(흰 단추 2개), 남색 목걸이 명찰, 회색 크로스백 끈(오른쪽 어깨에서 왼쪽 옆구리로, 가방은 왼쪽 엉덩이 옆), 아이보리 바지, 흰 양말 빨간 줄, 검정 로퍼. 부드러운 평면 채색과 진한 외곽선. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
 const BGNOTE = '보내 준 마당 배경과 같은 그림체로, 인물 없이, 16:9 가로 1920px 이상.';
+const CZNOTE = '첨부한 어르신 시트(턴어라운드·표정·자세)와 같은 인물, 같은 그림체로 그려 주세요. 짧은 머리(옆머리 회색), 눈가 주름과 볼터치, 올리브색 맨투맨(회색 목둘레), 검정 바지, 회색 슬리퍼. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
+// [title, what, text, noPrompt] — still needed first, then the ones that would make a cut better
 const REQS = [
-  ['CUT 0 · 오프닝', '배경 1장', `${BGNOTE}\n동해 묵호항이 내려다보이는 언덕 마을 전경. 방파제 끝 빨간 등대, 잔잔한 바다, 비탈을 따라 겹겹이 선 낮은 집들(파란·주황 지붕, 옥상 물탱크), 늦은 오후 햇빛, 갈매기 몇 마리.`],
-  ['CUT 1 · 바닷가 마을로 들어서다', '배경 1장 + 인물 2장', `${BGNOTE}\n논골담길 계단 골목을 아래에서 올려다본 구도. 좁은 시멘트 계단, 양옆 흰 담과 바다 물결 벽화, 계단 옆 화분과 스티로폼 상자 텃밭, 골목을 가로지르는 빨랫줄, 계단 위로 옥색 대문 집이 살짝 보이고 골목 사이로 바다. 늦은 오후.\n\n${COMMON}\n계단을 오르는 주인공의 3/4 뒷모습 두 장: 왼발이 위 칸 / 오른발이 위 칸.`],
-  ['CUT 2 · 문 앞에서 (있으면 더 좋음)', '배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다.\n\n${BGNOTE}\n골목 쪽에서 본 같은 옥색 대문(닫힘), 흰 담과 화분, 대문 위로 보이는 마당의 나무.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
-  ['CUT 3 · 문이 열린다', '어르신 시트 + 인물 2장', `먼저 어르신(시민) 캐릭터 시트를 주인공 시트와 같은 형식(정면·3/4·옆, 기본·듣기·미소 표정)으로 만들어 주세요. 설계안의 시민 설정을 그대로 쓰고, 그림체는 주인공 시트와 같게.\n\n그다음 대문을 반쯤 열고 선 어르신 전신(투명 PNG).\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
-  ['CUT 4 · 평상에 마주 앉다', '두 사람 2장', `주인공과 어르신 시트를 첨부하고: 평상에 비스듬히 마주 앉은 두 사람. 어르신이 찻잔을 밀어 주는 순간 / 주인공이 두 손으로 받는 순간 두 장. 두 사람과 평상만 그리고 배경은 투명 PNG(마당 배경은 이미 있음).`],
-  ['CUT 5 · 이야기를 듣다', '인물 4장', `평상에 앉아 바다 쪽 먼 곳을 보며 말하는 어르신 옆모습 두 장(입 다문 것 / 말하는 입), 투명 PNG.\n\n${COMMON}\n평상에 앉아 몸을 조금 기울여 듣는 주인공 옆모습 두 장(기본 / 고개를 끄덕인 순간).`],
-  ['CUT 6 · 분납과 복지 연계를 안내하다', '어르신 2장 + 고칠 것 1', `태블릿을 함께 들여다보는 어르신 3/4 두 장(보는 얼굴 / 끄덕이며 웃는 얼굴), 투명 PNG.\n\n보내 주신 ① 짚기·② 짚기 그림은 가방 위치가 서로 달라요(오른쪽/왼쪽). ② 짚기 그림을 가방이 왼쪽 엉덩이 옆에 오도록 한 번 더 뽑아 주세요.`],
-  ['CUT 7 · 배웅', '배경 1장 + 인물 3장', `${BGNOTE}\n해질녘 노을빛의 같은 옥색 대문 앞 골목. 아래로 이어지는 계단, 멀리 바다와 빨간 등대.\n\n${COMMON}\n돌아서며 목례하는 주인공 3/4 뒷모습, 계단을 내려가는 작은 뒷모습. 그리고 대문 앞에서 한 손을 들어 화답하는 어르신.`],
-  ['CUT 8 · 집집마다 불이 켜진다', '배경 2장(같은 구도)', `${BGNOTE}\n해질녘 묵호 언덕마을 전경(바다, 방파제와 등대, 가로등), 창문 불이 꺼진 그림 한 장.\n그다음 같은 그림에서 구도와 색은 그대로 두고 창문과 가로등에만 불을 켠 그림 한 장. 두 그림 차이로 불빛을 하나씩 켭니다.`],
-  ['CUT 9 · 엔드 카드', '문구·CI (그림 아님)', `설계안의 메시지 문구(CUT 8)와 엔드 카드 문구, 그리고 동해시 CI 파일이 있으면 보내 주세요. 지금은 제목과 기관명만 넣었습니다.`, true],
+  ['CUT 1 · 바닷가 마을로 들어서다', '꼭 필요 · 배경 1장 + 인물 2장', `${BGNOTE}\n논골담길 계단 골목을 아래에서 올려다본 구도. 좁은 시멘트 계단, 양옆 흰 담과 바다 물결 벽화, 계단 옆 화분과 스티로폼 상자 텃밭, 골목을 가로지르는 빨랫줄, 계단 위로 옥색 대문 집이 살짝 보이고 골목 사이로 바다. 늦은 오후.\n\n${COMMON}\n계단을 오르는 주인공의 3/4 뒷모습 두 장: 왼발이 위 칸 / 오른발이 위 칸.`],
+  ['CUT 7 · 배웅', '꼭 필요 · 배경 1장 + 인물 1장', `지금은 노을빛으로 바꾼 마당에서 두 사람이 인사를 주고받는 데까지 만들었어요. 계단을 내려가는 장면을 그 뒤에 붙입니다.\n\n${BGNOTE}\n해질녘 노을빛의 옥색 대문 밖 골목. 아래로 이어지는 계단, 멀리 바다와 빨간 등대.\n\n${COMMON}\n계단을 내려가는 주인공의 작은 뒷모습 한 장(한 손에 태블릿).`],
+  ['CUT 8 · 집집마다 불이 켜진다', '꼭 필요 · 배경 2장(같은 구도)', `${BGNOTE}\n해질녘 묵호 언덕마을 전경(바다, 방파제와 등대, 가로등), 창문 불이 꺼진 그림 한 장.\n그다음 같은 그림에서 구도와 색은 그대로 두고 창문과 가로등에만 불을 켠 그림 한 장. 두 그림 차이로 불빛을 하나씩 켭니다.`],
+  ['CUT 9 · 엔드 카드', '꼭 필요 · 문구·CI (그림 아님)', `설계안의 메시지 문구(CUT 8)와 엔드 카드 문구, 그리고 동해시 CI 파일이 있으면 보내 주세요. 지금은 제목과 기관명만 넣었습니다.`, true],
+  ['CUT 4 · 평상에 마주 앉다', '있으면 더 좋음 · 인물 1장', `지금은 어르신 그림 속 주인공의 손만 보여요.\n\n${COMMON}\n평상에 앉아 왼쪽의 어르신에게서 종이컵을 두 손으로 받는 주인공 3/4 옆모습 한 장.`],
+  ['CUT 5 · 이야기를 듣다', '있으면 더 좋음 · 인물 2장', `지금은 서 있는 ‘귀 기울임’ 얼굴을 가까이 잡아 썼어요.\n\n${COMMON}\n평상에 앉아 왼쪽을 보며 듣는 주인공 3/4 두 장: 기본 / 고개를 끄덕인 순간.`],
+  ['CUT 3 · 문이 열린다', '있으면 더 좋음 · 인물 2장', `${CZNOTE}\n대문을 반쯤 열고 선 어르신 전신 한 장.\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
+  ['CUT 2 · 문 앞에서', '있으면 더 좋음 · 배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다.\n\n${BGNOTE}\n골목 쪽에서 본 같은 옥색 대문(닫힘), 흰 담과 화분, 대문 위로 보이는 마당의 나무.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
+  ['CUT 0 · 오프닝', '있으면 더 좋음 · 배경 1장', `${BGNOTE}\n동해 묵호항이 내려다보이는 언덕 마을 전경. 방파제 끝 빨간 등대, 잔잔한 바다, 비탈을 따라 겹겹이 선 낮은 집들(파란·주황 지붕, 옥상 물탱크), 늦은 오후 햇빛, 갈매기 몇 마리.`],
 ];
 const reqsEl = document.getElementById('reqs');
 REQS.forEach(([title, what, text, noPrompt], i) => {
