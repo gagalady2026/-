@@ -85,6 +85,10 @@ ul.lead li + li { margin-top: 2px; }
 .req pre { margin: 0; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: 0.86rem/1.6 var(--font-body); background: var(--bg); border-radius: 8px; padding: 10px 12px; }
 .req button { justify-self: start; font: 500 0.82rem var(--font-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
 .note { margin: 0; font-size: 0.85rem; color: var(--muted); max-width: 72ch; }
+.copy { margin: 0; display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr); gap: 8px 18px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.copy dt { color: var(--muted); font-size: 0.86rem; padding-top: 2px; }
+.copy dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .copy { grid-template-columns: minmax(0, 1fr); gap: 2px; } .copy dd { margin-bottom: 10px; } }
 /* 1920×1080 render mode used to export the MP4 (canvas only) */
 body.capture { margin: 0; background: #000000; }
 body.capture .wrap { display: block; max-width: none; padding: 0; }
@@ -101,15 +105,15 @@ body.capture .stage .status { display: none; }
     <p class="lead">원래 8컷 30초 대본의 순서와 행동은 그대로 두었습니다. 늘린 곳은 이렇습니다.</p>
     <ul class="lead">
       <li>바다 마을 오프닝 3초를 새로 넣었습니다.</li>
-      <li>‘문이 열린다’와 ‘배웅’을 0.5초씩 늘렸습니다.</li>
-      <li>핵심 장면인 ‘이야기를 듣다’와 ‘분납·복지 연계 안내’를 1초씩 늘렸습니다.</li>
-      <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초로 나눴습니다.</li>
+      <li>‘이야기를 듣다’를 0.5초, ‘분납·복지 연계 안내’를 1초 늘렸습니다.</li>
+      <li>‘배웅’은 1.5초 늘려 대문 밖 골목을 따라 등대 쪽으로 멀어지는 장면을 넣었습니다.</li>
+      <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초입니다.</li>
     </ul>
-    <p class="lead">보내주신 GPT 그림이 있는 컷은 그 그림을 코드로 움직였습니다. 어르신 시트(턴어라운드·표정·자세)가 들어와 CUT 3–7을 실제 그림으로 바꿨고, 태블릿 안내는 다시 그린 ② 짚기 그림에 맞춰 ① 그림을 좌우로 뒤집어 짝을 맞췄습니다. 아직 그림이 없는 CUT 1과 CUT 8은 프리비즈 구도를 임시로 깔고, 필요한 그림을 화면에 적어 두었습니다.</p>
+    <p class="lead">이제 열 컷 모두 보내주신 GPT 그림을 코드로 움직입니다. 프리비즈 임시 화면은 없습니다. 동해시 CI는 설계안 원칙대로 그리지 않고 공식 파일을 후반에 합성할 자리만 표시했습니다.</p>
   </header>
 
   <figure class="stage" id="stage">
-    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 묵호 바다 마을 오프닝, 계단 골목, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에 마주 앉기, 이야기 듣기, 태블릿으로 분납 안내와 복지서비스 연계 안내, 배웅, 불 켜지는 마을, 엔드 카드"></canvas>
+    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 묵호 바다 마을 오프닝, 바닷가 계단을 오르는 주인공, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에서 차를 건네받음, 어르신의 이야기와 끄덕임, 태블릿으로 분납 안내와 복지서비스 연계 안내 뒤 어르신의 미소, 노을 속 배웅과 멀어지는 뒷모습, 불이 하나씩 켜지는 마을과 메시지, 엔드 카드"></canvas>
     <div class="status" id="status">그림을 불러오는 중…</div>
   </figure>
 
@@ -122,16 +126,22 @@ body.capture .stage .status { display: none; }
 
   <ul class="legend">
     <li><span class="dot gpt"></span>보내주신 GPT 그림 + 코드 움직임</li>
-    <li><span class="dot temp"></span>그림 대기(프리비즈 구도 임시)</li>
     <li><span class="dot code"></span>코드로 만든 화면</li>
   </ul>
   <ol class="cuts" id="cuts"></ol>
 
-  <h2>그려 주실 GPT 그림</h2>
-  <p class="note">각 컷의 프리비즈 구도 그림(애니매틱의 임시 화면)과 캐릭터 시트를 ChatGPT에 함께 올리고, 아래 문장을 붙여 쓰면 구도와 인물이 맞게 나옵니다. 인물은 배경 없는 투명 PNG, 배경은 인물 없는 16:9로 따로 받으면 코드로 움직이기 가장 좋습니다.</p>
+  <h2>최종 문구</h2>
+  <dl class="copy">
+    <dt>CUT 8 · 상단 1/3에 페이드인</dt><dd>체납 뒤에 사람이 있습니다.</dd>
+    <dt>엔드 카드 · 마지막 2초</dt><dd>동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064</dd>
+    <dt>내레이션 · 엔드 카드</dt><dd>“동해시 체납관리단입니다.” 전화번호는 읽지 않고 화면에만 둡니다.</dd>
+  </dl>
+
+  <h2>있으면 더 자연스러워질 그림</h2>
+  <p class="note">꼭 필요한 그림은 모두 들어왔습니다. 아래 그림은 지금 코드로 흉내 낸 움직임을 실제 그림으로 바꿔 줍니다. 캐릭터 시트를 함께 올리고 문장을 붙여 쓰면 됩니다. 인물은 배경 없는 투명 PNG로 받습니다.</p>
   <ul class="reqs" id="reqs"></ul>
 
-  <p class="note">Canvas 2D · 24fps 36초(864프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 메시지 컷(CUT 8)의 문구와 엔드 카드 문구는 설계안 확인 전이라 제목과 기관명만 넣었습니다.</p>
+  <p class="note">Canvas 2D · 24fps 36초(864프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 소리는 없고, 내레이션은 엔드 카드에 자막으로 표시했습니다(‘자막·컷 이름’으로 끌 수 있음).</p>
 </main>
 
 <script>
@@ -160,17 +170,15 @@ const D2R = Math.PI / 180;
 // gate / react / offer / given / czTalk / listen / tablet / relief / bowHim / bowCz = the user's GPT art moved by code · end = end card
 const CUTS = [
   { n: 0, src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)', shots: [{ kind: 'est', sec: 3.0 }] },
-  { n: 1, src: 'temp', title: '바닷가 마을로 들어서다', act: '계단 골목을 오르고, 중간에 담장 너머 집을 봄',
-    need: '계단 골목 배경 + 계단을 오르는 주인공 뒷모습 2장', shots: [{ kind: 'ph', sec: 3.5, still: 'CUT01' }] },
+  { n: 1, src: 'gpt', title: '바닷가 마을로 들어서다', act: '바닷가 계단 골목. 카메라가 다가가는 사이 주인공이 계단을 오름', shots: [{ kind: 'climb', sec: 3.5 }] },
   { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! 두 번 두드리는 소리, 끼익 문이 열림', shots: [{ kind: 'gate', sec: 2.5 }] },
-  { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감(+0.5초)', shots: [{ kind: 'react', sec: 4.5 }] },
+  { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감', shots: [{ kind: 'react', sec: 4.0 }] },
   { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '어르신이 김 나는 종이컵 차를 건넴 → 주인공 손으로 넘어감', shots: [{ kind: 'offer', sec: 1.75 }, { kind: 'given', sec: 1.25 }] },
-  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기 → 주인공이 귀 기울이고 끄덕임(+1초)', shots: [{ kind: 'czTalk', sec: 2.75 }, { kind: 'listen', sec: 2.25 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기 → 주인공이 귀 기울이고 끄덕임(+0.5초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'listen', sec: 2.0 }] },
   { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 어르신의 안도하는 미소(+1초)', shots: [{ kind: 'tablet', sec: 4.0 }, { kind: 'relief', sec: 1.0 }] },
-  { n: 7, src: 'gpt', title: '배웅', act: '노을빛 속 주인공 목례 → 어르신이 웃으며 화답(+0.5초). 계단을 내려가는 장면은 그림 대기', shots: [{ kind: 'bowHim', sec: 1.75 }, { kind: 'bowCz', sec: 1.75 }] },
-  { n: 8, src: 'temp', title: '집집마다 불이 켜진다', act: '가로등이 먼저, 이어 창문 불빛이 하나씩 켜지는 메시지 컷(문구는 설계안 확인 뒤)',
-    need: '해질녘 마을 전경 2장(불 꺼짐 / 같은 구도로 불 켜짐)', shots: [{ kind: 'ph', sec: 4.0, still: 'CUT08', msg: true }] },
-  { n: 9, src: 'code', title: '엔드 카드', act: '「똑똑, 괜찮으세요?」와 동해시 지방세입 체납관리단', shots: [{ kind: 'end', sec: 2.0 }] },
+  { n: 7, src: 'gpt', title: '배웅', act: '노을빛 속 주인공 목례 → 어르신이 웃으며 화답 → 대문 앞 골목을 따라 등대 쪽으로 멀어짐(+1.5초)', shots: [{ kind: 'bowHim', sec: 1.25 }, { kind: 'bowCz', sec: 1.25 }, { kind: 'walkAway', sec: 2.0 }] },
+  { n: 8, src: 'gpt', title: '집집마다 불이 켜진다', act: '해가 지고 가로등이 먼저, 이어 창문 불빛이 하나씩. 상단에 “체납 뒤에 사람이 있습니다.”', shots: [{ kind: 'village', sec: 4.0 }] },
+  { n: 9, src: 'code', title: '엔드 카드', act: '동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064. 내레이션 “동해시 체납관리단입니다.”', shots: [{ kind: 'end', sec: 2.0 }] },
 ];
 let acc = 0;
 for (const c of CUTS) {
@@ -188,8 +196,20 @@ const SRC = {
   p1m: 'assets_v4/v4_sit_p1_panelmask.png', p2m: 'assets_v4/v4_sit_p2_panelmask.png',
   czSide: 'assets_v4/v4_cz_side_neutral.png', czSideTalk: 'assets_v4/v4_cz_side_talk.png', cz34: 'assets_v4/v4_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png',
   czOffer: 'assets_v4/v4_cz_offer.png', czGiven: 'assets_v4/v4_cz_given.png', czFront: 'assets_v4/v4_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
-  CUT01: 'assets_v3/CUT01_F0047.jpg', CUT08: 'assets_v3/CUT08_F0666.jpg',
+  stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
+  gateDusk: 'assets_v5/v5_gate_dusk.jpg', walkAway: 'assets_v5/v5_walk_away.png', czBackSharp: 'assets_v4/v4_cz_back.png',
+  vOff: 'assets_v5/v5_village_off.jpg', vDark: 'assets_v5/v5_village_dark.jpg', vOn: 'assets_v5/v5_village_on.jpg',
 };
+// CUT 8 (tools/v5_prep.py): the lit village split into a lights-out plate and 12 groups of lights, [file, x, y] in plate pixels.
+// Groups 0-2 are the street lamps and the pools of light they throw, 3-11 the windows from the bottom of the hill to the top.
+const LIGHTS = [["light_00",92,776],["light_01",76,708],["light_02",140,451],["light_03",137,538],["light_04",741,487],["light_05",149,417],["light_06",707,361],["light_07",716,363],["light_08",336,274],["light_09",660,342],["light_10",857,264],["light_11",0,6]];
+LIGHTS.forEach(([f]) => { SRC[f] = `assets_v5/v5_${f}.png`; });
+// the 1672x941 pictures are drawn as 2035x1144 plates centred on the frame: a picture point p lands at p * 1.217 - (57.5, 32)
+const PL = { k: 2035 / 1672, x: (W - 2035) / 2, y: (H - 1144) / 2 };
+const pic = (x, y) => [x * PL.k + PL.x, y * PL.k + PL.y];
+// back views (assets_v5): [support-foot x, y] in the picture and the figure's height, for placing them by their feet
+const BACK = { climbA: { foot: [455, 1379], h: 1356 }, climbB: { foot: [437, 1368], h: 1338 }, walkAway: { foot: [493, 1383], h: 1362 },
+  czBackSharp: { foot: [382, 1843], h: 1815 } };
 const STAND = {
   pivotX: 558, talkMouth: [511, 289],
   neutral: { off: [0, 0], eyes: [[499.4, 251, 18, 31], [586.9, 251, 17, 31]], skin: 'rgb(252,214,192)' },
@@ -323,6 +343,39 @@ function stBowHim(c, u) {               // CUT 7a: at the gate in the evening li
   st.bow = bump(u, 0.12, 0.62, 0.35);
   st.blink = bump(u, 0.14, 0.6, 0.62);
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.4); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec);
+  return st;
+}
+function stClimb(c, u) {                // CUT 1: the camera closes in on the sea-side stairs while he climbs them
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1.04 + 0.26 * e, fx: 1240, fy: 700, dx: -30 * e, dy: -40 * e };
+  const steps = 0.4 + u * 6.6, n = Math.floor(steps), k = steps - n;   // half-steps: the two drawings alternate
+  st.pose = n % 2 ? 'climbB' : 'climbA';
+  const p = (n + smoother(Math.min(1, k / 0.55))) / 7;                  // each half-step lifts him one stair, then he settles
+  const [x0, y0] = pic(1018, 712), [x1, y1] = pic(1088, 505);           // bottom stair (right of the rail) → two-thirds up
+  st.foot = [x0 + (x1 - x0) * p, y0 + (y1 - y0) * p - 7 * Math.sin(Math.PI * Math.min(1, k / 0.55))];
+  st.h = (300 - 46 * p) * PL.k;
+  return st;
+}
+function stWalkAway(c, u) {             // CUT 7c: outside the gate at sunset he walks off along the sea path; the citizen watches him go
+  const st = base(c, u);
+  st.cam = { s: 1.02 + 0.04 * smoother(u), fx: 760, fy: 640, dx: 0, dy: 0 };
+  // from beside the citizen, across the front of the flower pots, then away down the sea path (a curve in picture pixels)
+  const t = clamp(0.04 + u * 0.96), q = 1 - t;
+  const px = q * q * 1000 + 2 * q * t * 700 + t * t * 560, py = q * q * 728 + 2 * q * t * 712 + t * t * 652;
+  const [fx, fy] = pic(px, py);
+  st.foot = [fx, fy - 9 * Math.abs(Math.sin(2 * Math.PI * 1.0 * st.sec))];
+  st.h = 1.25 * (py - 480) * PL.k;            // perspective: size grows with distance below the horizon
+  st.tilt = 1.2 * Math.sin(2 * Math.PI * 1.0 * st.sec);
+  st.breath = Math.sin(2 * Math.PI * 0.25 * st.sec);
+  return st;
+}
+function stVillage(c, u) {              // CUT 8: the sun goes down, the street lamps flicker on, then the windows one by one up the hill
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.05 * e, fx: 1080, fy: 560, dx: 0, dy: 0 };
+  st.dusk = smoother(u / 0.32);
+  const flick = (t0) => { const k = (u - t0) / 0.07; return k <= 0 ? 0 : k < 0.25 ? 2.8 * k : k < 0.4 ? 0.2 : k < 1 ? 0.7 + 0.3 * smoother((k - 0.4) / 0.6) : 1; };
+  st.light = LIGHTS.map((_, i) => (i < 3 ? flick(0.15 + 0.06 * i) : smoother((u - (0.34 + 0.045 * (i - 3))) / 0.07)));
+  st.msg = smoother((u - 0.42) / 0.16);
   return st;
 }
 function stBowCz(c, u) {                // CUT 7b: by the house, the citizen smiles and bows back
@@ -478,6 +531,20 @@ function drawCz(g, im, st, x, y, s, eyes, skin, k = 1) {
   const m = g.getTransform();
   g.restore();
   return m;
+}
+// a back view placed by its supporting foot: st.foot = frame point (under the camera), st.h = figure height on the frame
+function drawBack(g, st, key) {
+  const B = BACK[key], im = img[key], s = st.h / B.h;
+  g.save();
+  g.setTransform(...camXf(st.cam, 1));
+  g.translate(st.foot[0], st.foot[1]);
+  // a soft contact shadow under the feet
+  g.save(); g.scale(1, 0.22); g.beginPath(); g.arc(0, 0, st.h * 0.2, 0, Math.PI * 2);
+  const sg = g.createRadialGradient(0, 0, 0, 0, 0, st.h * 0.2); sg.addColorStop(0, 'rgba(40,30,50,0.32)'); sg.addColorStop(1, 'rgba(40,30,50,0)');
+  g.fillStyle = sg; g.fill(); g.restore();
+  g.rotate((st.tilt || 0) * D2R); g.scale(s, s * (1 + 0.004 * (st.breath || 0)));
+  g.drawImage(im, -B.foot[0], -B.foot[1]);
+  g.restore();
 }
 function steam(g, x, y, s, sec) {          // three wisps rising from a cup rim at (x, y), each on its own loop
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';
@@ -655,18 +722,55 @@ function drawShot(g, c, sh, u) {
     bokeh(g, st.sec);
     drawCz(g, img.czFront, st, 1150 - 405 * 0.85, 130, 0.85, CZ.front.eyes, CZ.front.skin);
     dusk(g, 0.85);
-  } else if (k === 'end') {
-    const e = smoother(u), cam = { s: 1.08 + 0.03 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
-    g.filter = 'blur(5px)'; drawBg(g, img.bgGate, cam, 1); g.filter = 'none';
-    dusk(g, 0.7);
-    g.setTransform(1, 0, 0, 1, 0, 0);
-    g.fillStyle = 'rgba(52,36,24,0.42)'; g.fillRect(0, 0, W, H);
-    const t = win(u, 0.05, 0.35), o = win(u, 0.25, 0.55);
-    g.save(); g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.globalAlpha = t; g.font = `400 132px "Gowun Dodum", ${FONT}`;
-    g.shadowColor = 'rgba(20,12,8,0.45)'; g.shadowBlur = 24; g.fillStyle = '#FFFFFF'; g.fillText('똑똑, 괜찮으세요?', W / 2, H / 2 - 50 + 16 * (1 - t));
-    g.globalAlpha = o; g.shadowBlur = 12; g.font = `500 46px ${FONT}`; g.fillStyle = '#F5EBDD'; g.fillText('동해시 지방세입 체납관리단', W / 2, H / 2 + 80);
+  } else if (k === 'climb') {
+    const st = stClimb(sh, u);
+    drawBg(g, img.stairs, st.cam, 1);
+    drawBack(g, st, st.pose);
+  } else if (k === 'walkAway') {
+    const st = stWalkAway(sh, u);
+    drawBg(g, img.gateDusk, st.cam, 1);
+    // the citizen, from behind, by his gate (sunset tint so the daylight drawing sits in the evening picture)
+    const [cx, cy] = pic(1062, 714);
+    g.save(); g.filter = 'sepia(0.28) saturate(1.15) brightness(0.9)';
+    drawBack(g, { cam: st.cam, foot: [cx, cy], h: 1.25 * (714 - 480) * PL.k, breath: st.breath }, 'czBackSharp');
     g.restore();
+    drawBack(g, st, 'walkAway');
+  } else if (k === 'village') {
+    const st = stVillage(sh, u);
+    drawBg(g, img.vDark, st.cam, 1);
+    if (st.dusk < 1) { g.save(); g.globalAlpha = 1 - st.dusk; drawBg(g, img.vOff, st.cam, 1); g.restore(); }
+    g.save(); g.setTransform(...camXf(st.cam, 1));
+    LIGHTS.forEach(([f, x, y], i) => { if (st.light[i] > 0.001) { g.globalAlpha = Math.min(1, st.light[i]); g.drawImage(img[f], PL.x + x, PL.y + y); } });
+    g.restore();
+    if (st.msg > 0.001) {                     // the message line (design doc): fades in across the top third
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = st.msg;
+      const tg = g.createLinearGradient(0, 0, 0, 400);     // a soft dusk shade behind it so it reads on the bright sky
+      tg.addColorStop(0, 'rgba(30,18,56,0.42)'); tg.addColorStop(1, 'rgba(30,18,56,0)');
+      g.fillStyle = tg; g.fillRect(0, 0, W, 400);
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.shadowColor = 'rgba(16,10,30,0.55)'; g.shadowBlur = 22;
+      g.font = `400 92px "Gowun Dodum", ${FONT}`; g.fillStyle = '#FFFFFF'; g.fillText('체납 뒤에 사람이 있습니다.', W / 2, 200 + 10 * (1 - st.msg));
+      g.restore();
+    }
+  } else if (k === 'end') {
+    const e = smoother(u), cam = { s: 1.06 + 0.02 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
+    g.filter = 'blur(7px)'; drawBg(g, img.vOn, cam, 1); g.filter = 'none';
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = 'rgba(26,18,40,0.52)'; g.fillRect(0, 0, W, H);
+    const a1 = win(u, 0.14, 0.28), a2 = win(u, 0.18, 0.34);     // after the dissolve, so the two cards' words never overlap
+    // the Donghae City CI: by the design doc's rule the official file is composited in post, never drawn — only its place is shown
+    g.save(); g.globalAlpha = a1; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.setLineDash([12, 9]); g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,0.7)';
+    roundRect(g, W / 2 - 190, 245, 380, 150, 20); g.stroke(); g.setLineDash([]);
+    g.font = `700 32px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillText('동해시 CI', W / 2, 303);
+    g.font = `500 23px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.66)'; g.fillText('공식 파일 후반 합성', W / 2, 345);
+    g.restore();
+    g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.shadowColor = 'rgba(10,6,14,0.5)'; g.shadowBlur = 14;
+    g.font = `700 72px ${FONT}`; g.fillStyle = '#FFFFFF'; g.fillText('동해시 지방세입 체납관리단', W / 2, 525);
+    g.font = `500 48px ${FONT}`; g.fillStyle = '#F5EBDD'; g.fillText('문의 033-530-2064', W / 2, 620);
+    g.restore();
+    sub = { text: '내레이션 “동해시 체납관리단입니다.”', a: win(u, 0.3, 0.42), small: true };
   }
   // warm light, placeholder notes, labels, subtitle, vignette
   g.setTransform(1, 0, 0, 1, 0, 0); g.filter = 'none';
@@ -687,8 +791,9 @@ function drawShot(g, c, sh, u) {
   if (labelsOn) {
     g.save(); g.textBaseline = 'middle';
     if (sub && sub.a > 0) {
-      g.font = `800 62px ${FONT}`; g.textAlign = 'center'; g.globalAlpha = sub.a;
-      outlinedText(g, sub.text, 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12);
+      g.textAlign = 'center'; g.globalAlpha = sub.a;
+      if (sub.small) { g.font = `700 38px ${FONT}`; outlinedText(g, sub.text, W / 2, 985, '#FFFFFF', 'rgba(20,14,28,0.6)', 9); }
+      else { g.font = `800 62px ${FONT}`; outlinedText(g, sub.text, 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12); }
       g.globalAlpha = 1; g.textAlign = 'left';
     }
     if (k !== 'end') {
@@ -711,17 +816,16 @@ function shotAt(f) {
 }
 function render(f) {
   const [c, sh, u] = shotAt(f);
-  if (sh.kind === 'end' && u < 0.25) {        // dissolve from the last frame of CUT 8 into the end card
+  if (sh.kind === 'end' && u < 0.18) {        // dissolve from the last frame of CUT 8 into the end card
     const prev = CUTS[CUTS.length - 2], eg = endBuf.getContext('2d');
     drawShot(eg, prev, prev.shots[prev.shots.length - 1], 1);
     drawShot(ctx, c, sh, u);
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - smoother(u / 0.25); ctx.drawImage(endBuf, 0, 0); ctx.globalAlpha = 1;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - smoother(u / 0.18); ctx.drawImage(endBuf, 0, 0); ctx.globalAlpha = 1;
   } else {
     drawShot(ctx, c, sh, u);
   }
   if (f < 18) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${1 - smoother(f / 18)})`; ctx.fillRect(0, 0, W, H); }
-  if (f > NF - 13) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${smoother((f - (NF - 13)) / 12)})`; ctx.fillRect(0, 0, W, H); }
-  return c;
+  return c;                                   // the end card holds to the last frame (CI, name and number stay readable)
 }
 
 // ---------------------------------------------------------------- page: cut list, image requests, playback
@@ -739,19 +843,15 @@ for (const c of CUTS) {
   li.appendChild(b); cutsEl.appendChild(li); c.li = li;
 }
 const COMMON = '첨부한 캐릭터 시트(턴어라운드·표정)와 같은 인물, 같은 그림체로 그려 주세요. 둥근 버섯머리와 정수리 한 가닥, 점 눈, 볼터치, 검정 반팔 폴로(흰 단추 2개), 남색 목걸이 명찰, 회색 크로스백 끈(오른쪽 어깨에서 왼쪽 옆구리로, 가방은 왼쪽 엉덩이 옆), 아이보리 바지, 흰 양말 빨간 줄, 검정 로퍼. 부드러운 평면 채색과 진한 외곽선. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
-const BGNOTE = '보내 준 마당 배경과 같은 그림체로, 인물 없이, 16:9 가로 1920px 이상.';
 const CZNOTE = '첨부한 어르신 시트(턴어라운드·표정·자세)와 같은 인물, 같은 그림체로 그려 주세요. 짧은 머리(옆머리 회색), 눈가 주름과 볼터치, 올리브색 맨투맨(회색 목둘레), 검정 바지, 회색 슬리퍼. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
-// [title, what, text, noPrompt] — still needed first, then the ones that would make a cut better
+// [title, what, text, noPrompt] — every picture the cuts need has arrived; these would replace movements now faked in code
 const REQS = [
-  ['CUT 1 · 바닷가 마을로 들어서다', '꼭 필요 · 배경 1장 + 인물 2장', `${BGNOTE}\n논골담길 계단 골목을 아래에서 올려다본 구도. 좁은 시멘트 계단, 양옆 흰 담과 바다 물결 벽화, 계단 옆 화분과 스티로폼 상자 텃밭, 골목을 가로지르는 빨랫줄, 계단 위로 옥색 대문 집이 살짝 보이고 골목 사이로 바다. 늦은 오후.\n\n${COMMON}\n계단을 오르는 주인공의 3/4 뒷모습 두 장: 왼발이 위 칸 / 오른발이 위 칸.`],
-  ['CUT 7 · 배웅', '꼭 필요 · 배경 1장 + 인물 1장', `지금은 노을빛으로 바꾼 마당에서 두 사람이 인사를 주고받는 데까지 만들었어요. 계단을 내려가는 장면을 그 뒤에 붙입니다.\n\n${BGNOTE}\n해질녘 노을빛의 옥색 대문 밖 골목. 아래로 이어지는 계단, 멀리 바다와 빨간 등대.\n\n${COMMON}\n계단을 내려가는 주인공의 작은 뒷모습 한 장(한 손에 태블릿).`],
-  ['CUT 8 · 집집마다 불이 켜진다', '꼭 필요 · 배경 2장(같은 구도)', `${BGNOTE}\n해질녘 묵호 언덕마을 전경(바다, 방파제와 등대, 가로등), 창문 불이 꺼진 그림 한 장.\n그다음 같은 그림에서 구도와 색은 그대로 두고 창문과 가로등에만 불을 켠 그림 한 장. 두 그림 차이로 불빛을 하나씩 켭니다.`],
-  ['CUT 9 · 엔드 카드', '꼭 필요 · 문구·CI (그림 아님)', `설계안의 메시지 문구(CUT 8)와 엔드 카드 문구, 그리고 동해시 CI 파일이 있으면 보내 주세요. 지금은 제목과 기관명만 넣었습니다.`, true],
+  ['CUT 1 · 바닷가 마을로 들어서다', '있으면 더 좋음 · 인물 1장', `지금은 오른발을 든 두 장을 번갈아 써서 계단을 오릅니다. 왼발이 위 칸에 오른 뒷모습 한 장이 있으면 걸음이 번갈아 나옵니다.\n\n${COMMON}\n계단을 오르는 3/4 뒷모습 한 장. 왼발이 위 칸, 오른발이 아래 칸. 가방과 태블릿은 보내 주신 두 장과 같은 쪽.`],
+  ['CUT 7 · 배웅', '있으면 더 좋음 · 인물 1장', `지금은 걷는 뒷모습 한 장을 위아래로 흔들어 걷게 했어요. 반대 발이 앞에 나온 한 장이 있으면 다리가 번갈아 움직입니다.\n\n${COMMON}\n노을 역광 속에 걸어가는 뒷모습 한 장. 보내 주신 걷는 그림과 같은 크기·색감으로, 반대 발이 앞에.`],
   ['CUT 4 · 평상에 마주 앉다', '있으면 더 좋음 · 인물 1장', `지금은 어르신 그림 속 주인공의 손만 보여요.\n\n${COMMON}\n평상에 앉아 왼쪽의 어르신에게서 종이컵을 두 손으로 받는 주인공 3/4 옆모습 한 장.`],
   ['CUT 5 · 이야기를 듣다', '있으면 더 좋음 · 인물 2장', `지금은 서 있는 ‘귀 기울임’ 얼굴을 가까이 잡아 썼어요.\n\n${COMMON}\n평상에 앉아 왼쪽을 보며 듣는 주인공 3/4 두 장: 기본 / 고개를 끄덕인 순간.`],
   ['CUT 3 · 문이 열린다', '있으면 더 좋음 · 인물 2장', `${CZNOTE}\n대문을 반쯤 열고 선 어르신 전신 한 장.\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
-  ['CUT 2 · 문 앞에서', '있으면 더 좋음 · 배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다.\n\n${BGNOTE}\n골목 쪽에서 본 같은 옥색 대문(닫힘), 흰 담과 화분, 대문 위로 보이는 마당의 나무.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
-  ['CUT 0 · 오프닝', '있으면 더 좋음 · 배경 1장', `${BGNOTE}\n동해 묵호항이 내려다보이는 언덕 마을 전경. 방파제 끝 빨간 등대, 잔잔한 바다, 비탈을 따라 겹겹이 선 낮은 집들(파란·주황 지붕, 옥상 물탱크), 늦은 오후 햇빛, 갈매기 몇 마리.`],
+  ['CUT 2 · 문 앞에서', '있으면 더 좋음 · 배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다. 배경은 보내 주신 노을 대문 그림을 낮 시간으로 바꿔 써도 됩니다.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
 ];
 const reqsEl = document.getElementById('reqs');
 REQS.forEach(([title, what, text, noPrompt], i) => {
@@ -803,8 +903,9 @@ labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!pl
     // Google Fonts sends Korean in unicode-range slices, so ask for exactly the letters the canvas draws before the first frame
     const TEXT = CUTS.map((c) => `CUT ${c.n} · ${c.title} 필요한 그림: ${c.need || ''}`).concat([
       '똑! 끼익 괜찮으세요? 똑똑, 동해시 지방세입 체납관리단 0123456789 그림 대기 · 프리비즈 구도 임시 화면',
-      '분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요 설계안의 CUT 8 문구가 여기에 들어갑니다']).join(' ');
-    const DISPLAY = '똑똑, 괜찮으세요? 메시지 문구 자리';
+      '분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요',
+      '동해시 CI 공식 파일 후반 합성 문의 033-530-2064 내레이션 “동해시 체납관리단입니다.”']).join(' ');
+    const DISPLAY = '체납 뒤에 사람이 있습니다.';
     await Promise.race([Promise.all(['900', '800', '700', '500'].map((wt) => document.fonts.load(`${wt} 40px "Noto Sans KR"`, TEXT))
       .concat([document.fonts.load('400 40px "Gowun Dodum"', DISPLAY)])),
       new Promise((r) => setTimeout(r, CAPTURE ? 30000 : 4000))]);

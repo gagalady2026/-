@@ -1,0 +1,148 @@
+{
+ "v5_climb_a.png": {
+  "size": [
+   1122,
+   1402
+  ],
+  "bbox": [
+   321,
+   23,
+   819,
+   1379
+  ],
+  "feet": [
+   455.4,
+   1379
+  ]
+ },
+ "v5_climb_b.png": {
+  "size": [
+   1122,
+   1402
+  ],
+  "bbox": [
+   270,
+   30,
+   831,
+   1368
+  ],
+  "feet": [
+   437.0,
+   1368
+  ]
+ },
+ "v5_walk_away.png": {
+  "size": [
+   1122,
+   1402
+  ],
+  "bbox": [
+   319,
+   21,
+   803,
+   1383
+  ],
+  "feet": [
+   493.4,
+   1383
+  ]
+ },
+ "lights": [
+  {
+   "file": "v5_light_00.png",
+   "at": [
+    92,
+    776
+   ],
+   "early": true
+  },
+  {
+   "file": "v5_light_01.png",
+   "at": [
+    76,
+    708
+   ],
+   "early": true
+  },
+  {
+   "file": "v5_light_02.png",
+   "at": [
+    140,
+    451
+   ],
+   "early": true
+  },
+  {
+   "file": "v5_light_03.png",
+   "at": [
+    137,
+    538
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_04.png",
+   "at": [
+    741,
+    487
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_05.png",
+   "at": [
+    149,
+    417
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_06.png",
+   "at": [
+    707,
+    361
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_07.png",
+   "at": [
+    716,
+    363
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_08.png",
+   "at": [
+    336,
+    274
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_09.png",
+   "at": [
+    660,
+    342
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_10.png",
+   "at": [
+    857,
+    264
+   ],
+   "early": false
+  },
+  {
+   "file": "v5_light_11.png",
+   "at": [
+    0,
+    6
+   ],
+   "early": false
+  }
+ ]
+}
