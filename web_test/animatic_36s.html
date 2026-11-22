@@ -1,0 +1,656 @@
+<title>똑똑 36초 애니매틱</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<style>
+/* Layout: one column — 16:9 stage, transport, the 10-cut timeline (current cut lit), then the image requests */
+:root {
+  --bg: #F3EFE6;
+  --surface: #FFFFFF;
+  --fg: #2A2421;
+  --muted: #6B625B;
+  --line: #DDD5C8;
+  --jade: #23927F;
+  --gpt: #23927F;
+  --temp: #B7791F;
+  --code: #3B87B8;
+  --stage: #E9E2D3;
+  --font-display: "Gowun Dodum", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+    --jade: #4CC3AF; --gpt: #4CC3AF; --temp: #E3A84A; --code: #6CB2DE; --stage: #2A2622; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+  --jade: #4CC3AF; --gpt: #4CC3AF; --temp: #E3A84A; --code: #6CB2DE; --stage: #2A2622; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.6; }
+.wrap {
+  max-width: 1120px; margin: 0 auto; display: grid; gap: 20px;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { margin: 0; font-size: 0.8rem; letter-spacing: 0.06em; color: var(--muted); }
+h1 { margin: 4px 0 6px; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.25; text-wrap: balance; }
+h1 .accent { color: var(--jade); }
+h2 { margin: 12px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 1.45rem; }
+.lead { margin: 0; max-width: 68ch; color: var(--muted); }
+ul.lead { margin: 6px 0; padding-left: 1.3em; }
+ul.lead li + li { margin-top: 2px; }
+.stage { position: relative; margin: 0; aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 12px; overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg); font-size: 0.95rem; background: var(--stage); text-align: center; padding: 16px; }
+.stage .status[hidden] { display: none; }
+.transport { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.transport button {
+  font: 500 0.92rem var(--font-body); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px; cursor: pointer;
+}
+.transport button.primary { background: var(--jade); border-color: var(--jade); color: #FFFFFF; min-width: 92px; }
+.transport button:focus-visible, .transport input:focus-visible, .cuts button:focus-visible, .req button:focus-visible { outline: 3px solid var(--code); outline-offset: 2px; }
+.scrub { flex: 1 1 260px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.scrub input { flex: 1; min-width: 0; accent-color: var(--jade); }
+.timecode { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.88rem; color: var(--muted); white-space: nowrap; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--muted); cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 0.85rem; color: var(--muted); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.gpt { background: var(--gpt); } .dot.temp { background: var(--temp); } .dot.code { background: var(--code); }
+.cuts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.cuts li { min-width: 0; }
+.cuts button {
+  width: 100%; height: 100%; text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start;
+  padding: 10px 12px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; background: var(--surface); color: var(--fg);
+  font: inherit; cursor: pointer;
+}
+.cuts button.gpt { border-left-color: var(--gpt); } .cuts button.temp { border-left-color: var(--temp); } .cuts button.code { border-left-color: var(--code); }
+.cuts .no { grid-row: span 3; font: 500 0.8rem var(--font-mono); color: var(--muted); padding-top: 2px; }
+.cuts .what { font-weight: 700; font-size: 0.93rem; line-height: 1.4; }
+.cuts .act { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+.cuts .when { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.76rem; color: var(--muted); }
+.cuts .is-now button { border-color: var(--jade); box-shadow: 0 0 0 1px var(--jade) inset; }
+.reqs { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.req { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 14px; min-width: 0; display: grid; gap: 6px; }
+.req .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; align-items: baseline; }
+.req .head b { font-size: 0.98rem; }
+.req .head span { font-size: 0.82rem; color: var(--muted); }
+.req p { margin: 0; font-size: 0.9rem; }
+.req pre { margin: 0; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: 0.86rem/1.6 var(--font-body); background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+.req button { justify-self: start; font: 500 0.82rem var(--font-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.note { margin: 0; font-size: 0.85rem; color: var(--muted); max-width: 72ch; }
+/* 1920×1080 render mode used to export the MP4 (canvas only) */
+body.capture { margin: 0; background: #000000; }
+body.capture .wrap { display: block; max-width: none; padding: 0; }
+body.capture .wrap > :not(.stage) { display: none; }
+body.capture .stage { width: 1920px; height: 1080px; aspect-ratio: auto; border-radius: 0; }
+body.capture .stage .status { display: none; }
+@media (prefers-reduced-motion: reduce) { .transport button { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">동해시 지방세입 체납관리단 · 홍보 애니메이션 「똑똑, 괜찮으세요?」 · 30초 대본을 36초로 늘린 애니매틱</p>
+    <h1><span class="accent">36초</span> 애니매틱 · 10컷</h1>
+    <p class="lead">원래 8컷 30초 대본의 순서와 행동은 그대로 두었습니다. 늘린 곳은 이렇습니다.</p>
+    <ul class="lead">
+      <li>바다 마을 오프닝 3초를 새로 넣었습니다.</li>
+      <li>‘문이 열린다’와 ‘배웅’을 0.5초씩 늘렸습니다.</li>
+      <li>핵심 장면인 ‘이야기를 듣다’와 ‘분납·복지 연계 안내’를 1초씩 늘렸습니다.</li>
+      <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초로 나눴습니다.</li>
+    </ul>
+    <p class="lead">보내주신 GPT 그림이 있는 컷은 그 그림을 코드로 움직였습니다. 아직 그림이 없는 컷은 프리비즈 구도를 임시로 깔고, 필요한 그림을 화면에 적어 두었습니다.</p>
+  </header>
+
+  <figure class="stage" id="stage">
+    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 묵호 바다 마을 오프닝, 계단 골목, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에 마주 앉기, 이야기 듣기, 태블릿으로 분납 안내와 복지서비스 연계 안내, 배웅, 불 켜지는 마을, 엔드 카드"></canvas>
+    <div class="status" id="status">그림을 불러오는 중…</div>
+  </figure>
+
+  <div class="transport">
+    <button type="button" class="primary" id="play">일시정지</button>
+    <button type="button" id="restart">처음부터</button>
+    <label class="scrub" for="frame"><span class="timecode" id="tc">0.00초 · CUT 0</span><input type="range" id="frame" min="0" max="863" step="1" value="0" aria-label="프레임 위치"></label>
+    <label class="toggle" for="labels"><input type="checkbox" id="labels" checked> 자막·컷 이름</label>
+  </div>
+
+  <ul class="legend">
+    <li><span class="dot gpt"></span>보내주신 GPT 그림 + 코드 움직임</li>
+    <li><span class="dot temp"></span>그림 대기(프리비즈 구도 임시)</li>
+    <li><span class="dot code"></span>코드로 만든 화면</li>
+  </ul>
+  <ol class="cuts" id="cuts"></ol>
+
+  <h2>그려 주실 GPT 그림</h2>
+  <p class="note">각 컷의 프리비즈 구도 그림(애니매틱의 임시 화면)과 캐릭터 시트를 ChatGPT에 함께 올리고, 아래 문장을 붙여 쓰면 구도와 인물이 맞게 나옵니다. 인물은 배경 없는 투명 PNG, 배경은 인물 없는 16:9로 따로 받으면 코드로 움직이기 가장 좋습니다.</p>
+  <ul class="reqs" id="reqs"></ul>
+
+  <p class="note">Canvas 2D · 24fps 36초(864프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 메시지 컷(CUT 8)의 문구와 엔드 카드 문구는 설계안 확인 전이라 제목과 기관명만 넣었습니다.</p>
+</main>
+
+<script>
+(function () {
+'use strict';
+const CAPTURE = new URLSearchParams(location.search).has('capture');
+if (CAPTURE) document.body.classList.add('capture');
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FPS = 24, W = 1920, H = 1080;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smoother = (x) => { x = clamp(x); return x * x * x * (x * (6 * x - 15) + 10); };
+const win = (t, a, b) => (b <= a ? (t >= b ? 1 : 0) : smoother((t - a) / (b - a)));
+function bump(t, a, b, hold = 0) {
+  if (t <= a || t >= b) return 0;
+  const u = (t - a) / (b - a), h = clamp(hold, 0, 0.9), r = (1 - h) / 2;
+  if (u < r) return smoother(u / r);
+  if (u > 1 - r) return smoother((1 - u) / r);
+  return 1;
+}
+const easeOutBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const D2R = Math.PI / 180;
+
+// ---------------------------------------------------------------- the 36-second cut list (the 8-cut script, stretched and framed)
+// kind: est = opening plate · ph = placeholder (previs composition, picture still to come) · talk / react / tablet = the user's GPT art · end = end card
+const CUTS = [
+  { n: 0, sec: 3.0, kind: 'est', src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)' },
+  { n: 1, sec: 3.5, kind: 'ph', src: 'temp', still: 'CUT01', title: '바닷가 마을로 들어서다', act: '계단 골목을 오르고, 중간에 담장 너머 집을 봄',
+    need: '계단 골목 배경 + 계단을 오르는 주인공 뒷모습 2장' },
+  { n: 2, sec: 2.5, kind: 'gate', src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! 두 번 두드리는 소리, 끼익 문이 열림' },
+  { n: 3, sec: 4.5, kind: 'react', src: 'gpt', title: '문이 열린다', act: '살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 천천히 다가감(+0.5초)' },
+  { n: 4, sec: 3.0, kind: 'ph', src: 'temp', still: 'CUT04', title: '평상에 마주 앉다', act: '평상에 비스듬히 마주 앉음, 찻잔을 밀어 주고 두 손으로 받음',
+    need: '평상에 마주 앉은 두 사람 · 찻잔 건네기 / 받기 2장' },
+  { n: 5, sec: 5.0, kind: 'ph', src: 'temp', still: 'CUT05', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기, 주인공은 몸을 기울여 듣고 한 번 끄덕임(+1초)',
+    need: '이야기하는 어르신(입 2장) + 듣고 끄덕이는 주인공(2장)' },
+  { n: 6, sec: 5.0, kind: 'tablet', src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 미소(+1초)' },
+  { n: 7, sec: 3.5, kind: 'ph', src: 'temp', still: 'CUT07', title: '배웅', act: '목례 → 어르신이 손 들어 화답 → 계단을 내려감, 골목과 등대가 드러남(+0.5초)',
+    need: '노을 진 대문 앞 배경 + 목례 · 화답 · 내려가는 뒷모습' },
+  { n: 8, sec: 4.0, kind: 'ph', src: 'temp', still: 'CUT08', msg: true, title: '집집마다 불이 켜진다', act: '가로등이 먼저, 이어 창문 불빛이 하나씩 켜지는 메시지 컷(문구는 설계안 확인 뒤)',
+    need: '해질녘 마을 전경 2장(불 꺼짐 / 같은 구도로 불 켜짐)' },
+  { n: 9, sec: 2.0, kind: 'end', src: 'code', title: '엔드 카드', act: '「똑똑, 괜찮으세요?」와 동해시 지방세입 체납관리단' },
+];
+let acc = 0;
+for (const c of CUTS) { c.nf = Math.round(c.sec * FPS); c.f0 = acc; acc += c.nf; }
+const NF = acc;                                         // 864
+
+// ---------------------------------------------------------------- the user's GPT images (cleaned, see assets_v2) + placeholders
+const SRC = {
+  far: 'assets_v3/v3_plate_far.jpg', gate: 'assets_v3/v3_plate_gate.jpg', bgGate: 'assets_v2/v2_bg_gate.jpg', bgWall: 'assets_v2/v2_bg_wall.jpg',
+  neutral: 'assets_v2/v2_st_neutral.png', listen: 'assets_v2/v2_st_listen.png', smile: 'assets_v2/v2_st_smile.png', talkMouth: 'assets_v2/v2_st_talk_mouth.png',
+  p1: 'assets_v2/v2_sit_point1.png', p2: 'assets_v2/v2_sit_point2.png', p1c: 'assets_v2/v2_sit_point1_closed.png', p2c: 'assets_v2/v2_sit_point2_closed.png',
+  p1m: 'assets_v2/v2_sit_point1_panelmask.png', p2m: 'assets_v2/v2_sit_point2_panelmask.png',
+  CUT01: 'assets_v3/CUT01_F0047.jpg', CUT04: 'assets_v3/CUT04_F0262.jpg', CUT05: 'assets_v3/CUT05_F0332.jpg', CUT07: 'assets_v3/CUT07_F0515.jpg', CUT08: 'assets_v3/CUT08_F0666.jpg',
+};
+const STAND = {
+  pivotX: 558, talkMouth: [511, 289],
+  neutral: { off: [0, 0], eyes: [[499.4, 251, 18, 31], [586.9, 251, 17, 31]], skin: 'rgb(252,214,192)' },
+  listen: { off: [0, 18], eyes: [[495.6, 249.9, 20, 31], [579, 232.8, 19, 30]], skin: 'rgb(253,214,192)' },
+  smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)' },
+};
+const FRAME_A = { s: 1.2, ox: 48, oy: 18 };            // the v2 standing framing (shot A)
+const SIT = {
+  s: 1.05, ox: 175, oy: 42, pivotX: 560, mask: [620, 480],
+  p1: { off: [0, 0], eyes: [[459.9, 342, 25, 45], [578.7, 319.6, 23, 44]], skin: 'rgb(253,216,193)', closed: [494, 395],
+    a: [[728, 520], [975, 517], [962, 661], [709, 662]], b: [[703, 691], [947, 690], [931, 825], [684, 820]], tip: [753, 589] },
+  p2: { off: [34, 0], eyes: [[430.7, 347.1, 24, 43], [546.3, 327.3, 22, 43]], skin: 'rgb(252,214,189)', closed: [465, 404],
+    a: [[721, 574], [952, 576], [935, 705], [701, 697]], b: [[691, 729], [929, 735], [913, 880], [667, 872]], tip: [751, 801] },
+};
+
+const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const img = {};
+const load = (k, src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { img[k] = im; res(); }; im.onerror = () => rej(new Error(src)); im.src = src; });
+const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+const cbuf = mk(), bufP1 = mk(), bufP2 = mk(), mixBuf = mk(), endBuf = mk();
+const FONT = '"Noto Sans KR", "WenQuanYi Zen Hei", sans-serif';
+
+// ---------------------------------------------------------------- per-cut timing (pure functions of the cut's own u ∈ [0,1])
+function base(c, u) { return { c, u, sec: u * (c.nf - 1) / FPS }; }
+function stGate(c, u) {                 // CUT 2: the closed gate seen from the yard (the citizen's side): two knocks, then the creak of it opening
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.07 * e, fx: 1300, fy: 600, dx: -12 * e, dy: 0 };
+  st.knocks = [[0.2, 1150, 470, -8], [0.4, 1450, 415, 7]].map(([t0, x, y, r]) => ({ k: win(u, t0, t0 + 0.07), out: win(u, 0.72, 0.82), x, y, r, hit: bump(u, t0, t0 + 0.06) }));
+  st.shake = Math.max(bump(u, 0.2, 0.25), bump(u, 0.4, 0.45));
+  st.creak = win(u, 0.8, 0.9);
+  return st;
+}
+function stReact(c, u) {                // CUT 3: the gate has opened — a small bow, “괜찮으세요?”, then listening and a smile while the camera eases in
+  const st = base(c, u);
+  const push = smoother((u - 0.42) / 0.5);
+  st.cam = { s: 1 + 0.27 * push, fx: 700, fy: 340, dx: 12 * smoother(u), dy: 0 };
+  st.frame = FRAME_A;
+  st.variant = u < 0.53 ? 'neutral' : u < 0.77 ? 'listen' : 'smile';
+  st.bow = bump(u, 0.04, 0.22, 0.35);
+  const SYL = [[0.25, 0.295], [0.3, 0.345], [0.35, 0.385], [0.39, 0.425], [0.43, 0.48]];      // 괜-찮-으-세-요
+  st.open = SYL.some(([a, b]) => u >= a && u < a + (b - a) * 0.62);
+  st.blink = Math.max(bump(u, 0.05, 0.21, 0.6), bump(u, 0.5, 0.56, 0.45), bump(u, 0.74, 0.8, 0.45));
+  st.sub = win(u, 0.23, 0.27) * (1 - win(u, 0.6, 0.66));
+  st.flash = 1 - smoother(u / 0.1);
+  st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.0); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.7);
+  return st;
+}
+function stTablet(c, u) {               // CUT 6: the v2 tablet shot, given one more second
+  const st = base(c, u), e = smoother(u);
+  st.cam = { s: 1 + 0.1 * e, fx: 980, fy: 620, dx: -20 * e, dy: -10 * e };
+  st.swap = clamp((u - 0.455) / 0.03);
+  const talk = (u > 0.03 && u < 0.27) || (u > 0.52 && u < 0.76);
+  st.closed = !(talk && Math.sin(2 * Math.PI * 4.4 * st.sec) > -0.1);
+  st.blink = Math.max(bump(u, 0.3, 0.345), bump(u, 0.447, 0.497, 0.5), bump(u, 0.86, 0.9));
+  st.hl1 = win(u, 0.07, 0.11) * (1 - win(u, 0.44, 0.5));
+  st.icon1 = easeOutBack(win(u, 0.09, 0.15));
+  st.text1 = win(u, 0.12, 0.18);
+  st.cal = win(u, 0.17, 0.19);
+  st.seg = [0, 1, 2].map((i) => win(u, 0.18 + 0.035 * i, 0.21 + 0.035 * i));
+  st.hl2 = win(u, 0.5, 0.55) * (1 - 0.4 * win(u, 0.86, 0.96));
+  st.icon2 = easeOutBack(win(u, 0.53, 0.59));
+  st.text2 = win(u, 0.56, 0.62);
+  st.nodes = [0, 1, 2].map((i) => win(u, 0.6 + 0.03 * i, 0.63 + 0.03 * i));
+  st.heart = 1 + 0.2 * Math.max(bump(u, 0.565, 0.6), bump(u, 0.635, 0.67));
+  st.taps = [[0.1, 'p1', 'a'], [0.17, 'p1', 'a'], [0.565, 'p2', 'b'], [0.635, 'p2', 'b']]
+    .map(([t0, pose, panel]) => ({ pose, panel, k: (u - t0) / 0.11 })).filter((r) => r.k >= 0 && r.k <= 1);
+  st.press = Math.max(bump(u, 0.095, 0.125), bump(u, 0.165, 0.195), bump(u, 0.56, 0.59), bump(u, 0.63, 0.66));
+  st.speed = bump(u, 0.43, 0.5, 0.2);
+  st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.1); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.5);
+  return st;
+}
+
+// ---------------------------------------------------------------- drawing helpers (shared with motion comic v2)
+function camXf(c, k) {
+  const s = 1 + (c.s - 1) * k;
+  return [s, 0, 0, s, c.fx + c.dx * k - c.fx * s, c.fy + c.dy * k - c.fy * s];
+}
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function eyelids(g, eyes, skin, c) {
+  if (c <= 0.02) return;
+  for (const [x, y, w, h] of eyes) {
+    const rx = w / 2 + 3, ry = h / 2 + 3;
+    g.save(); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.clip();
+    g.fillStyle = skin; g.fillRect(x - rx, y - ry, rx * 2, ry * 2 * Math.min(1, c * 1.15)); g.restore();
+    if (c > 0.72) {
+      g.save(); g.globalAlpha = clamp((c - 0.72) / 0.2);
+      g.strokeStyle = '#2A211F'; g.lineWidth = Math.max(3.5, w * 0.17); g.lineCap = 'round';
+      g.beginPath(); g.moveTo(x - w * 0.78, y + h * 0.1); g.quadraticCurveTo(x, y + h * 0.33, x + w * 0.78, y + h * 0.1); g.stroke();
+      g.restore();
+    }
+  }
+}
+function heartPath(g, x, y, s) {
+  g.beginPath(); g.moveTo(x, y + 9 * s);
+  g.bezierCurveTo(x - 15 * s, y - 2 * s, x - 13 * s, y - 15 * s, x - 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x - 1.5 * s, y - 15 * s, x, y - 12 * s, x, y - 11 * s);
+  g.bezierCurveTo(x, y - 12 * s, x + 1.5 * s, y - 15 * s, x + 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x + 13 * s, y - 15 * s, x + 15 * s, y - 2 * s, x, y + 9 * s); g.closePath();
+}
+function fitText(g, text, weight, size, maxW) {
+  let fs = size;
+  for (let i = 0; i < 30; i++) { g.font = `${weight} ${fs}px ${FONT}`; if (g.measureText(text).width <= maxW) break; fs -= 0.5; }
+}
+const panelXf = ([tl, tr, , bl]) => [(tr[0] - tl[0]) / 250, (tr[1] - tl[1]) / 250, (bl[0] - tl[0]) / 140, (bl[1] - tl[1]) / 140, tl[0], tl[1]];
+function drawInstall(g, st) {
+  if (st.hl1 > 0.001) { g.fillStyle = `rgba(150,198,238,${0.6 * st.hl1})`; roundRect(g, -8, -8, 266, 156, 14); g.fill(); }
+  if (st.icon1 > 0.01) {
+    g.save(); g.translate(50, 70); g.scale(st.icon1, st.icon1);
+    roundRect(g, -30, -24, 60, 50, 7); g.fillStyle = '#EAF4FC'; g.fill(); g.lineWidth = 3.5; g.strokeStyle = '#3B87B8'; g.stroke();
+    g.beginPath(); g.moveTo(-30, -11); g.lineTo(-30, -17); g.arcTo(-30, -24, -23, -24, 7); g.lineTo(23, -24); g.arcTo(30, -24, 30, -17, 7); g.lineTo(30, -11); g.closePath();
+    g.fillStyle = '#5FA8D3'; g.fill(); g.stroke();
+    g.fillStyle = '#3B87B8'; roundRect(g, -18, -31, 6, 13, 3); g.fill(); roundRect(g, 12, -31, 6, 13, 3); g.fill();
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+      g.fillStyle = r === 0 && c === 1 && st.cal > 0.5 ? '#3B87B8' : '#BFD9EE'; roundRect(g, -22 + c * 16, -5 + r * 13, 12, 9, 2); g.fill();
+    }
+    g.restore();
+  }
+  if (st.text1 > 0.001) {
+    g.save(); g.globalAlpha = st.text1; g.textBaseline = 'alphabetic';
+    g.fillStyle = '#1D4C6C'; fitText(g, '분납 안내', 900, 27, 142); g.fillText('분납 안내', 96, 62);
+    g.fillStyle = '#3A6E92'; fitText(g, '나눠서 납부할 수 있어요', 500, 15, 146); g.fillText('나눠서 납부할 수 있어요', 96, 88);
+    g.restore();
+    for (let i = 0; i < 3; i++) {
+      g.fillStyle = '#CFE2F1'; roundRect(g, 96 + i * 47, 102, 42, 13, 5); g.fill();
+      if (st.seg[i] > 0) { g.globalAlpha = st.seg[i]; g.fillStyle = '#3B87B8'; roundRect(g, 96 + i * 47, 102, 42, 13, 5); g.fill(); g.globalAlpha = 1; }
+    }
+  }
+}
+function drawWelfare(g, st) {
+  if (st.hl2 > 0.001) { g.fillStyle = `rgba(246,176,146,${0.62 * st.hl2})`; roundRect(g, -8, -8, 266, 156, 14); g.fill(); }
+  if (st.icon2 > 0.01) {
+    g.save(); g.translate(50, 76); g.scale(st.icon2, st.icon2);
+    g.fillStyle = '#D9704B'; g.beginPath(); g.arc(-12, -8, 11, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(-31, 24); g.bezierCurveTo(-31, 5, 7, 5, 7, 24); g.closePath(); g.fill();
+    g.fillStyle = '#F2946E'; g.beginPath(); g.arc(16, -3, 9, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(1, 25); g.bezierCurveTo(1, 11, 31, 11, 31, 25); g.closePath(); g.fill();
+    g.fillStyle = '#E2604A'; heartPath(g, 2, -32, 1.05 * st.heart); g.fill();
+    g.restore();
+  }
+  if (st.text2 > 0.001) {
+    g.save(); g.globalAlpha = st.text2; g.textBaseline = 'alphabetic';
+    g.fillStyle = '#8A3B22'; fitText(g, '복지서비스 연계', 900, 27, 146); g.fillText('복지서비스 연계', 96, 62);
+    g.fillStyle = '#A85A3E'; fitText(g, '필요한 도움과 이어 드려요', 500, 15, 148); g.fillText('필요한 도움과 이어 드려요', 96, 88);
+    g.restore();
+    g.strokeStyle = '#D9704B'; g.lineWidth = 3; g.beginPath(); g.moveTo(104, 109); g.lineTo(196, 109); g.stroke();
+    st.nodes.forEach((v, i) => {
+      g.beginPath(); g.arc(104 + i * 46, 109, 7.5, 0, Math.PI * 2);
+      g.fillStyle = v > 0.5 ? '#D9704B' : '#F6D3C4'; g.fill(); g.lineWidth = 2.5; g.strokeStyle = '#D9704B'; g.stroke();
+    });
+  }
+}
+function drawPose(g, key, st) {
+  const P = SIT[key], s = SIT.s, ox = SIT.ox + P.off[0] * s, oy = SIT.oy + P.off[1] * s;
+  g.save();
+  g.setTransform(...camXf(st.cam, 1));
+  const bx = ox + SIT.pivotX * s, by = H + 40;
+  g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
+  g.translate(ox, oy + 3 * st.press); g.scale(s, s);
+  g.drawImage(img[key], 0, 0);
+  if (st.closed) g.drawImage(img[key + 'c'], P.closed[0], P.closed[1]);
+  eyelids(g, P.eyes, P.skin, st.blink);
+  const m = g.getTransform(), c = cbuf.getContext('2d');
+  const masked = (paint) => {
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, W, H);
+    c.setTransform(m); paint(c);
+    c.globalCompositeOperation = 'destination-in'; c.drawImage(img[key + 'm'], SIT.mask[0], SIT.mask[1]);
+    c.globalCompositeOperation = 'source-over';
+  };
+  masked((cc) => { cc.fillStyle = 'rgba(255,255,255,0.7)'; for (const q of [P.a, P.b]) { cc.beginPath(); q.forEach(([x, y], i) => (i ? cc.lineTo(x, y) : cc.moveTo(x, y))); cc.closePath(); cc.fill(); } });
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(cbuf, 0, 0); g.restore();
+  masked((cc) => {
+    cc.save(); cc.transform(...panelXf(P.a)); drawInstall(cc, st); cc.restore();
+    cc.save(); cc.transform(...panelXf(P.b)); drawWelfare(cc, st); cc.restore();
+    for (const r of st.taps) {
+      if (r.pose !== key) continue;
+      cc.beginPath(); cc.arc(P.tip[0], P.tip[1], 8 + 46 * r.k, 0, Math.PI * 2);
+      cc.lineWidth = 6 * (1 - r.k) + 1.5; cc.strokeStyle = r.panel === 'a' ? `rgba(59,135,184,${0.9 * (1 - r.k)})` : `rgba(217,112,75,${0.9 * (1 - r.k)})`; cc.stroke();
+    }
+  });
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'multiply'; g.drawImage(cbuf, 0, 0); g.restore();
+  g.restore();
+}
+function tipFrame(key, st) {
+  const P = SIT[key], s = SIT.s, m = new DOMMatrix(camXf(st.cam, 1));
+  const p = m.transformPoint(new DOMPoint(SIT.ox + (P.off[0] + P.tip[0]) * s, SIT.oy + (P.off[1] + P.tip[1]) * s));
+  return { x: p.x, y: p.y };
+}
+function drawStanding(g, st) {
+  const v = STAND[st.variant], F = st.frame, s = F.s, ox = F.ox + v.off[0] * s, oy = F.oy + v.off[1] * s;
+  g.save();
+  g.setTransform(...camXf(st.cam, 1));
+  const bx = ox + STAND.pivotX * s, by = H + 30;
+  // a small bow seen from the front: the figure dips (squashes about the feet) with the eyes shut
+  g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, (1 + 0.004 * st.breath) * (1 - 0.03 * (st.bow || 0))); g.translate(-bx, -by);
+  g.translate(ox, oy); g.scale(s, s);
+  g.drawImage(img[st.variant], 0, 0);
+  if (st.variant === 'neutral' && st.open) g.drawImage(img.talkMouth, STAND.talkMouth[0], STAND.talkMouth[1]);
+  eyelids(g, v.eyes, v.skin, st.blink);
+  g.restore();
+}
+function drawBg(g, im, cam, k, zoom = 1, zx = W / 2, zy = H / 2) {
+  g.save();
+  g.setTransform(...camXf(cam, k));
+  g.translate(zx, zy); g.scale(zoom, zoom); g.translate(-zx, -zy);
+  g.drawImage(im, (W - im.width) / 2, (H - im.height) / 2);
+  g.restore();
+}
+const BOKEH = Array.from({ length: 14 }, (_, i) => ({ x: (i * 397) % 1920, y: 100 + ((i * 211) % 600), r: 18 + ((i * 53) % 40), a: 0.08 + ((i * 7) % 5) * 0.03, v: 6 + (i % 4) * 4, ph: i * 0.9 }));
+function bokeh(g, sec) {
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'screen';
+  for (const b of BOKEH) {
+    const y = b.y - b.v * sec, x = b.x + 8 * Math.sin(sec * 0.8 + b.ph), a = b.a * (0.75 + 0.25 * Math.sin(sec * 1.6 + b.ph));
+    const gr = g.createRadialGradient(x, y, 0, x, y, b.r);
+    gr.addColorStop(0, `rgba(255,246,226,${a})`); gr.addColorStop(1, 'rgba(255,246,226,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, b.r, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+}
+function gull(g, x, y, s, flap) {
+  g.save(); g.strokeStyle = 'rgba(60,70,80,0.85)'; g.lineWidth = 3.2 * s; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath(); g.moveTo(x - 18 * s, y + 2 * s); g.quadraticCurveTo(x - 9 * s, y - (5 + flap) * s, x, y + 3 * s); g.quadraticCurveTo(x + 9 * s, y - (5 + flap) * s, x + 18 * s, y + 2 * s); g.stroke();
+  g.restore();
+}
+function outlinedText(g, text, x, y, fill, stroke, lw) {
+  g.lineJoin = 'round'; g.lineWidth = lw; g.strokeStyle = stroke; g.strokeText(text, x, y); g.fillStyle = fill; g.fillText(text, x, y);
+}
+
+// ---------------------------------------------------------------- one cut
+let labelsOn = true;
+function drawCut(g, c, u) {
+  const sec = u * (c.nf - 1) / FPS;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#E9E2D3'; g.fillRect(0, 0, W, H);
+  if (c.kind === 'est') {                     // a slow pull-back from the lighthouse to the wall and gate
+    const e = smoother(u), cam = { s: 1.16 - 0.13 * e, fx: 820, fy: 500, dx: 30 * e, dy: 0 };
+    drawBg(g, img.far, cam, 1);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    gull(g, 520 + 140 * u, 230 - 20 * u, 1.2, 9 * Math.sin(2 * Math.PI * 2.3 * sec));
+    gull(g, 650 + 110 * u, 175 - 12 * u, 0.9, 7 * Math.sin(2 * Math.PI * 2.7 * sec + 1.2));
+    gull(g, 1420 + 90 * u, 260 - 8 * u, 0.75, 6 * Math.sin(2 * Math.PI * 2.5 * sec + 2.1));
+  } else if (c.kind === 'ph') {
+    const e = smoother(u), cam = { s: 1.02 + 0.05 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
+    g.setTransform(...camXf(cam, 1));
+    g.filter = 'saturate(0.8)'; g.drawImage(img[c.still], 0, 0, W, H); g.filter = 'none';
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    if (c.msg) {                              // where the message line goes, once the copy from the design doc is in
+      const a = win(u, 0.15, 0.3);
+      g.save(); g.globalAlpha = a; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.setLineDash([14, 10]); g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,0.75)';
+      roundRect(g, W / 2 - 520, 170, 1040, 210, 24); g.stroke(); g.setLineDash([]);
+      g.shadowColor = 'rgba(20,12,8,0.5)'; g.shadowBlur = 16;
+      g.font = `400 70px "Gowun Dodum", ${FONT}`; g.fillStyle = '#FFFFFF'; g.fillText('메시지 문구 자리', W / 2, 250);
+      g.shadowBlur = 0; g.font = `500 32px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.9)';
+      g.fillText('설계안의 CUT 8 문구가 여기에 들어갑니다', W / 2, 328);
+      g.restore();
+    }
+  } else if (c.kind === 'gate') {
+    const st = stGate(c, u);
+    if (st.shake) { const s = 4 * st.shake; st.cam.dx += s * Math.sin(sec * 90); st.cam.dy += s * Math.cos(sec * 77); }
+    drawBg(g, img.gate, st.cam, 1);
+    bokeh(g, st.sec);
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const kn of st.knocks) {              // sound lettering for the two knocks on the gate
+      if (kn.k <= 0.001 || kn.out >= 0.999) continue;
+      g.save(); g.translate(kn.x, kn.y); g.rotate(kn.r * D2R); const sc = easeOutBack(kn.k) * (1 + 0.12 * kn.hit); g.scale(sc, sc);
+      g.globalAlpha = 1 - kn.out;
+      g.font = `900 120px ${FONT}`; outlinedText(g, '똑!', 0, 0, '#FFFFFF', 'rgba(42,33,31,0.9)', 18);
+      g.strokeStyle = 'rgba(42,33,31,0.9)'; g.lineWidth = 7; g.lineCap = 'round';
+      for (const a of [-140, -110, -70, -40]) { const ca = Math.cos(a * D2R), sa = Math.sin(a * D2R); g.beginPath(); g.moveTo(ca * 90, sa * 80); g.lineTo(ca * 120, sa * 108); g.stroke(); }
+      g.restore();
+    }
+    if (st.creak > 0.001) {                    // the gate starts to open
+      g.save(); g.translate(1304, 800); g.rotate(-3 * D2R); g.globalAlpha = st.creak;
+      const sc = 0.85 + 0.15 * easeOutBack(st.creak); g.scale(sc, sc);
+      g.font = `800 64px ${FONT}`; outlinedText(g, '끼익', 0, 0, '#F4EFE6', 'rgba(42,33,31,0.85)', 11);
+      g.restore();
+    }
+    g.restore();
+  } else if (c.kind === 'react') {
+    const st = stReact(c, u);
+    drawBg(g, img.bgGate, st.cam, 0.4);
+    bokeh(g, st.sec);
+    drawStanding(g, st);
+    if (st.flash > 0.001) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(255,247,230,${0.45 * st.flash})`; g.fillRect(0, 0, W, H); }
+    c._st = st;
+  } else if (c.kind === 'tablet') {
+    const st = stTablet(c, u);
+    drawBg(g, img.bgWall, st.cam, 0.4);
+    bokeh(g, st.sec);
+    if (st.swap <= 0 || st.swap >= 1) drawPose(g, st.swap >= 1 ? 'p2' : 'p1', st);
+    else {
+      const b1 = bufP1.getContext('2d'), b2 = bufP2.getContext('2d'), mx = mixBuf.getContext('2d');
+      for (const [bc, key] of [[b1, 'p1'], [b2, 'p2']]) { bc.setTransform(1, 0, 0, 1, 0, 0); bc.clearRect(0, 0, W, H); drawPose(bc, key, st); }
+      mx.setTransform(1, 0, 0, 1, 0, 0); mx.clearRect(0, 0, W, H);
+      mx.globalCompositeOperation = 'source-over'; mx.globalAlpha = 1 - st.swap; mx.drawImage(bufP1, 0, 0);
+      mx.globalCompositeOperation = 'lighter'; mx.globalAlpha = st.swap; mx.drawImage(bufP2, 0, 0);
+      mx.globalCompositeOperation = 'source-over'; mx.globalAlpha = 1;
+      g.drawImage(mixBuf, 0, 0);
+    }
+    if (st.speed > 0.01) {
+      const a = tipFrame('p1', st), b = tipFrame('p2', st);
+      g.save(); g.lineCap = 'round'; g.strokeStyle = `rgba(42,33,31,${0.55 * st.speed})`;
+      for (const o of [-16, 0, 16]) { g.lineWidth = o ? 3 : 4.5; g.beginPath(); g.moveTo(a.x + 30 + o, a.y + 6); g.quadraticCurveTo(a.x + 80 + o, (a.y + b.y) / 2, b.x + 26 + o, b.y - 30); g.stroke(); }
+      g.restore();
+    }
+  } else if (c.kind === 'end') {
+    const e = smoother(u), cam = { s: 1.08 + 0.03 * e, fx: W / 2, fy: H / 2, dx: 0, dy: 0 };
+    g.filter = 'blur(5px)'; drawBg(g, img.bgGate, cam, 1); g.filter = 'none';
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = 'rgba(52,36,24,0.42)'; g.fillRect(0, 0, W, H);
+    const t = win(u, 0.05, 0.35), o = win(u, 0.25, 0.55);
+    g.save(); g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.globalAlpha = t; g.font = `400 132px "Gowun Dodum", ${FONT}`;
+    g.shadowColor = 'rgba(20,12,8,0.45)'; g.shadowBlur = 24; g.fillStyle = '#FFFFFF'; g.fillText('똑똑, 괜찮으세요?', W / 2, H / 2 - 50 + 16 * (1 - t));
+    g.globalAlpha = o; g.shadowBlur = 12; g.font = `500 46px ${FONT}`; g.fillStyle = '#F5EBDD'; g.fillText('동해시 지방세입 체납관리단', W / 2, H / 2 + 80);
+    g.restore();
+  }
+  // warm light, labels, subtitle, placeholder notes, vignette
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if (c.kind !== 'end') {
+    g.globalCompositeOperation = 'screen';
+    const lg = g.createRadialGradient(1800, 40, 0, 1800, 40, 950);
+    lg.addColorStop(0, `rgba(255,220,170,${0.24 + 0.03 * Math.sin(sec * 1.3)})`); lg.addColorStop(1, 'rgba(255,220,170,0)');
+    g.fillStyle = lg; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'source-over';
+  }
+  if (c.kind === 'ph') {                      // what picture this cut is waiting for
+    g.save(); g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(28,22,18,0.62)'; roundRect(g, 40, H - 150, W - 80, 110, 20); g.fill();
+    g.fillStyle = '#F2C97A'; g.font = `800 30px ${FONT}`; g.fillText('그림 대기 · 프리비즈 구도 임시 화면', 76, H - 118);
+    g.fillStyle = '#FFFFFF'; g.font = `500 34px ${FONT}`; g.fillText(`필요한 그림: ${c.need}`, 76, H - 72);
+    g.restore();
+  }
+  if (labelsOn) {
+    g.save(); g.textBaseline = 'middle';
+    if (c.kind === 'react' && c._st && c._st.sub > 0) {
+      g.font = `800 62px ${FONT}`; g.textAlign = 'center'; g.globalAlpha = c._st.sub;
+      outlinedText(g, '괜찮으세요?', 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12);
+      g.globalAlpha = 1; g.textAlign = 'left';
+    }
+    if (c.kind !== 'end') {
+      const label = `CUT ${c.n} · ${c.title}`;
+      g.font = `700 26px ${FONT}`;
+      const lw = g.measureText(label).width;
+      g.fillStyle = 'rgba(30,24,20,0.42)'; roundRect(g, 40, 36, lw + 36, 48, 24); g.fill();
+      g.fillStyle = '#FFFFFF'; g.fillText(label, 58, 61);
+    }
+    g.restore();
+  }
+  const vg = g.createRadialGradient(W / 2, H * 0.52, H * 0.45, W / 2, H * 0.52, H * 1.05);
+  vg.addColorStop(0, 'rgba(40,28,18,0)'); vg.addColorStop(1, 'rgba(40,28,18,0.28)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+function render(f) {
+  const c = CUTS.find((k) => f < k.f0 + k.nf) || CUTS[CUTS.length - 1];
+  const u = (f - c.f0) / (c.nf - 1);
+  if (c.kind === 'end' && u < 0.25) {        // dissolve from the last frame of CUT 8 into the end card
+    const prev = CUTS[CUTS.length - 2], eg = endBuf.getContext('2d');
+    drawCut(eg, prev, 1);
+    drawCut(ctx, c, u);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - smoother(u / 0.25); ctx.drawImage(endBuf, 0, 0); ctx.globalAlpha = 1;
+  } else {
+    drawCut(ctx, c, u);
+  }
+  if (f < 18) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${1 - smoother(f / 18)})`; ctx.fillRect(0, 0, W, H); }
+  if (f > NF - 13) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${smoother((f - (NF - 13)) / 12)})`; ctx.fillRect(0, 0, W, H); }
+  return c;
+}
+
+// ---------------------------------------------------------------- page: cut list, image requests, playback
+const cutsEl = document.getElementById('cuts');
+const fmt = (fr) => (fr / FPS).toFixed(1);
+const SRC_LABEL = { gpt: 'GPT 그림', temp: '그림 대기', code: '코드' };
+for (const c of CUTS) {
+  const li = document.createElement('li');
+  const b = document.createElement('button'); b.type = 'button'; b.className = c.src;
+  b.innerHTML = `<span class="no">${c.n}</span><span class="what"></span><span class="act"></span><span class="when"></span>`;
+  b.querySelector('.what').textContent = c.title;
+  b.querySelector('.act').textContent = c.act;
+  b.querySelector('.when').textContent = `${fmt(c.f0)}–${fmt(c.f0 + c.nf)}초 · ${c.sec}초 · ${SRC_LABEL[c.src]}`;
+  b.addEventListener('click', () => { setPlaying(false); renderFrame(c.f0); });
+  li.appendChild(b); cutsEl.appendChild(li); c.li = li;
+}
+const COMMON = '첨부한 캐릭터 시트(턴어라운드·표정)와 같은 인물, 같은 그림체로 그려 주세요. 둥근 버섯머리와 정수리 한 가닥, 점 눈, 볼터치, 검정 반팔 폴로(흰 단추 2개), 남색 목걸이 명찰, 회색 크로스백 끈(오른쪽 어깨에서 왼쪽 옆구리로, 가방은 왼쪽 엉덩이 옆), 아이보리 바지, 흰 양말 빨간 줄, 검정 로퍼. 부드러운 평면 채색과 진한 외곽선. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
+const BGNOTE = '보내 준 마당 배경과 같은 그림체로, 인물 없이, 16:9 가로 1920px 이상.';
+const REQS = [
+  ['CUT 0 · 오프닝', '배경 1장', `${BGNOTE}\n동해 묵호항이 내려다보이는 언덕 마을 전경. 방파제 끝 빨간 등대, 잔잔한 바다, 비탈을 따라 겹겹이 선 낮은 집들(파란·주황 지붕, 옥상 물탱크), 늦은 오후 햇빛, 갈매기 몇 마리.`],
+  ['CUT 1 · 바닷가 마을로 들어서다', '배경 1장 + 인물 2장', `${BGNOTE}\n논골담길 계단 골목을 아래에서 올려다본 구도. 좁은 시멘트 계단, 양옆 흰 담과 바다 물결 벽화, 계단 옆 화분과 스티로폼 상자 텃밭, 골목을 가로지르는 빨랫줄, 계단 위로 옥색 대문 집이 살짝 보이고 골목 사이로 바다. 늦은 오후.\n\n${COMMON}\n계단을 오르는 주인공의 3/4 뒷모습 두 장: 왼발이 위 칸 / 오른발이 위 칸.`],
+  ['CUT 2 · 문 앞에서 (있으면 더 좋음)', '배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다.\n\n${BGNOTE}\n골목 쪽에서 본 같은 옥색 대문(닫힘), 흰 담과 화분, 대문 위로 보이는 마당의 나무.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
+  ['CUT 3 · 문이 열린다', '어르신 시트 + 인물 2장', `먼저 어르신(시민) 캐릭터 시트를 주인공 시트와 같은 형식(정면·3/4·옆, 기본·듣기·미소 표정)으로 만들어 주세요. 설계안의 시민 설정을 그대로 쓰고, 그림체는 주인공 시트와 같게.\n\n그다음 대문을 반쯤 열고 선 어르신 전신(투명 PNG).\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
+  ['CUT 4 · 평상에 마주 앉다', '두 사람 2장', `주인공과 어르신 시트를 첨부하고: 평상에 비스듬히 마주 앉은 두 사람. 어르신이 찻잔을 밀어 주는 순간 / 주인공이 두 손으로 받는 순간 두 장. 두 사람과 평상만 그리고 배경은 투명 PNG(마당 배경은 이미 있음).`],
+  ['CUT 5 · 이야기를 듣다', '인물 4장', `평상에 앉아 바다 쪽 먼 곳을 보며 말하는 어르신 옆모습 두 장(입 다문 것 / 말하는 입), 투명 PNG.\n\n${COMMON}\n평상에 앉아 몸을 조금 기울여 듣는 주인공 옆모습 두 장(기본 / 고개를 끄덕인 순간).`],
+  ['CUT 6 · 분납과 복지 연계를 안내하다', '어르신 2장 + 고칠 것 1', `태블릿을 함께 들여다보는 어르신 3/4 두 장(보는 얼굴 / 끄덕이며 웃는 얼굴), 투명 PNG.\n\n보내 주신 ① 짚기·② 짚기 그림은 가방 위치가 서로 달라요(오른쪽/왼쪽). ② 짚기 그림을 가방이 왼쪽 엉덩이 옆에 오도록 한 번 더 뽑아 주세요.`],
+  ['CUT 7 · 배웅', '배경 1장 + 인물 3장', `${BGNOTE}\n해질녘 노을빛의 같은 옥색 대문 앞 골목. 아래로 이어지는 계단, 멀리 바다와 빨간 등대.\n\n${COMMON}\n돌아서며 목례하는 주인공 3/4 뒷모습, 계단을 내려가는 작은 뒷모습. 그리고 대문 앞에서 한 손을 들어 화답하는 어르신.`],
+  ['CUT 8 · 집집마다 불이 켜진다', '배경 2장(같은 구도)', `${BGNOTE}\n해질녘 묵호 언덕마을 전경(바다, 방파제와 등대, 가로등), 창문 불이 꺼진 그림 한 장.\n그다음 같은 그림에서 구도와 색은 그대로 두고 창문과 가로등에만 불을 켠 그림 한 장. 두 그림 차이로 불빛을 하나씩 켭니다.`],
+  ['CUT 9 · 엔드 카드', '문구·CI (그림 아님)', `설계안의 메시지 문구(CUT 8)와 엔드 카드 문구, 그리고 동해시 CI 파일이 있으면 보내 주세요. 지금은 제목과 기관명만 넣었습니다.`, true],
+];
+const reqsEl = document.getElementById('reqs');
+REQS.forEach(([title, what, text, noPrompt], i) => {
+  const li = document.createElement('li'); li.className = 'req';
+  li.innerHTML = `<div class="head"><b></b><span></span></div><pre></pre>${noPrompt ? '' : `<button type="button" id="copy${i}">문장 복사</button>`}`;
+  li.querySelector('b').textContent = title; li.querySelector('span').textContent = what; li.querySelector('pre').textContent = text;
+  reqsEl.appendChild(li);
+  if (noPrompt) return;                       // a note to the team, not a prompt to paste
+  const btn = li.querySelector('button');
+  btn.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(text); btn.textContent = '복사했어요'; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(li.querySelector('pre')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = '선택했어요 — 복사해 쓰세요'; }
+    setTimeout(() => { btn.textContent = '문장 복사'; }, 2400);
+  });
+});
+
+const playBtn = document.getElementById('play'), restartBtn = document.getElementById('restart');
+const frameIn = document.getElementById('frame'), tcEl = document.getElementById('tc'), labelsIn = document.getElementById('labels');
+let frame = 0, playing = !REDUCED && !CAPTURE, startMs = 0, ready = false;
+function renderFrame(f) {
+  frame = f;
+  const fi = Math.min(NF - 1, Math.max(0, Math.round(f)));
+  const c = ready ? render(fi) : (CUTS.find((k) => fi < k.f0 + k.nf) || CUTS[0]);
+  frameIn.value = String(fi);
+  tcEl.textContent = `${(fi / FPS).toFixed(2)}초 · CUT ${c.n}`;
+  for (const k of CUTS) k.li.classList.toggle('is-now', k === c);
+}
+function tick(now) {
+  if (playing) renderFrame(((now - startMs) / 1000 * FPS) % NF);
+  requestAnimationFrame(tick);
+}
+function setPlaying(p) {
+  playing = p; playBtn.textContent = p ? '일시정지' : '재생';
+  if (p) startMs = performance.now() - frame / FPS * 1000;
+}
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { frame = 0; setPlaying(true); });
+frameIn.addEventListener('input', () => { setPlaying(false); renderFrame(+frameIn.value); });
+labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!playing) renderFrame(frame); });
+
+(async () => {
+  try {
+    await Promise.all(Object.entries(SRC).map(([k, v]) => load(k, v)));
+  } catch (e) {
+    statusEl.textContent = '그림 파일(assets_v2, assets_v3 폴더)을 불러오지 못했습니다. 페이지와 같은 위치에 두 폴더가 있는지 확인해 주세요. 같은 장면의 MP4도 함께 드렸습니다.';
+    return;
+  }
+  try {
+    // Google Fonts sends Korean in unicode-range slices, so ask for exactly the letters the canvas draws before the first frame
+    const TEXT = CUTS.map((c) => `CUT ${c.n} · ${c.title} 필요한 그림: ${c.need || ''}`).concat([
+      '똑! 끼익 괜찮으세요? 똑똑, 동해시 지방세입 체납관리단 0123456789 그림 대기 · 프리비즈 구도 임시 화면',
+      '분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요 설계안의 CUT 8 문구가 여기에 들어갑니다']).join(' ');
+    const DISPLAY = '똑똑, 괜찮으세요? 메시지 문구 자리';
+    await Promise.race([Promise.all(['900', '800', '700', '500'].map((wt) => document.fonts.load(`${wt} 40px "Noto Sans KR"`, TEXT))
+      .concat([document.fonts.load('400 40px "Gowun Dodum"', DISPLAY)])),
+      new Promise((r) => setTimeout(r, CAPTURE ? 30000 : 4000))]);
+  } catch (e) { /* system Korean font */ }
+  document.fonts.addEventListener('loadingdone', () => { if (!playing) renderFrame(frame); });
+  ready = true;
+  renderFrame(REDUCED ? CUTS[6].f0 + 30 : 0);
+  statusEl.hidden = true;
+  setPlaying(playing);
+  requestAnimationFrame(tick);
+  window.__renderAt = (f) => { renderFrame(f); return true; };
+  window.__nf = NF;
+  window.__ready = true;
+})();
+})();
+</script>
