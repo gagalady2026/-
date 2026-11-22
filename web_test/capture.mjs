@@ -20,7 +20,8 @@ await page.route(/cdn\.jsdelivr\.net\/npm\/three@0\.160\.0\/(.*)$/, async (route
 });
 await page.goto('file://' + path.resolve(htmlPath) + '?capture');
 await page.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });
-const frames = which === 'all' ? [...Array(96).keys()] : which.split(',').map(Number);
+const total = await page.evaluate(() => window.__nf || 96);   // pages may declare their frame count
+const frames = which === 'all' ? [...Array(total).keys()] : which.split(',').map(Number);
 // <canvas id="view"> pages (three.js, 2D canvas) are read back with toDataURL; <svg id="view"> pages — and canvases that
 // draw local image files (a file:// page taints the canvas, so toDataURL is refused) — are screenshotted instead
 let isCanvas = await page.evaluate(() => {

@@ -1,0 +1,469 @@
+<title>모션코믹 v2 시험</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<style>
+/* Layout: one column — 16:9 stage on top, transport bar under it, then the beats of the two shots in order */
+:root {
+  --bg: #F3EFE6;
+  --surface: #FFFFFF;
+  --fg: #2A2421;
+  --muted: #6B625B;
+  --line: #DDD5C8;
+  --jade: #23927F;
+  --installment: #3B87B8;
+  --welfare: #D9704B;
+  --stage: #E9E2D3;
+  --font-display: "Gowun Dodum", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+    --jade: #4CC3AF; --installment: #6CB2DE; --welfare: #F09673; --stage: #2A2622; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171412; --surface: #221E1B; --fg: #EDE6DE; --muted: #A89D93; --line: #3A332E;
+  --jade: #4CC3AF; --installment: #6CB2DE; --welfare: #F09673; --stage: #2A2622; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.6; }
+.wrap {
+  max-width: 1120px; margin: 0 auto; display: grid; gap: 20px;
+  padding-block: 28px 44px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { margin: 0; font-size: 0.8rem; letter-spacing: 0.06em; color: var(--muted); }
+h1 { margin: 4px 0 6px; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.25; text-wrap: balance; }
+h1 .cut { color: var(--jade); }
+.lead { margin: 0; max-width: 68ch; color: var(--muted); }
+.stage { position: relative; margin: 0; aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 12px; overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg); font-size: 0.95rem; background: var(--stage); text-align: center; padding: 16px; }
+.stage .status[hidden] { display: none; }
+.transport { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.transport button {
+  font: 500 0.92rem var(--font-body); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px; cursor: pointer;
+}
+.transport button.primary { background: var(--jade); border-color: var(--jade); color: #FFFFFF; min-width: 92px; }
+.transport button:focus-visible, .transport input:focus-visible { outline: 3px solid var(--installment); outline-offset: 2px; }
+.scrub { flex: 1 1 260px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.scrub input { flex: 1; min-width: 0; accent-color: var(--jade); }
+.timecode { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.88rem; color: var(--muted); white-space: nowrap; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--muted); cursor: pointer; }
+.beats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.beat { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); min-width: 0; }
+.beat .no { grid-row: span 2; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px; display: grid; place-items: center; font: 500 0.78rem var(--font-mono); border: 1px solid var(--line); color: var(--muted); }
+.beat .what { font-weight: 500; font-size: 0.93rem; line-height: 1.45; }
+.beat .when { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--muted); }
+.beat.is-now { border-color: var(--jade); }
+.beat.is-now .no { background: var(--jade); border-color: var(--jade); color: #FFFFFF; }
+.split { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 0; padding: 0; list-style: none; }
+.split li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 0.9rem; min-width: 0; }
+.split b { display: block; font-weight: 700; margin-bottom: 2px; }
+.note { margin: 0; font-size: 0.85rem; color: var(--muted); max-width: 72ch; }
+/* 1920×1080 render mode used to export the MP4 (canvas only) */
+body.capture { margin: 0; background: #000000; }
+body.capture .wrap { display: block; max-width: none; padding: 0; }
+body.capture .wrap > :not(.stage) { display: none; }
+body.capture .stage { width: 1920px; height: 1080px; aspect-ratio: auto; border-radius: 0; }
+body.capture .stage .status { display: none; }
+@media (prefers-reduced-motion: reduce) { .transport button { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">동해시 지방세입 체납관리단 · 30초 홍보영상 「똑똑, 괜찮으세요?」 · 2번 시험 v2: 보내주신 GPT 그림 + 코드 움직임</p>
+    <h1><span class="cut">CUT 3 · CUT 6</span> 모션코믹 v2</h1>
+    <p class="lead">보내주신 그림 일곱 장(서 있는 표정 4장, 마당 배경, 앉아서 ①·② 짚는 자세 2장)을 그대로 쓰고, 움직임과 화면 속 글자는 코드로 붙였습니다. 앞 4초는 문 앞 인사(CUT 3), 뒤 4초는 평상에서 분납·복지서비스 연계를 안내하는 장면(CUT 6)입니다.</p>
+  </header>
+
+  <figure class="stage" id="stage">
+    <canvas id="view" width="1920" height="1080" aria-label="모션코믹 v2: 관리단원이 마당에서 똑똑, 괜찮으세요 하고 인사한 뒤 귀 기울이고 미소 짓는 컷과, 평상에 앉아 태블릿의 분납 안내와 복지서비스 연계 칸을 차례로 짚는 컷"></canvas>
+    <div class="status" id="status">그림을 불러오는 중…</div>
+  </figure>
+
+  <div class="transport">
+    <button type="button" class="primary" id="play">일시정지</button>
+    <button type="button" id="restart">처음부터</button>
+    <label class="scrub" for="frame"><span class="timecode" id="tc">CUT 3 · 0.00초</span><input type="range" id="frame" min="0" max="191" step="1" value="0" aria-label="프레임 위치"></label>
+    <label class="toggle" for="labels"><input type="checkbox" id="labels" checked> 자막·컷 이름</label>
+  </div>
+
+  <ol class="beats" id="beats">
+    <li class="beat" data-a="0" data-b="0.19"><span class="no">3-1</span><span class="what">“똑똑, 괜찮으세요?” 자막에 맞춰 입을 여닫음</span><span class="when">CUT 3 · 0.0–1.5초</span></li>
+    <li class="beat" data-a="0.19" data-b="0.35"><span class="no">3-2</span><span class="what">눈을 감는 순간 ‘귀 기울임’ 그림으로 바뀌어 고개를 기울임</span><span class="when">CUT 3 · 1.5–2.8초</span></li>
+    <li class="beat" data-a="0.35" data-b="0.5"><span class="no">3-3</span><span class="what">한 번 더 깜빡이며 ‘미소’ 그림으로</span><span class="when">CUT 3 · 2.8–4.0초</span></li>
+    <li class="beat" data-a="0.5" data-b="0.725"><span class="no">6-1</span><span class="what">① 칸을 두 번 톡톡, 칸 안에 분납 안내가 그려짐(손가락 아래로)</span><span class="when">CUT 6 · 0.0–1.8초</span></li>
+    <li class="beat" data-a="0.725" data-b="0.755"><span class="no">6-2</span><span class="what">자세 그림 교체(① 짚기 → ② 짚기)와 속도선</span><span class="when">CUT 6 · 1.8–2.0초</span></li>
+    <li class="beat" data-a="0.755" data-b="0.89"><span class="no">6-3</span><span class="what">② 칸을 두 번 톡톡, 복지서비스 연계가 그려짐</span><span class="when">CUT 6 · 2.0–3.1초</span></li>
+    <li class="beat" data-a="0.89" data-b="1.01"><span class="no">6-4</span><span class="what">입을 다물고 미소, 깜빡임</span><span class="when">CUT 6 · 3.1–4.0초</span></li>
+  </ol>
+
+  <ul class="split">
+    <li><b>그림(보내주신 GPT 이미지)</b>인물 6장과 배경 1장. 인물은 원래 크기에 가깝게(1.05~1.2배) 써서 선이 선명합니다.</li>
+    <li><b>코드(움직임과 글자)</b>카메라 접근·패럴랙스, 배경 흐림, 숨쉬기, 눈꺼풀 깜빡임, 입 여닫기, 그림 교체, 태블릿 칸의 아이콘·글자·톡톡 물결, 속도선, 자막.</li>
+    <li><b>코드로 손본 곳</b>투명 테두리의 빨강·노랑 잔상 제거, 말하는 입을 기본 얼굴에 붙인 조각, 앉은 자세의 다문 입(웃는 선), 손가락을 피해 칸만 덮는 마스크.</li>
+  </ul>
+
+  <p class="note">Canvas 2D · 24fps 8초(192프레임, 컷당 4초). 앉은 두 그림은 머리 위치를 맞춰 겹치고, 두 그림에서 가방 위치가 달라서, 허리 아래가 화면 밖으로 나가게 잡았습니다. 어르신 그림은 아직 없어서 화면 밖에 있는 것으로 두었습니다.</p>
+</main>
+
+<script>
+(function () {
+'use strict';
+const CAPTURE = new URLSearchParams(location.search).has('capture');
+if (CAPTURE) document.body.classList.add('capture');
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FPS = 24, NA = 96, NF = 192, W = 1920, H = 1080;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smoother = (x) => { x = clamp(x); return x * x * x * (x * (6 * x - 15) + 10); };
+const win = (t, a, b) => (b <= a ? (t >= b ? 1 : 0) : smoother((t - a) / (b - a)));
+function bump(t, a, b, hold = 0) {
+  if (t <= a || t >= b) return 0;
+  const u = (t - a) / (b - a), h = clamp(hold, 0, 0.9), r = (1 - h) / 2;
+  if (u < r) return smoother(u / r);
+  if (u > 1 - r) return smoother((1 - u) / r);
+  return 1;
+}
+const easeOutBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const D2R = Math.PI / 180;
+
+// ---------------------------------------------------------------- the user's GPT images (cleaned) + measured features, in image pixels
+const SRC = {
+  bgA: 'assets_v2/v2_bg_gate.jpg', bgB: 'assets_v2/v2_bg_wall.jpg',
+  neutral: 'assets_v2/v2_st_neutral.png', listen: 'assets_v2/v2_st_listen.png', smile: 'assets_v2/v2_st_smile.png', talkMouth: 'assets_v2/v2_st_talk_mouth.png',
+  p1: 'assets_v2/v2_sit_point1.png', p2: 'assets_v2/v2_sit_point2.png', p1c: 'assets_v2/v2_sit_point1_closed.png', p2c: 'assets_v2/v2_sit_point2_closed.png',
+  p1m: 'assets_v2/v2_sit_point1_panelmask.png', p2m: 'assets_v2/v2_sit_point2_panelmask.png',
+};
+// standing variants: drawn so their bodies line up with the neutral one (offsets measured on the silhouettes)
+const STAND = {
+  s: 1.2, ox: 48, oy: 18, pivotX: 558,
+  neutral: { off: [0, 0], eyes: [[499.4, 251, 18, 31], [586.9, 251, 17, 31]], skin: 'rgb(252,214,192)' },
+  listen: { off: [0, 18], eyes: [[495.6, 249.9, 20, 31], [579, 232.8, 19, 30]], skin: 'rgb(253,214,192)' },
+  smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)' },
+  talkMouth: [511, 289],
+};
+// seated poses: pose ② is shifted 34 px so the two heads coincide; tablet panels as quads (TL, TR, BR, BL)
+const SIT = {
+  s: 1.05, ox: 175, oy: 42, pivotX: 560, mask: [620, 480],
+  p1: { off: [0, 0], eyes: [[459.9, 342, 25, 45], [578.7, 319.6, 23, 44]], skin: 'rgb(253,216,193)', closed: [494, 395],
+    a: [[728, 520], [975, 517], [962, 661], [709, 662]], b: [[703, 691], [947, 690], [931, 825], [684, 820]], tip: [753, 589] },
+  p2: { off: [34, 0], eyes: [[430.7, 347.1, 24, 43], [546.3, 327.3, 22, 43]], skin: 'rgb(252,214,189)', closed: [465, 404],
+    a: [[721, 574], [952, 576], [935, 705], [701, 697]], b: [[691, 729], [929, 735], [913, 880], [667, 872]], tip: [751, 801] },
+};
+
+const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const img = {};
+const load = (k, src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { img[k] = im; res(); }; im.onerror = () => rej(new Error(src)); im.src = src; });
+const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+const cbuf = mk(), bufP1 = mk(), bufP2 = mk(), mixBuf = mk();
+
+// ---------------------------------------------------------------- timing (pure functions of the shot's own u ∈ [0,1])
+function shotA(u) {
+  const sec = u * (NA - 1) / FPS, st = { shot: 'A', u, sec };
+  const e = smoother(u);
+  st.cam = { s: 1 + 0.07 * e, fx: 700, fy: 330, dx: -12 * e, dy: 0 };
+  // syllables of “똑똑, 괜찮으세요?” — the mouth is open for the first 60% of each
+  const SYL = [[0.04, 0.085], [0.095, 0.14], [0.185, 0.218], [0.222, 0.252], [0.256, 0.282], [0.286, 0.312], [0.316, 0.352]];
+  st.open = SYL.some(([a, b]) => u >= a && u < a + (b - a) * 0.62);
+  st.variant = u < 0.388 ? 'neutral' : u < 0.706 ? 'listen' : 'smile';
+  st.blink = Math.max(bump(u, 0.146, 0.178), bump(u, 0.362, 0.42, 0.45), bump(u, 0.68, 0.735, 0.45));
+  st.sub1 = win(u, 0.03, 0.06) * (1 - win(u, 0.42, 0.46));
+  st.sub2 = win(u, 0.17, 0.2) * (1 - win(u, 0.42, 0.46));
+  st.breath = Math.sin(2 * Math.PI * 0.3 * sec + 0.4);
+  st.sway = 0.35 * Math.sin(2 * Math.PI * 0.22 * sec);
+  st.press = 0;
+  return st;
+}
+function shotB(u) {
+  const sec = u * (NA - 1) / FPS, st = { shot: 'B', u, sec };
+  const e = smoother(u);
+  st.cam = { s: 1 + 0.1 * e, fx: 980, fy: 620, dx: -20 * e, dy: -10 * e };
+  st.swap = clamp((u - 0.455) / 0.034);                       // pose ① → ② over three frames, eyes shut
+  const talk = (u > 0.03 && u < 0.27) || (u > 0.52 && u < 0.76);
+  st.closed = !(talk && Math.sin(2 * Math.PI * 4.6 * sec) > -0.1);
+  st.blink = Math.max(bump(u, 0.3, 0.345), bump(u, 0.447, 0.497, 0.5), bump(u, 0.86, 0.9));
+  st.hl1 = win(u, 0.07, 0.11) * (1 - win(u, 0.44, 0.5));
+  st.icon1 = easeOutBack(win(u, 0.09, 0.15));
+  st.text1 = win(u, 0.12, 0.18);
+  st.cal = win(u, 0.17, 0.19);
+  st.seg = [0, 1, 2].map((i) => win(u, 0.18 + 0.035 * i, 0.21 + 0.035 * i));
+  st.hl2 = win(u, 0.5, 0.55) * (1 - 0.4 * win(u, 0.86, 0.96));
+  st.icon2 = easeOutBack(win(u, 0.53, 0.59));
+  st.text2 = win(u, 0.56, 0.62);
+  st.nodes = [0, 1, 2].map((i) => win(u, 0.6 + 0.03 * i, 0.63 + 0.03 * i));
+  st.heart = 1 + 0.2 * Math.max(bump(u, 0.565, 0.6), bump(u, 0.635, 0.67));
+  st.taps = [[0.1, 'p1', 'a'], [0.17, 'p1', 'a'], [0.565, 'p2', 'b'], [0.635, 'p2', 'b']]
+    .map(([t0, pose, panel]) => ({ pose, panel, k: (u - t0) / 0.11 })).filter((r) => r.k >= 0 && r.k <= 1);
+  st.press = Math.max(bump(u, 0.095, 0.125), bump(u, 0.165, 0.195), bump(u, 0.56, 0.59), bump(u, 0.63, 0.66));
+  st.speed = bump(u, 0.43, 0.5, 0.2);
+  st.breath = Math.sin(2 * Math.PI * 0.28 * sec + 1.1);
+  st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * sec + 0.5);
+  return st;
+}
+
+// ---------------------------------------------------------------- drawing helpers
+function camXf(c, k) {
+  const s = 1 + (c.s - 1) * k;
+  return [s, 0, 0, s, c.fx + c.dx * k - c.fx * s, c.fy + c.dy * k - c.fy * s];
+}
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+// eyelids close from the top, then a soft closed-eye line (image coordinates)
+function eyelids(g, eyes, skin, c) {
+  if (c <= 0.02) return;
+  for (const [x, y, w, h] of eyes) {
+    const rx = w / 2 + 3, ry = h / 2 + 3;
+    g.save(); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.clip();
+    g.fillStyle = skin; g.fillRect(x - rx, y - ry, rx * 2, ry * 2 * Math.min(1, c * 1.15)); g.restore();
+    if (c > 0.72) {
+      g.save(); g.globalAlpha = clamp((c - 0.72) / 0.2);
+      g.strokeStyle = '#2A211F'; g.lineWidth = Math.max(3.5, w * 0.17); g.lineCap = 'round';
+      g.beginPath(); g.moveTo(x - w * 0.78, y + h * 0.1); g.quadraticCurveTo(x, y + h * 0.33, x + w * 0.78, y + h * 0.1); g.stroke();
+      g.restore();
+    }
+  }
+}
+function heartPath(g, x, y, s) {
+  g.beginPath(); g.moveTo(x, y + 9 * s);
+  g.bezierCurveTo(x - 15 * s, y - 2 * s, x - 13 * s, y - 15 * s, x - 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x - 1.5 * s, y - 15 * s, x, y - 12 * s, x, y - 11 * s);
+  g.bezierCurveTo(x, y - 12 * s, x + 1.5 * s, y - 15 * s, x + 4.5 * s, y - 15 * s);
+  g.bezierCurveTo(x + 13 * s, y - 15 * s, x + 15 * s, y - 2 * s, x, y + 9 * s); g.closePath();
+}
+const FONT = '"Noto Sans KR", "WenQuanYi Zen Hei", sans-serif';
+function fitText(g, text, weight, size, maxW) {
+  let fs = size;
+  for (let i = 0; i < 30; i++) { g.font = `${weight} ${fs}px ${FONT}`; if (g.measureText(text).width <= maxW) break; fs -= 0.5; }
+}
+// a tablet panel quad as an affine map of a 250 × 140 design box
+const panelXf = ([tl, tr, , bl]) => [(tr[0] - tl[0]) / 250, (tr[1] - tl[1]) / 250, (bl[0] - tl[0]) / 140, (bl[1] - tl[1]) / 140, tl[0], tl[1]];
+function drawInstall(g, st) {           // ① 분납 안내 (blue)
+  if (st.hl1 > 0.001) { g.fillStyle = `rgba(150,198,238,${0.6 * st.hl1})`; roundRect(g, -8, -8, 266, 156, 14); g.fill(); }
+  if (st.icon1 > 0.01) {
+    g.save(); g.translate(50, 70); g.scale(st.icon1, st.icon1);
+    roundRect(g, -30, -24, 60, 50, 7); g.fillStyle = '#EAF4FC'; g.fill(); g.lineWidth = 3.5; g.strokeStyle = '#3B87B8'; g.stroke();
+    g.beginPath(); g.moveTo(-30, -11); g.lineTo(-30, -17); g.arcTo(-30, -24, -23, -24, 7); g.lineTo(23, -24); g.arcTo(30, -24, 30, -17, 7); g.lineTo(30, -11); g.closePath();
+    g.fillStyle = '#5FA8D3'; g.fill(); g.stroke();
+    g.fillStyle = '#3B87B8'; roundRect(g, -18, -31, 6, 13, 3); g.fill(); roundRect(g, 12, -31, 6, 13, 3); g.fill();
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+      g.fillStyle = r === 0 && c === 1 && st.cal > 0.5 ? '#3B87B8' : '#BFD9EE'; roundRect(g, -22 + c * 16, -5 + r * 13, 12, 9, 2); g.fill();
+    }
+    g.restore();
+  }
+  if (st.text1 > 0.001) {
+    g.save(); g.globalAlpha = st.text1; g.textBaseline = 'alphabetic';
+    g.fillStyle = '#1D4C6C'; fitText(g, '분납 안내', 900, 27, 142); g.fillText('분납 안내', 96, 62);
+    g.fillStyle = '#3A6E92'; fitText(g, '나눠서 납부할 수 있어요', 500, 15, 146); g.fillText('나눠서 납부할 수 있어요', 96, 88);
+    g.restore();
+    for (let i = 0; i < 3; i++) {
+      g.fillStyle = '#CFE2F1'; roundRect(g, 96 + i * 47, 102, 42, 13, 5); g.fill();
+      if (st.seg[i] > 0) { g.globalAlpha = st.seg[i]; g.fillStyle = '#3B87B8'; roundRect(g, 96 + i * 47, 102, 42, 13, 5); g.fill(); g.globalAlpha = 1; }
+    }
+  }
+}
+function drawWelfare(g, st) {           // ② 복지서비스 연계 (coral)
+  if (st.hl2 > 0.001) { g.fillStyle = `rgba(246,176,146,${0.62 * st.hl2})`; roundRect(g, -8, -8, 266, 156, 14); g.fill(); }
+  if (st.icon2 > 0.01) {
+    g.save(); g.translate(50, 76); g.scale(st.icon2, st.icon2);
+    g.fillStyle = '#D9704B'; g.beginPath(); g.arc(-12, -8, 11, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(-31, 24); g.bezierCurveTo(-31, 5, 7, 5, 7, 24); g.closePath(); g.fill();
+    g.fillStyle = '#F2946E'; g.beginPath(); g.arc(16, -3, 9, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(1, 25); g.bezierCurveTo(1, 11, 31, 11, 31, 25); g.closePath(); g.fill();
+    g.fillStyle = '#E2604A'; heartPath(g, 2, -32, 1.05 * st.heart); g.fill();
+    g.restore();
+  }
+  if (st.text2 > 0.001) {
+    g.save(); g.globalAlpha = st.text2; g.textBaseline = 'alphabetic';
+    g.fillStyle = '#8A3B22'; fitText(g, '복지서비스 연계', 900, 27, 146); g.fillText('복지서비스 연계', 96, 62);
+    g.fillStyle = '#A85A3E'; fitText(g, '필요한 도움과 이어 드려요', 500, 15, 148); g.fillText('필요한 도움과 이어 드려요', 96, 88);
+    g.restore();
+    g.strokeStyle = '#D9704B'; g.lineWidth = 3; g.beginPath(); g.moveTo(104, 109); g.lineTo(196, 109); g.stroke();
+    st.nodes.forEach((v, i) => {
+      g.beginPath(); g.arc(104 + i * 46, 109, 7.5, 0, Math.PI * 2);
+      g.fillStyle = v > 0.5 ? '#D9704B' : '#F6D3C4'; g.fill(); g.lineWidth = 2.5; g.strokeStyle = '#D9704B'; g.stroke();
+    });
+  }
+}
+// one seated pose, complete: picture, mouth, eyelids, and the tablet content laid into the panels under the finger
+function drawPose(g, key, st) {
+  const P = SIT[key], s = SIT.s, ox = SIT.ox + P.off[0] * s, oy = SIT.oy + P.off[1] * s;
+  g.save();
+  g.setTransform(...camXf(st.cam, 1));
+  const bx = ox + SIT.pivotX * s, by = H + 40;
+  g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
+  g.translate(ox, oy + 3 * st.press); g.scale(s, s);                         // image pixels from here
+  g.drawImage(img[key], 0, 0);
+  if (st.closed) g.drawImage(img[key + 'c'], P.closed[0], P.closed[1]);
+  eyelids(g, P.eyes, P.skin, st.blink);
+  const m = g.getTransform(), c = cbuf.getContext('2d');
+  const masked = (paint) => {
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, W, H);
+    c.setTransform(m); paint(c);
+    c.globalCompositeOperation = 'destination-in'; c.drawImage(img[key + 'm'], SIT.mask[0], SIT.mask[1]);
+    c.globalCompositeOperation = 'source-over';
+  };
+  // 1) lift the panels toward white (keeps a trace of GPT's shading and the finger shadow)
+  masked((cc) => { cc.fillStyle = 'rgba(255,255,255,0.7)'; for (const q of [P.a, P.b]) { cc.beginPath(); q.forEach(([x, y], i) => (i ? cc.lineTo(x, y) : cc.moveTo(x, y))); cc.closePath(); cc.fill(); } });
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(cbuf, 0, 0); g.restore();
+  // 2) the content, multiplied onto the panel so line work and shading stay on top
+  masked((cc) => {
+    cc.save(); cc.transform(...panelXf(P.a)); drawInstall(cc, st); cc.restore();
+    cc.save(); cc.transform(...panelXf(P.b)); drawWelfare(cc, st); cc.restore();
+    for (const r of st.taps) {
+      if (r.pose !== key) continue;
+      cc.beginPath(); cc.arc(P.tip[0], P.tip[1], 8 + 46 * r.k, 0, Math.PI * 2);
+      cc.lineWidth = 6 * (1 - r.k) + 1.5; cc.strokeStyle = r.panel === 'a' ? `rgba(59,135,184,${0.9 * (1 - r.k)})` : `rgba(217,112,75,${0.9 * (1 - r.k)})`; cc.stroke();
+    }
+  });
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'multiply'; g.drawImage(cbuf, 0, 0); g.restore();
+  g.restore();
+}
+function tipFrame(key, st) {
+  const P = SIT[key], s = SIT.s, m = new DOMMatrix(camXf(st.cam, 1));
+  const p = m.transformPoint(new DOMPoint(SIT.ox + (P.off[0] + P.tip[0]) * s, SIT.oy + (P.off[1] + P.tip[1]) * s));
+  return { x: p.x, y: p.y };
+}
+function drawStanding(g, st) {
+  const v = STAND[st.variant], s = STAND.s, ox = STAND.ox + v.off[0] * s, oy = STAND.oy + v.off[1] * s;
+  g.save();
+  g.setTransform(...camXf(st.cam, 1));
+  const bx = ox + STAND.pivotX * s, by = H + 30;
+  g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
+  g.translate(ox, oy); g.scale(s, s);
+  g.drawImage(img[st.variant], 0, 0);
+  if (st.variant === 'neutral' && st.open) g.drawImage(img.talkMouth, STAND.talkMouth[0], STAND.talkMouth[1]);
+  eyelids(g, v.eyes, v.skin, st.blink);
+  g.restore();
+}
+const BOKEH = Array.from({ length: 14 }, (_, i) => ({ x: (i * 397) % 1920, y: 100 + ((i * 211) % 600), r: 18 + ((i * 53) % 40), a: 0.08 + ((i * 7) % 5) * 0.03, v: 6 + (i % 4) * 4, ph: i * 0.9 }));
+let labelsOn = true;
+function render(f) {
+  const isA = f < NA, u = isA ? f / (NA - 1) : (f - NA) / (NA - 1);
+  const st = isA ? shotA(u) : shotB(u), g = ctx;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#E9E2D3'; g.fillRect(0, 0, W, H);
+  // background plate (blurred in advance) — follows the camera less than the character
+  const bg = img[isA ? 'bgA' : 'bgB'];
+  g.setTransform(...camXf(st.cam, 0.4)); g.drawImage(bg, (W - bg.width) / 2, (H - bg.height) / 2);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = 'screen';
+  for (const b of BOKEH) {
+    const y = b.y - b.v * st.sec, x = b.x + 8 * Math.sin(st.sec * 0.8 + b.ph), a = b.a * (0.75 + 0.25 * Math.sin(st.sec * 1.6 + b.ph));
+    const gr = g.createRadialGradient(x, y, 0, x, y, b.r);
+    gr.addColorStop(0, `rgba(255,246,226,${a})`); gr.addColorStop(1, 'rgba(255,246,226,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, b.r, 0, Math.PI * 2); g.fill();
+  }
+  g.globalCompositeOperation = 'source-over';
+  if (isA) {
+    drawStanding(g, st);
+  } else if (st.swap <= 0 || st.swap >= 1) {
+    drawPose(g, st.swap >= 1 ? 'p2' : 'p1', st);
+  } else {
+    // cross-dissolve the two poses as premultiplied sums so nothing behind shows through
+    const b1 = bufP1.getContext('2d'), b2 = bufP2.getContext('2d'), mx = mixBuf.getContext('2d');
+    for (const [bc, key] of [[b1, 'p1'], [b2, 'p2']]) { bc.setTransform(1, 0, 0, 1, 0, 0); bc.clearRect(0, 0, W, H); drawPose(bc, key, st); }
+    mx.setTransform(1, 0, 0, 1, 0, 0); mx.clearRect(0, 0, W, H);
+    mx.globalCompositeOperation = 'source-over'; mx.globalAlpha = 1 - st.swap; mx.drawImage(bufP1, 0, 0);
+    mx.globalCompositeOperation = 'lighter'; mx.globalAlpha = st.swap; mx.drawImage(bufP2, 0, 0);
+    mx.globalCompositeOperation = 'source-over'; mx.globalAlpha = 1;
+    g.drawImage(mixBuf, 0, 0);
+  }
+  if (!isA && st.speed > 0.01) {          // speed lines along the finger's path from ① to ②
+    const a = tipFrame('p1', st), b = tipFrame('p2', st);
+    g.save(); g.lineCap = 'round'; g.strokeStyle = `rgba(42,33,31,${0.55 * st.speed})`;
+    for (const o of [-16, 0, 16]) {
+      g.lineWidth = o ? 3 : 4.5;
+      g.beginPath(); g.moveTo(a.x + 30 + o, a.y + 6); g.quadraticCurveTo(a.x + 80 + o, (a.y + b.y) / 2, b.x + 26 + o, b.y - 30); g.stroke();
+    }
+    g.restore();
+  }
+  // warm light from the upper right
+  g.globalCompositeOperation = 'screen';
+  const lg = g.createRadialGradient(1800, 40, 0, 1800, 40, 950);
+  lg.addColorStop(0, `rgba(255,220,170,${0.26 + 0.03 * Math.sin(st.sec * 1.3)})`); lg.addColorStop(1, 'rgba(255,220,170,0)');
+  g.fillStyle = lg; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'source-over';
+  if (labelsOn) {
+    g.save(); g.textBaseline = 'middle';
+    if (isA && st.sub1 > 0) {             // subtitle: the promo's own line
+      const t1 = '똑똑,', t2 = ' 괜찮으세요?';
+      g.font = `800 60px ${FONT}`;
+      const w1 = g.measureText(t1).width, w2 = g.measureText(t2).width, x0 = 1290 - (w1 + w2) / 2, y = 972;   // right half, clear of the character
+      g.lineJoin = 'round'; g.lineWidth = 12; g.strokeStyle = 'rgba(30,24,20,0.6)'; g.fillStyle = '#FFFFFF';
+      g.globalAlpha = st.sub1; g.strokeText(t1, x0, y); g.fillText(t1, x0, y);
+      g.globalAlpha = st.sub2; g.strokeText(t2, x0 + w1, y); g.fillText(t2, x0 + w1, y);
+      g.globalAlpha = 1;
+    }
+    const label = isA ? 'CUT 3 · 문이 열린다' : 'CUT 6 · 분납과 복지 연계를 안내하다';
+    g.font = `700 26px ${FONT}`;
+    const lw = g.measureText(label).width;
+    g.fillStyle = 'rgba(30,24,20,0.42)'; roundRect(g, 40, 36, lw + 36, 48, 24); g.fill();
+    g.fillStyle = '#FFFFFF'; g.fillText(label, 58, 61);
+    g.restore();
+  }
+  const vg = g.createRadialGradient(W / 2, H * 0.52, H * 0.45, W / 2, H * 0.52, H * 1.05);
+  vg.addColorStop(0, 'rgba(40,28,18,0)'); vg.addColorStop(1, 'rgba(40,28,18,0.28)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- playback / UI
+const playBtn = document.getElementById('play'), restartBtn = document.getElementById('restart');
+const frameIn = document.getElementById('frame'), tcEl = document.getElementById('tc'), labelsIn = document.getElementById('labels');
+const beatEls = [...document.querySelectorAll('.beat')];
+let frame = 0, playing = !REDUCED && !CAPTURE, startMs = 0, ready = false;
+function renderFrame(f) {
+  frame = f;
+  const fi = Math.min(NF - 1, Math.round(f));
+  if (ready) render(fi);
+  frameIn.value = String(fi);
+  const local = fi < NA ? fi : fi - NA;
+  tcEl.textContent = `${fi < NA ? 'CUT 3' : 'CUT 6'} · ${(local / FPS).toFixed(2)}초`;
+  const t = fi / (NF - 1);
+  for (const b of beatEls) b.classList.toggle('is-now', t >= +b.dataset.a && t < +b.dataset.b);
+}
+function tick(now) {
+  if (playing) renderFrame(((now - startMs) / 1000 * FPS) % NF);
+  requestAnimationFrame(tick);
+}
+function setPlaying(p) {
+  playing = p; playBtn.textContent = p ? '일시정지' : '재생';
+  if (p) startMs = performance.now() - frame / FPS * 1000;
+}
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { frame = 0; setPlaying(true); });
+frameIn.addEventListener('input', () => { setPlaying(false); renderFrame(+frameIn.value); });
+labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!playing) renderFrame(frame); });
+
+(async () => {
+  try {
+    await Promise.all(Object.entries(SRC).map(([k, v]) => load(k, v)));
+  } catch (e) {
+    statusEl.textContent = '그림 파일(assets_v2 폴더)을 불러오지 못했습니다. 페이지와 같은 위치에 assets_v2 폴더가 있는지 확인해 주세요. 같은 장면의 MP4도 함께 드렸습니다.';
+    return;
+  }
+  try {
+    const TEXT = '똑똑, 괜찮으세요? CUT 3 · 문이 열린다 CUT 6 · 분납과 복지 연계를 안내하다 분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요';
+    await Promise.race([Promise.all(['800 60px', '700 26px', '900 27px', '500 15px'].map((f) => document.fonts.load(`${f} "Noto Sans KR"`, TEXT))),
+      new Promise((r) => setTimeout(r, CAPTURE ? 30000 : 4000))]);
+  } catch (e) { /* system Korean font */ }
+  document.fonts.addEventListener('loadingdone', () => { if (!playing) renderFrame(frame); });
+  ready = true;
+  renderFrame(REDUCED ? 140 : 0);
+  statusEl.hidden = true;
+  setPlaying(playing);
+  requestAnimationFrame(tick);
+  window.__renderAt = (f) => { renderFrame(f); return true; };
+  window.__nf = NF;
+  window.__ready = true;
+})();
+})();
+</script>
