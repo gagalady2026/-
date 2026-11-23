@@ -1,4 +1,4 @@
-<title>똑똑 35초 애니매틱</title>
+<title>똑똑 36초 애니매틱</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,27 +100,28 @@ body.capture .stage .status { display: none; }
 
 <main class="wrap">
   <header>
-    <p class="eyebrow">동해시 지방세입 체납관리단 · 홍보 애니메이션 「똑똑, 괜찮으세요?」 · 30초 대본을 35초로 늘린 애니매틱</p>
-    <h1><span class="accent">35초</span> 애니매틱 · 9컷</h1>
+    <p class="eyebrow">동해시 지방세입 체납관리단 · 홍보 애니메이션 「똑똑, 괜찮으세요?」 · 30초 대본을 36초로 늘린 애니매틱</p>
+    <h1><span class="accent">36초</span> 애니매틱 · 9컷</h1>
     <p class="lead">원래 8컷 30초 대본의 순서와 행동은 그대로 두고, 납세자(어르신)와의 대화에 시간을 더 썼습니다.</p>
     <ul class="lead">
       <li>배경만 나오던 오프닝(2.5초)과 빈 계단 골목 숏(1.25초)을 뺐습니다. 영상은 바닷가 계단을 오르는 주인공으로 바로 시작합니다.</li>
       <li>대화를 늘렸습니다. 어르신이 사정을 두 마디로 털어놓고(“…일을 못 했어요…”, “그러다 보니 세금도 밀렸네요…”), 주인공이 답하고 안내한 뒤, 어르신이 “고마워요, 한시름 놓았어요.”로 답합니다. 배웅 때 주인공이 “건강 잘 챙기세요.”라고 인사합니다.</li>
-      <li>노을은 28초부터 들어옵니다. 배웅 인사까지는 낮이고, 골목을 따라 멀어지는 장면으로 넘어가며 0.5초 디졸브로 노을이 됩니다.</li>
+      <li>노을은 28초부터 들어옵니다. 배웅 인사까지는 낮이고, 골목을 따라 멀어지는 장면으로 넘어가며 0.5초 디졸브로 노을이 됩니다. 멀어지는 장면은 3초 동안 천천히 걸어갑니다.</li>
+      <li>주인공 목걸이 명찰에 ‘실태조사원’이 보입니다.</li>
       <li>메시지 컷은 설계안대로 3초, 엔드 카드는 2초입니다.</li>
     </ul>
     <p class="lead">아홉 컷 모두 보내주신 GPT 그림을 코드로 움직입니다. 동해시 CI는 설계안 원칙대로 그리지 않고 공식 파일을 후반에 합성할 자리만 표시했습니다.</p>
   </header>
 
   <figure class="stage" id="stage">
-    <canvas id="view" width="1920" height="1080" aria-label="35초 애니매틱: 바닷가 계단을 오르는 주인공, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에 앉은 어르신, 아파서 일을 못 했고 세금도 밀렸다고 털어놓는 어르신과 끄덕이며 답하는 주인공, 태블릿으로 분납 안내와 복지서비스 연계 안내, 안도하며 고맙다고 말하는 어르신, 낮의 배웅 인사 뒤 노을 속 멀어지는 뒷모습, 불이 하나씩 켜지는 마을과 메시지, 엔드 카드"></canvas>
+    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 바닷가 계단을 오르는 주인공, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에 앉은 어르신, 아파서 일을 못 했고 세금도 밀렸다고 털어놓는 어르신과 끄덕이며 답하는 주인공, 태블릿으로 분납 안내와 복지서비스 연계 안내, 안도하며 고맙다고 말하는 어르신, 낮의 배웅 인사 뒤 노을 속 멀어지는 뒷모습, 불이 하나씩 켜지는 마을과 메시지, 엔드 카드"></canvas>
     <div class="status" id="status">그림을 불러오는 중…</div>
   </figure>
 
   <div class="transport">
     <button type="button" class="primary" id="play">일시정지</button>
     <button type="button" id="restart">처음부터</button>
-    <label class="scrub" for="frame"><span class="timecode" id="tc">0.00초 · CUT 1</span><input type="range" id="frame" min="0" max="839" step="1" value="0" aria-label="프레임 위치"></label>
+    <label class="scrub" for="frame"><span class="timecode" id="tc">0.00초 · CUT 1</span><input type="range" id="frame" min="0" max="863" step="1" value="0" aria-label="프레임 위치"></label>
     <label class="toggle" for="subs"><input type="checkbox" id="subs" checked> 자막</label>
     <label class="toggle" for="labels"><input type="checkbox" id="labels"> 컷 이름</label>
   </div>
@@ -152,7 +153,7 @@ body.capture .stage .status { display: none; }
   <p class="note">꼭 필요한 그림은 모두 들어왔습니다. 아래 그림은 지금 코드로 흉내 낸 움직임을 실제 그림으로 바꿔 줍니다. 캐릭터 시트를 함께 올리고 문장을 붙여 쓰면 됩니다. 인물은 배경 없는 투명 PNG로 받습니다.</p>
   <ul class="reqs" id="reqs"></ul>
 
-  <p class="note">Canvas 2D · 24fps 35초(840프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 소리는 없고, 내레이션은 엔드 카드에 자막으로 표시했습니다(‘자막’으로 끌 수 있음). 작업용 컷 이름은 ‘컷 이름’을 켜면 왼쪽 위에 보이며, MP4에는 넣지 않습니다.</p>
+  <p class="note">Canvas 2D · 24fps 36초(864프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 소리는 없고, 내레이션은 엔드 카드에 자막으로 표시했습니다(‘자막’으로 끌 수 있음). 작업용 컷 이름은 ‘컷 이름’을 켜면 왼쪽 위에 보이며, MP4에는 넣지 않습니다.</p>
 </main>
 
 <script>
@@ -176,7 +177,7 @@ function bump(t, a, b, hold = 0) {
 const easeOutBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
 const D2R = Math.PI / 180;
 
-// ---------------------------------------------------------------- the 35-second cut list (the 8-cut script, stretched and framed)
+// ---------------------------------------------------------------- the 36-second cut list (the 8-cut script, stretched and framed)
 // Each cut is one or more shots, all the user's GPT art moved by code, except end = the end card. Daylight until 28.0 s: the
 // farewell bows are by day, and the sunset comes in with a half-second dissolve into the walk-away (render()).
 const CUTS = [
@@ -186,7 +187,7 @@ const CUTS = [
   { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '평상에 앉은 어르신이 옆에 앉는 주인공 쪽을 보며 옅게 미소 짓고 고개를 끄덕임', shots: [{ kind: 'seated', sec: 1.25 }] },
   { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 무거운 얼굴로 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕임 → 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아봐요.”', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'nod', sec: 1.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
   { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '“나눠서 내실 수 있어요.” ① 분납 안내를 톡톡 → 같은 구도에서 “필요한 도움도 이어 드릴게요.” ② 복지서비스 연계를 톡톡 → 어르신이 안도의 미소 뒤 “고마워요, 한시름 놓았어요.”', shots: [{ kind: 'tablet', sec: 5.0 }, { kind: 'relief', sec: 2.5 }] },
-  { n: 7, src: 'gpt', title: '배웅', act: '낮, 대문 앞에서 주인공 “건강 잘 챙기세요.” 목례 → 어르신이 웃으며 화답 → 28초부터 노을: 대문 앞 골목을 따라 등대 쪽으로 멀어짐', shots: [{ kind: 'bowHim', sec: 1.5 }, { kind: 'bowCz', sec: 1.0 }, { kind: 'walkAway', sec: 2.0 }] },
+  { n: 7, src: 'gpt', title: '배웅', act: '낮, 대문 앞에서 주인공 “건강 잘 챙기세요.” 목례 → 어르신이 웃으며 화답 → 28초부터 노을: 대문 앞 골목을 따라 천천히 멀어짐(3초)', shots: [{ kind: 'bowHim', sec: 1.5 }, { kind: 'bowCz', sec: 1.0 }, { kind: 'walkAway', sec: 3.0 }] },
   { n: 8, src: 'gpt', title: '집집마다 불이 켜진다', act: '해가 지고 가로등이 먼저, 이어 창문 불빛이 하나씩. 상단에 “체납 뒤에 사람이 있습니다.”(설계안대로 3초)', shots: [{ kind: 'village', sec: 3.0 }] },
   { n: 9, src: 'code', title: '엔드 카드', act: '동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064. 내레이션 “동해시 체납관리단입니다.”', shots: [{ kind: 'end', sec: 2.0 }] },
 ];
@@ -196,7 +197,7 @@ for (const c of CUTS) {
   for (const s of c.shots) { s.nf = Math.round(s.sec * FPS); s.f0 = acc; acc += s.nf; }
   c.nf = acc - c.f0; c.sec = c.nf / FPS;
 }
-const NF = acc;                                         // 840
+const NF = acc;                                         // 864
 
 // ---------------------------------------------------------------- the user's GPT images (cleaned, see assets_v2) + placeholders
 const SRC = {
@@ -206,7 +207,7 @@ const SRC = {
   p1m: 'assets_v4/v4_sit_p1_panelmask.png', p2m: 'assets_v4/v4_sit_p2_panelmask.png',
   cz34: 'assets_v4/v4_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png', cz34Talk: 'assets_v8/v8_cz_34_talk.png',
   czSeated: 'assets_v7/v7_cz_seated.png', czSideSad: 'assets_v7/v7_cz_side_sad.png', czSideSadTalk: 'assets_v7/v7_cz_side_sad_talk.png', officialOts: 'assets_v7/v7_official_ots.png',
-  czFront: 'assets_v4/v4_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
+  czFront: 'assets_v9/v9_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
   stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
   gateDusk: 'assets_v5/v5_gate_dusk.jpg', walkAway: 'assets_v5/v5_walk_away.png', walkAwayB: 'assets_v7/v7_walk_b.png', czBackSharp: 'assets_v4/v4_cz_back.png',
   vOff: 'assets_v5/v5_village_off.jpg', vDark: 'assets_v5/v5_village_dark.jpg', vOn: 'assets_v5/v5_village_on.jpg',
@@ -223,26 +224,29 @@ const BACK = { climbA: { foot: [455, 1379], h: 1356, head: [583, 23] }, climbB: 
   czBackSharp: { foot: [382, 1843], h: 1815 } };
 const STAND = {
   pivotX: 558, talkMouth: [511, 289],
-  neutral: { off: [0, 0], eyes: [[499.4, 251, 18, 31], [586.9, 251, 17, 31]], skin: 'rgb(252,214,192)' },
-  listen: { off: [0, 18], eyes: [[495.6, 249.9, 20, 31], [579, 232.8, 19, 30]], skin: 'rgb(253,214,192)' },
-  smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)' },
+  neutral: { off: [0, 0], eyes: [[499.4, 251, 18, 31], [586.9, 251, 17, 31]], skin: 'rgb(252,214,192)', card: [541.0, 585.2, 81, 42, 0.4, 15] },
+  listen: { off: [0, 18], eyes: [[495.6, 249.9, 20, 31], [579, 232.8, 19, 30]], skin: 'rgb(253,214,192)', card: [542.0, 564.0, 77, 39, 1.6, 14] },
+  smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)', card: [540.5, 592.5, 82, 42, 0.0, 15] },
 };
 const FRAME_A = { s: 1.2, ox: 48, oy: 18 };            // the v2 standing framing (shot A)
-const FRAME_B = { s: 1.8, ox: 173, oy: -22 };           // close on his face (CUT 5 listening): face near (1150, 430)
+const FRAME_B = { s: 1.62, ox: 271, oy: 23 };           // close on his face (CUT 5): face near (1150, 430); 10% under the first
+                                                        // framing (1.8), so his face is within ~8% of the tablet shot's
 // seated pair (assets_v4): the redrawn ② holds the tablet on the screen-left side, toward the citizen, so ① is mirrored to match.
 // Measured by tools/v4_prep.py: eyes [x, y, w, h], closed-mouth patch, tablet panels ① a / ② b (TL, TR, BR, BL), fingertip, panel-mask origin
 const SIT = {
   s: 1.05, ox: 526, oy: 42, pivotX: 561,
   p1: { off: [0, 0], eyes: [[542.3, 319.6, 24, 44], [661.1, 341.9, 25, 45]], skin: 'rgb(253,215,192)', closed: [551, 395], mask: [122, 480],
-    a: [[146, 517], [393, 520], [412, 662], [159, 661]], b: [[174, 690], [418, 691], [437, 820], [190, 825]], tip: [368, 589] },
+    a: [[146, 517], [393, 520], [412, 662], [159, 661]], b: [[174, 690], [418, 691], [437, 820], [190, 825]], tip: [368, 589],
+    card: [593.0, 903.8, 109, 60, 1.4, 21] },
   p2: { off: [7.7, -4.2], eyes: [[534.1, 341.8, 25, 44], [654.0, 328.2, 25, 43]], skin: 'rgb(252,213,190)', closed: [563, 398], mask: [100, 500],
-    a: [[171, 580], [382, 575], [400, 692], [185, 699]], b: [[190, 738], [408, 728], [429, 863], [207, 877]], tip: [361, 796] },
+    a: [[171, 580], [382, 575], [400, 692], [185, 699]], b: [[190, 738], [408, 728], [429, 863], [207, 877]], tip: [361, 796],
+    card: [612.5, 773.0, 108, 56, -0.6, 17] },
 };
 // the citizen (assets_v4, keyed off the user's sheets and upscaled 3x): eyes for blinks, eyelid skin
 const CZ = {
   side: { eyes: [[422.7, 371.1, 29, 67]], skin: 'rgb(254,215,176)' },
   q34: { eyes: [[667.4, 369.9, 32, 67], [815.3, 370.0, 28, 66]], skin: 'rgb(254,214,175)', smileOff: [0, 3] },
-  front: { eyes: [[321.7, 315.0, 26, 52], [460.3, 314.8, 27, 52]], skin: 'rgb(254,216,181)' },
+  front: { eyes: [[321.7, 315.0, 26, 52], [460.3, 314.8, 27, 52]], skin: 'rgb(252,216,184)' },     // halo-free picture (tools/v9_prep.py)
 };
 
 const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
@@ -283,19 +287,20 @@ function stReact(c, u) {                // CUT 3: the gate has opened — a smal
 }
 function stTablet(c, u) {               // CUT 6a: the tablet shot with the redrawn pair (tablet held out on the screen-left side)
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1 + 0.1 * e, fx: 840, fy: 680, dx: 20 * e, dy: -10 * e };
+  st.cam = { s: 1.07 + 0.07 * e, fx: 840, fy: 680, dx: 20 * e, dy: -10 * e };   // starts 7% closer: his face near the close-ups' size
   st.swap = clamp((u - 0.455) / 0.03);
   const talk = (u > 0.09 && u < 0.33) || (u > 0.55 && u < 0.82);
   st.closed = !(talk && Math.sin(2 * Math.PI * 4.4 * st.sec) > -0.1);
   st.sub1 = win(u, 0.08, 0.12) * (1 - win(u, 0.4, 0.44));
   st.sub2 = win(u, 0.54, 0.58) * (1 - win(u, 0.93, 0.98));
+  st.badge = 1 - st.sub1;                  // in ① his ID card sits under the subtitle (in ② it is higher, clear of it)
   st.blink = Math.max(bump(u, 0.3, 0.345), bump(u, 0.447, 0.497, 0.5), bump(u, 0.86, 0.9));
   st.hl1 = win(u, 0.07, 0.11) * (1 - win(u, 0.44, 0.5));
   st.icon1 = easeOutBack(win(u, 0.09, 0.15));
   st.text1 = win(u, 0.12, 0.18);
   st.cal = win(u, 0.17, 0.19);
   st.seg = [0, 1, 2].map((i) => win(u, 0.18 + 0.035 * i, 0.21 + 0.035 * i));
-  st.hl2 = win(u, 0.5, 0.55) * (1 - 0.4 * win(u, 0.86, 0.96));
+  st.hl2 = win(u, 0.5, 0.55);
   st.icon2 = easeOutBack(win(u, 0.53, 0.59));
   st.text2 = win(u, 0.56, 0.62);
   st.nodes = [0, 1, 2].map((i) => win(u, 0.6 + 0.03 * i, 0.63 + 0.03 * i));
@@ -337,7 +342,7 @@ function flaps(sec, t0, words, d, gap) {
 }
 function stNod(c, u) {                  // CUT 5b: close on the official: he listens (head tilted) and nods slowly, eyes closed
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1 + 0.03 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
+  st.cam = { s: 1 + 0.02 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
   st.frame = FRAME_B; st.variant = 'listen'; st.open = false;
   st.bow = 0.8 * bump(u, 0.12, 0.9, 0.2);
   st.blink = bump(u, 0.16, 0.86, 0.75);       // eyes shut quickly and open quickly (a half-open lid with a smile looks smug)
@@ -357,11 +362,12 @@ function stCzTalk2(c, u) {              // CUT 5c: closer on him: “그러다 �
 }
 function stReply(c, u) {                // CUT 5d: close on the official again, he answers: “같이 방법을 찾아봐요.”
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1.03 + 0.03 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
+  st.cam = { s: 1 + 0.02 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
   st.frame = FRAME_B; st.variant = 'neutral';
   st.open = flaps(st.sec, 0.22, [2, 3, 4], 0.12, 0.07);    // 같이 / 방법을 / 찾아봐요
   st.blink = bump(u, 0.03, 0.11);
   st.sub = win(u, 0.05, 0.11) * (1 - win(u, 0.95, 1.0));
+  st.badge = 1 - st.sub;                   // the subtitle runs across his ID card here: its lettering steps aside
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.3);
   return st;
 }
@@ -402,19 +408,20 @@ function stClimbFollow(c, u) {          // CUT 1b: close behind him going up the
 function stWalkAway(c, u) {             // CUT 7c: outside the gate at sunset he walks off along the sea path; the citizen watches him go
   const st = base(c, u);
   st.cam = { s: 1.02 + 0.04 * smoother(u), fx: 760, fy: 640, dx: 0, dy: 0 };
-  // past the flower pots and away down the sea path toward the lighthouse (a curve in picture pixels), getting smaller.
-  // Two drawings, one per step (left foot planted, then right: the second has only its legs mirrored), 2.4 steps a second
-  // (10 frames each). The body is lowest mid-step with the legs apart and highest as the feet change, and leans a little over
-  // the planted foot. (One drawing bobbing up and down read as hopping on one foot.)
-  const t = clamp(u), q = 1 - t;
-  const px = q * q * 930 + 2 * q * t * 680 + t * t * 500, py = q * q * 718 + 2 * q * t * 700 + t * t * 610;
+  // past the flower pots and on down the sea path (a curve in picture pixels), getting smaller — an unhurried walk: half the
+  // speed of the first version over three seconds, easing in from standing as the sunset dissolves in. Two drawings, one per
+  // step (left foot planted, then right: the second has only its legs mirrored), 1.7 steps a second (about 14 frames each).
+  // The body is lowest mid-step with the legs apart and highest as the feet change, and leans a little over the planted foot.
+  const t = clamp(u * (0.8 + 0.2 * u)), q = 1 - t;
+  const px = q * q * 930 + 2 * q * t * 760 + t * t * 600, py = q * q * 718 + 2 * q * t * 708 + t * t * 655;
   st.foot = pic(px, py);
   st.h = 1.25 * (py - 480) * PL.k;            // perspective: size grows with distance below the horizon
-  const step = 2.4 * st.sec + 1e-6, n = Math.floor(step), ph = step - n, side = n % 2 ? 1 : -1;
+  const step = 1.7 * st.sec + 1e-6, n = Math.floor(step), ph = step - n, side = n % 2 ? 1 : -1;
   st.pose = n % 2 ? 'walkAwayB' : 'walkAway';
   st.lift = 0.006 * st.h * Math.cos(2 * Math.PI * ph);
   st.shift = side * 0.005 * st.h * Math.sin(Math.PI * ph);
   st.tilt = side * 0.5 * Math.sin(Math.PI * ph);
+  st.deepen = smoother(st.sec - (c.nf - 1) / FPS + 1);   // the last second
   st.breath = Math.sin(2 * Math.PI * 0.25 * st.sec);
   return st;
 }
@@ -503,7 +510,7 @@ function drawWelfare(g, st) {          // ② sits under ① on the same tablet;
   if (st.hl2 > 0.001) { g.fillStyle = `rgba(246,176,146,${0.62 * st.hl2})`; roundRect(g, -8, -8, 266, 156, 14); g.fill(); }
   if (st.text2 > 0.001) {
     g.save(); g.globalAlpha = st.text2; g.textBaseline = 'alphabetic';
-    g.fillStyle = '#8A3B22'; fitText(g, '복지서비스 연계', 900, 28, 226); g.fillText('복지서비스 연계', 12, 40);
+    g.fillStyle = '#74301A'; fitText(g, '복지서비스 연계', 900, 28, 226); g.fillText('복지서비스 연계', 12, 40);
     g.restore();
   }
   if (st.icon2 > 0.01) {
@@ -517,7 +524,7 @@ function drawWelfare(g, st) {          // ② sits under ① on the same tablet;
   }
   if (st.text2 > 0.001) {
     g.save(); g.globalAlpha = st.text2; g.textBaseline = 'alphabetic';
-    g.fillStyle = '#A85A3E'; fitText(g, '필요한 도움과 이어 드려요', 500, 15, 150); g.fillText('필요한 도움과 이어 드려요', 92, 84);
+    g.fillStyle = '#9A4A2E'; fitText(g, '필요한 도움과 이어 드려요', 500, 15, 150); g.fillText('필요한 도움과 이어 드려요', 92, 84);
     g.restore();
     g.strokeStyle = '#D9704B'; g.lineWidth = 3; g.beginPath(); g.moveTo(100, 111); g.lineTo(192, 111); g.stroke();
     st.nodes.forEach((v, i) => {
@@ -534,6 +541,7 @@ function drawPose(g, key, st) {
   g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
   g.translate(ox, oy + 3 * st.press); g.scale(s, s);
   g.drawImage(img[key], 0, 0);
+  drawBadge(g, P.card, st.badge ?? 1);
   if (st.closed) g.drawImage(img[key + 'c'], P.closed[0], P.closed[1]);
   eyelids(g, P.eyes, P.skin, st.blink);
   const m = g.getTransform(), c = cbuf.getContext('2d');
@@ -562,6 +570,16 @@ function tipFrame(key, st) {
   const p = m.transformPoint(new DOMPoint(SIT.ox + (P.off[0] + P.tip[0]) * s, SIT.oy + (P.off[1] + P.tip[1]) * s));
   return { x: p.x, y: p.y };
 }
+// the ID card on his lanyard (blank in the pictures): “실태조사원” across its white face, “동해시” on its teal band. Drawn in
+// picture pixels inside the picture's own transform, so it moves, tilts and squashes with him (card = SIT/STAND …card)
+function drawBadge(g, [cx, cy, w, h, rot, band], a = 1) {
+  if (a <= 0.001) return;                  // a subtitle over the card: no lettering under it (blank card, as drawn)
+  g.save(); g.globalAlpha *= a; g.translate(cx, cy); g.rotate(rot * D2R);
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = '#23303F'; g.font = `800 ${(w * 0.158).toFixed(2)}px ${FONT}`; g.fillText('실태조사원', 0, h * 0.04);
+  g.fillStyle = '#FFFFFF'; g.font = `800 ${(band * 0.6).toFixed(2)}px ${FONT}`; g.fillText('동해시', 0, -h / 2 - band / 2 + 0.5);
+  g.restore();
+}
 function drawStanding(g, st) {
   const v = STAND[st.variant], F = st.frame, s = F.s, ox = F.ox + v.off[0] * s, oy = F.oy + v.off[1] * s;
   g.save();
@@ -571,6 +589,7 @@ function drawStanding(g, st) {
   g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, (1 + 0.004 * st.breath) * (1 - 0.03 * (st.bow || 0))); g.translate(-bx, -by);
   g.translate(ox, oy); g.scale(s, s);
   g.drawImage(img[st.variant], 0, 0);
+  drawBadge(g, v.card, st.badge ?? 1);
   if (st.variant === 'neutral' && st.open) g.drawImage(img.talkMouth, STAND.talkMouth[0], STAND.talkMouth[1]);
   eyelids(g, v.eyes, v.skin, st.blink);
   g.restore();
@@ -618,6 +637,15 @@ function drawLit(g, paint) {
   t.globalCompositeOperation = 'destination-in'; t.drawImage(charBuf, 0, 0);       // back to the figures' own shapes
   t.globalCompositeOperation = 'source-over';
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.filter = CHAR_DUSK; g.drawImage(tintBuf, 0, 0); g.restore();
+}
+// CUT 7c's last second: the evening light deepens (a rose-warm multiply, a little darker at the top), so the cut to CUT 8's
+// pink dusk is not a jump from golden light
+function eveningDeepens(g, k) {
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'multiply';
+  const lg = g.createLinearGradient(0, 0, 0, H);
+  lg.addColorStop(0, `rgba(238,192,212,${k})`); lg.addColorStop(0.6, `rgba(248,204,206,${k})`); lg.addColorStop(1, `rgba(244,212,204,${k})`);
+  g.fillStyle = lg; g.fillRect(0, 0, W, H);
+  g.restore();
 }
 function drawBg(g, im, cam, k, zoom = 1, zx = W / 2, zy = H / 2) {
   g.save();
@@ -786,6 +814,7 @@ function drawShot(g, c, sh, u) {
     const [cx, cy] = pic(1062, 714);
     drawLit(g, (c) => drawBack(c, { cam: st.cam, foot: [cx, cy], h: 1.25 * (714 - 480) * PL.k, breath: st.breath }, 'czBackSharp'));
     drawBack(g, st, st.pose);
+    if (st.deepen > 0.001) eveningDeepens(g, 0.55 * st.deepen);
   } else if (k === 'village') {
     const st = stVillage(sh, u);
     drawBg(g, img.vDark, st.cam, 1);
@@ -812,14 +841,14 @@ function drawShot(g, c, sh, u) {
     // the Donghae City CI: by the design doc's rule the official file is composited in post, never drawn — only its place is shown
     g.save(); g.globalAlpha = a1; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.setLineDash([12, 9]); g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,0.7)';
-    roundRect(g, W / 2 - 190, 245, 380, 150, 20); g.stroke(); g.setLineDash([]);
-    g.font = `700 32px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillText('동해시 CI', W / 2, 303);
-    g.font = `500 23px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.66)'; g.fillText('공식 파일 후반 합성', W / 2, 345);
+    roundRect(g, W / 2 - 190, 270, 380, 140, 20); g.stroke(); g.setLineDash([]);     // ~55 px above the name (was ~95)
+    g.font = `700 32px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillText('동해시 CI', W / 2, 324);
+    g.font = `500 23px ${FONT}`; g.fillStyle = 'rgba(255,255,255,0.66)'; g.fillText('공식 파일 후반 합성', W / 2, 364);
     g.restore();
     g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.shadowColor = 'rgba(10,6,14,0.5)'; g.shadowBlur = 14;
-    g.font = `700 72px ${FONT}`; g.fillStyle = '#FFFFFF'; g.fillText('동해시 지방세입 체납관리단', W / 2, 525);
-    g.font = `500 48px ${FONT}`; g.fillStyle = '#F5EBDD'; g.fillText('문의 033-530-2064', W / 2, 620);
+    g.shadowColor = 'rgba(10,6,14,0.42)'; g.shadowBlur = 12;          // the name ~12% smaller than at first and the number a step
+    g.font = `700 63px ${FONT}`; g.fillStyle = '#FFF9F1'; g.fillText('동해시 지방세입 체납관리단', W / 2, 497);   // smaller, so the
+    g.font = `500 40px ${FONT}`; g.fillStyle = '#F2E8DA'; g.fillText('문의 033-530-2064', W / 2, 570);         // card sits in the scene
     g.restore();
     sub = { text: '내레이션 “동해시 체납관리단입니다.”', a: win(u, 0.3, 0.42), small: true };
   }
@@ -967,7 +996,7 @@ subsIn.addEventListener('change', () => { subsOn = subsIn.checked; if (!playing)
       '동해시 CI 공식 파일 후반 합성 문의 033-530-2064 내레이션 “동해시 체납관리단입니다.”',
       '계세요? 동해시청에서 나왔어요. 요즘 지내시기 괜찮으세요? 몸이 안 좋아서 한동안 일을 못 했어요…',
       '같이 방법을 찾아봐요. 나눠서 내실 수 있어요. 필요한 도움도 이어 드릴게요.',
-      '그러다 보니 세금도 밀렸네요… 고마워요, 한시름 놓았어요. 건강 잘 챙기세요.']).join(' ');
+      '그러다 보니 세금도 밀렸네요… 고마워요, 한시름 놓았어요. 건강 잘 챙기세요. 실태조사원 동해시']).join(' ');
     const DISPLAY = '체납 뒤에 사람이 있습니다.';
     await Promise.race([Promise.all(['900', '800', '700', '500'].map((wt) => document.fonts.load(`${wt} 40px "Noto Sans KR"`, TEXT))
       .concat([document.fonts.load('400 40px "Gowun Dodum"', DISPLAY)])),
