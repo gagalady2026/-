@@ -122,6 +122,7 @@ body.capture .stage .status { display: none; }
     <button type="button" class="primary" id="play">일시정지</button>
     <button type="button" id="restart">처음부터</button>
     <label class="scrub" for="frame"><span class="timecode" id="tc">0.00초 · CUT 1</span><input type="range" id="frame" min="0" max="791" step="1" value="0" aria-label="프레임 위치"></label>
+    <label class="toggle" for="sound"><input type="checkbox" id="sound"> 소리</label>
     <label class="toggle" for="subs"><input type="checkbox" id="subs" checked> 자막</label>
     <label class="toggle" for="labels"><input type="checkbox" id="labels"> 컷 이름</label>
   </div>
@@ -149,11 +150,32 @@ body.capture .stage .status { display: none; }
   </dl>
   <p class="note">대사는 제목 「똑똑, 괜찮으세요?」의 뜻이 장면 안에서 읽히도록 붙인 제안입니다. 문 앞에서는 ‘체납’을 말하지 않고 안부부터 묻고, 어르신의 사정을 들은 뒤 분납과 복지 연계를 안내하는 흐름입니다. 밀린 세금 이야기는 어르신이 먼저 꺼내고, 주인공은 탓하지 않고 방법을 함께 찾습니다. 분납과 복지 지원이 승인되는 것처럼 들리지 않도록, 주인공의 말과 화면 글씨는 ‘상담’과 ‘연계’로 맞췄습니다.</p>
 
+  <h2>소리</h2>
+  <p class="note">음악, 효과음, 배경음을 모두 코드로 합성했습니다(<code>tools/sound_33s.py</code>). 샘플이나 외부 음원을 쓰지 않아 저작권 걱정이 없습니다. 위의 ‘소리’를 켜면 들리고, MP4에도 들어 있습니다(웹 기준 −16 LUFS).</p>
+  <ul class="lead">
+    <li>음악: D장조, 느린 피아노와 현악 패드. 대문이 열릴 때 피아노가 들어오고, 어르신이 사정을 말하는 동안은 낮고 조용하게, “같이 방법을 찾아봐요.”부터 밝게 올라가 노을 장면에서 D 화음에 도착하고, 엔드 카드에서 G → D로 맺습니다.</li>
+    <li>효과음: 계단 발소리, 화면의 ‘똑!’에 맞춘 노크 두 번, 빗장과 ‘끼익’ 경첩 소리, 태블릿을 짚는 소리, ①·② 이름표가 뜰 때의 맑은 소리, 엔드 카드 문구의 종소리.</li>
+    <li>배경음: 바닷가 계단에서는 파도와 먼 갈매기, 마당에서는 낮은 파도와 가끔 참새, 28초 노을부터는 풀벌레 소리.</li>
+  </ul>
+  <p class="note">대사와 내레이션 목소리는 넣지 않았습니다. 여기서는 자연스러운 한국어 음성을 만들 수 없어서, 성우 녹음이나 TTS로 아래 시간에 맞춰 얹을 수 있게 했습니다. 시간은 화면에 자막이 보이는 구간입니다.</p>
+  <dl class="copy">
+    <dt>2.2–3.8초 · 주인공, 대문 밖에서</dt><dd>“계세요? 동해시청에서 나왔어요.”</dd>
+    <dt>5.1–6.7초 · 주인공</dt><dd>“요즘 지내시기 괜찮으세요?”</dd>
+    <dt>9.6–11.9초 · 어르신, 무겁게</dt><dd>“몸이 안 좋아서 한동안 일을 못 했어요…”</dd>
+    <dt>12.8–14.0초 · 주인공, 끄덕인 뒤</dt><dd>“많이 힘드셨겠어요.”</dd>
+    <dt>14.1–16.2초 · 어르신</dt><dd>“그러다 보니 세금도 밀렸네요…”</dd>
+    <dt>16.3–18.0초 · 주인공</dt><dd>“같이 방법을 찾아봐요.”</dd>
+    <dt>18.4–21.0초 · 주인공, ① 분납 상담</dt><dd>“나눠서 내는 방법도 상담해 드릴게요.”</dd>
+    <dt>22.4–25.0초 · 주인공, ② 복지서비스 연계</dt><dd>“복지서비스 상담도 연계해 드릴게요.”</dd>
+    <dt>26.2–28.0초 · 어르신, 안도하며</dt><dd>“고마워요, 마음이 좀 놓이네요.”</dd>
+    <dt>31.5–33.0초 · 내레이션</dt><dd>“동해시 체납관리단입니다.”</dd>
+  </dl>
+
   <h2>있으면 더 자연스러워질 그림</h2>
   <p class="note">꼭 필요한 그림은 모두 들어왔습니다. 아래 그림은 지금 코드로 흉내 낸 움직임을 실제 그림으로 바꿔 줍니다. 캐릭터 시트를 함께 올리고 문장을 붙여 쓰면 됩니다. 인물은 배경 없는 투명 PNG로 받습니다.</p>
   <ul class="reqs" id="reqs"></ul>
 
-  <p class="note">Canvas 2D · 24fps 33초(792프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑습니다. 소리는 없고, 내레이션은 엔드 카드에 자막으로 표시했습니다(‘자막’으로 끌 수 있음). 작업용 컷 이름은 ‘컷 이름’을 켜면 왼쪽 위에 보이며, MP4에는 넣지 않습니다.</p>
+  <p class="note">Canvas 2D · 24fps 33초(792프레임). 같은 페이지를 헤드리스 브라우저에서 프레임 단위로 찍어 1920×1080 MP4로 뽑고, 합성한 소리를 붙입니다. 소리는 ‘소리’를 켜면 들리며, 켜 두면 그림이 소리에 맞춰 움직입니다. 대사와 내레이션은 자막으로 보입니다(‘자막’으로 끌 수 있음). 작업용 컷 이름은 ‘컷 이름’을 켜면 왼쪽 위에 보이며, MP4에는 넣지 않습니다.</p>
 </main>
 
 <script>
@@ -914,17 +936,38 @@ function renderFrame(f) {
   tcEl.textContent = `${(fi / FPS).toFixed(2)}초 · CUT ${c.n}`;
   for (const k of CUTS) k.li.classList.toggle('is-now', k === c);
 }
+// the soundtrack (tools/sound_33s.py): off until the viewer turns it on (browsers play sound only after a click). While it
+// plays, the sound is the clock — the picture follows the audio's time, so the two never drift apart.
+const soundIn = document.getElementById('sound');
+const audio = CAPTURE ? null : new Audio('sound/animatic_33s_sound.mp3');
+if (audio) {
+  audio.preload = 'auto';
+  audio.addEventListener('ended', () => { if (playing && soundIn.checked) { audio.currentTime = 0; audio.play().catch(() => {}); } });
+} else soundIn.disabled = true;
+const soundOn = () => !!audio && soundIn.checked;
+function syncSound() {
+  if (!audio) return;
+  if (soundOn() && playing) {
+    audio.currentTime = Math.min(frame / FPS, NF / FPS - 0.05);
+    audio.play().catch(() => { soundIn.checked = false; startMs = performance.now() - frame / FPS * 1000; });
+  } else audio.pause();
+}
 function tick(now) {
-  if (playing) renderFrame(((now - startMs) / 1000 * FPS) % NF);
+  if (playing) {
+    if (soundOn() && !audio.paused && audio.currentTime > 0) renderFrame(Math.min(NF - 1, audio.currentTime * FPS));
+    else renderFrame(((now - startMs) / 1000 * FPS) % NF);
+  }
   requestAnimationFrame(tick);
 }
 function setPlaying(p) {
   playing = p; playBtn.textContent = p ? '일시정지' : '재생';
   if (p) startMs = performance.now() - frame / FPS * 1000;
+  syncSound();
 }
 playBtn.addEventListener('click', () => setPlaying(!playing));
 restartBtn.addEventListener('click', () => { frame = 0; setPlaying(true); });
 frameIn.addEventListener('input', () => { setPlaying(false); renderFrame(+frameIn.value); });
+soundIn.addEventListener('change', () => { startMs = performance.now() - frame / FPS * 1000; syncSound(); });
 labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!playing) renderFrame(frame); });
 subsIn.addEventListener('change', () => { subsOn = subsIn.checked; if (!playing) renderFrame(frame); });
 
