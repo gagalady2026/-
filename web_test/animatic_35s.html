@@ -340,7 +340,7 @@ function stNod(c, u) {                  // CUT 5b: close on the official: he lis
   st.cam = { s: 1 + 0.03 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
   st.frame = FRAME_B; st.variant = 'listen'; st.open = false;
   st.bow = 0.8 * bump(u, 0.12, 0.9, 0.2);
-  st.blink = bump(u, 0.16, 0.86, 0.55);
+  st.blink = bump(u, 0.16, 0.86, 0.75);       // eyes shut quickly and open quickly (a half-open lid with a smile looks smug)
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 1.3);
   return st;
 }
@@ -431,7 +431,7 @@ function stBowCz(c, u) {                // CUT 7b: by the house, by day, the cit
   const st = base(c, u);
   st.cam = { s: 1 + 0.03 * smoother(u), fx: 1150, fy: 500, dx: 0, dy: 0 };
   st.bow = bump(u, 0.1, 0.85, 0.3);
-  st.blink = bump(u, 0.12, 0.83, 0.6);
+  st.blink = bump(u, 0.12, 0.83, 0.75);
   st.breath = Math.sin(2 * Math.PI * 0.27 * st.sec + 2.0);
   return st;
 }
