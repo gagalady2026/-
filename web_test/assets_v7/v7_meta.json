@@ -1,0 +1,55 @@
+{
+ "cz_seated": {
+  "size": [
+   1167,
+   1044
+  ],
+  "bbox": [
+   67,
+   21,
+   1114,
+   1033
+  ]
+ },
+ "side_eye": {
+  "pupil": [
+   408,
+   337,
+   437,
+   404
+  ],
+  "lid": [
+   [
+    405.0,
+    359.8
+   ],
+   [
+    440.0,
+    367.8
+   ]
+  ]
+ },
+ "side_mouth": {
+  "line": [
+   378,
+   504,
+   427,
+   518
+  ],
+  "skin": [
+   253,
+   214,
+   178
+  ]
+ },
+ "official_ots": {
+  "from": "v5_climb_a.png mirrored, crop (200, 0, 900, 760), blur 9"
+ },
+ "walk_b": {
+  "from": "v5_walk_away.png, legs below y 915..960 mirrored about x 569.5",
+  "anchor": [
+   569.5,
+   1383
+  ]
+ }
+}

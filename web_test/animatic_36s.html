@@ -106,7 +106,7 @@ body.capture .stage .status { display: none; }
     <ul class="lead">
       <li>바다 마을 오프닝 2.5초를 새로 넣었습니다.</li>
       <li>‘문 앞에서’는 1초 늘려 대문 밖에서 누가 왔는지 밝히는 인사를 넣었습니다.</li>
-      <li>‘이야기를 듣다’는 0.5초, 행정적 의미가 담긴 ‘분납·복지 연계 안내’는 1초 늘렸습니다(계단과 찻잔 장면에서 0.25초씩 줄임).</li>
+      <li>‘평상에 마주 앉다’는 차를 건네는 장면을 빼고 평상에 앉은 짧은 숏(1.25초)으로 바꿨습니다. 그 시간으로 상담을 늘렸습니다: ‘이야기를 듣다’ +1초(주인공의 대답), ‘분납·복지 연계 안내’ +2초(안내 대사 두 줄). 계단은 0.25초 줄였습니다.</li>
       <li>‘배웅’은 1.5초 늘려 대문 밖 골목을 따라 등대 쪽으로 멀어지는 장면을 넣었습니다.</li>
       <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초입니다.</li>
     </ul>
@@ -114,7 +114,7 @@ body.capture .stage .status { display: none; }
   </header>
 
   <figure class="stage" id="stage">
-    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 묵호 바다 마을 오프닝, 바닷가 계단을 오르는 주인공, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에서 차를 건네받음, 어르신의 이야기와 끄덕임, 태블릿으로 분납 안내와 복지서비스 연계 안내 뒤 어르신의 미소, 노을 속 배웅과 멀어지는 뒷모습, 불이 하나씩 켜지는 마을과 메시지, 엔드 카드"></canvas>
+    <canvas id="view" width="1920" height="1080" aria-label="36초 애니매틱: 묵호 바다 마을 오프닝, 바닷가 계단을 오르는 주인공, 마당 안에서 들리는 대문 노크 소리, 문이 열리고 목례와 인사 뒤 귀 기울이다 미소, 평상에 앉은 어르신, 어르신의 무거운 이야기와 주인공의 끄덕임과 대답, 태블릿으로 분납 안내와 복지서비스 연계 안내 뒤 어르신의 미소, 노을 속 배웅과 멀어지는 뒷모습, 불이 하나씩 켜지는 마을과 메시지, 엔드 카드"></canvas>
     <div class="status" id="status">그림을 불러오는 중…</div>
   </figure>
 
@@ -140,8 +140,11 @@ body.capture .stage .status { display: none; }
     <dt>CUT 2 · 대문 밖에서 (제안)</dt><dd>“계세요? 동해시청에서 나왔어요.”</dd>
     <dt>CUT 3 · 문이 열리고 (제안)</dt><dd>“요즘 지내시기 괜찮으세요?”</dd>
     <dt>CUT 5 · 어르신 (제안)</dt><dd>“몸이 안 좋아서 한동안 일을 못 했어요…”</dd>
+    <dt>CUT 5 · 주인공 (제안)</dt><dd>“같이 방법을 찾아봐요.”</dd>
+    <dt>CUT 6 · 주인공, ① 짚을 때 (제안)</dt><dd>“나눠서 내실 수 있어요.”</dd>
+    <dt>CUT 6 · 주인공, ② 짚을 때 (제안)</dt><dd>“필요한 도움도 이어 드릴게요.”</dd>
   </dl>
-  <p class="note">대사는 제목 「똑똑, 괜찮으세요?」의 뜻이 장면 안에서 읽히도록 붙인 제안입니다. 문 앞에서는 ‘체납’을 말하지 않고 안부부터 묻고, 어르신의 사정을 들은 뒤 분납과 복지 연계를 안내하는 흐름입니다.</p>
+  <p class="note">대사는 제목 「똑똑, 괜찮으세요?」의 뜻이 장면 안에서 읽히도록 붙인 제안입니다. 문 앞에서는 ‘체납’을 말하지 않고 안부부터 묻고, 어르신의 사정을 들은 뒤 분납과 복지 연계를 안내하는 흐름입니다. 차를 건네는 장면 대신 상담 대화를 늘렸습니다.</p>
 
   <h2>있으면 더 자연스러워질 그림</h2>
   <p class="note">꼭 필요한 그림은 모두 들어왔습니다. 아래 그림은 지금 코드로 흉내 낸 움직임을 실제 그림으로 바꿔 줍니다. 캐릭터 시트를 함께 올리고 문장을 붙여 쓰면 됩니다. 인물은 배경 없는 투명 PNG로 받습니다.</p>
@@ -173,15 +176,15 @@ const D2R = Math.PI / 180;
 
 // ---------------------------------------------------------------- the 36-second cut list (the 8-cut script, stretched and framed)
 // Each cut is one or more shots. Shot kinds: est = opening plate · ph = placeholder (previs composition, picture still to come)
-// gate / react / offer / given / czTalk / listen / tablet / relief / bowHim / bowCz = the user's GPT art moved by code · end = end card
+// gate / react / seated / czTalk / listen / tablet / relief / bowHim / bowCz = the user's GPT art moved by code · end = end card
 const CUTS = [
   { n: 0, src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)', shots: [{ kind: 'est', sec: 2.5 }] },
   { n: 1, src: 'gpt', title: '바닷가 마을로 들어서다', act: '바닷가 계단 골목 → 계단을 오르는 주인공을 바로 뒤에서 따라감', shots: [{ kind: 'alley', sec: 1.25 }, { kind: 'climbFollow', sec: 2.0 }] },
   { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! → 대문 밖에서 “계세요? 동해시청에서 나왔어요.” → 끼익(+1초)', shots: [{ kind: 'gate', sec: 3.5 }] },
   { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “요즘 지내시기 괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감', shots: [{ kind: 'react', sec: 4.0 }] },
-  { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '어르신이 입 다문 옅은 미소로 김 나는 종이컵 차를 건넴 → 주인공 손으로 넘어감', shots: [{ kind: 'offer', sec: 1.5 }, { kind: 'given', sec: 1.25 }] },
-  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울이고 끄덕임(+0.5초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'listen', sec: 2.0 }] },
-  { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → 같은 구도에서 ② 복지서비스 연계를 짚어 톡톡 → 어르신의 안도하는 미소(+1초)', shots: [{ kind: 'tablet', sec: 4.25 }, { kind: 'relief', sec: 0.75 }] },
+  { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '평상에 앉은 어르신이 옆에 앉는 주인공 쪽을 보며 옅게 미소 짓고 고개를 끄덕임', shots: [{ kind: 'seated', sec: 1.25 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 무거운 얼굴로 먼 곳을 보며 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울이고 끄덕인 뒤 “같이 방법을 찾아봐요.”(+1초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'listen', sec: 2.5 }] },
+  { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '“나눠서 내실 수 있어요.” ① 분납 안내를 톡톡 → 같은 구도에서 “필요한 도움도 이어 드릴게요.” ② 복지서비스 연계를 톡톡 → 어르신의 안도하는 미소(+2초)', shots: [{ kind: 'tablet', sec: 5.25 }, { kind: 'relief', sec: 0.75 }] },
   { n: 7, src: 'gpt', title: '배웅', act: '노을빛 속 주인공 목례 → 어르신이 웃으며 화답 → 대문 앞 골목을 따라 등대 쪽으로 멀어짐(+1.5초)', shots: [{ kind: 'bowHim', sec: 1.25 }, { kind: 'bowCz', sec: 1.25 }, { kind: 'walkAway', sec: 2.0 }] },
   { n: 8, src: 'gpt', title: '집집마다 불이 켜진다', act: '해가 지고 가로등이 먼저, 이어 창문 불빛이 하나씩. 상단에 “체납 뒤에 사람이 있습니다.”', shots: [{ kind: 'village', sec: 4.0 }] },
   { n: 9, src: 'code', title: '엔드 카드', act: '동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064. 내레이션 “동해시 체납관리단입니다.”', shots: [{ kind: 'end', sec: 2.0 }] },
@@ -200,10 +203,11 @@ const SRC = {
   neutral: 'assets_v2/v2_st_neutral.png', listen: 'assets_v2/v2_st_listen.png', smile: 'assets_v2/v2_st_smile.png', talkMouth: 'assets_v2/v2_st_talk_mouth.png',
   p1: 'assets_v4/v4_sit_p1.png', p2: 'assets_v4/v4_sit_p2.png', p1c: 'assets_v4/v4_sit_p1_closed.png', p2c: 'assets_v4/v4_sit_p2_closed.png',
   p1m: 'assets_v4/v4_sit_p1_panelmask.png', p2m: 'assets_v4/v4_sit_p2_panelmask.png',
-  czSide: 'assets_v4/v4_cz_side_neutral.png', czSideTalk: 'assets_v4/v4_cz_side_talk.png', cz34: 'assets_v4/v4_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png',
-  czOffer: 'assets_v6/v6_cz_offer_calm.png', handCup: 'assets_v6/v6_hand_cup.png', czGiven: 'assets_v4/v4_cz_given.png', czFront: 'assets_v4/v4_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
+  cz34: 'assets_v4/v4_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png',
+  czSeated: 'assets_v7/v7_cz_seated.png', czSideSad: 'assets_v7/v7_cz_side_sad.png', czSideSadTalk: 'assets_v7/v7_cz_side_sad_talk.png', officialOts: 'assets_v7/v7_official_ots.png',
+  czFront: 'assets_v4/v4_cz_front.png', czBack: 'assets_v4/v4_cz_back_blur.png',
   stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
-  gateDusk: 'assets_v5/v5_gate_dusk.jpg', walkAway: 'assets_v5/v5_walk_away.png', czBackSharp: 'assets_v4/v4_cz_back.png',
+  gateDusk: 'assets_v5/v5_gate_dusk.jpg', walkAway: 'assets_v5/v5_walk_away.png', walkAwayB: 'assets_v7/v7_walk_b.png', czBackSharp: 'assets_v4/v4_cz_back.png',
   vOff: 'assets_v5/v5_village_off.jpg', vDark: 'assets_v5/v5_village_dark.jpg', vOn: 'assets_v5/v5_village_on.jpg',
 };
 // CUT 8 (tools/v5_prep.py): the lit village split into a lights-out plate and 12 groups of lights, [file, x, y] in plate pixels.
@@ -214,7 +218,7 @@ LIGHTS.forEach(([f]) => { SRC[f] = `assets_v5/v5_${f}.png`; });
 const PL = { k: 2035 / 1672, x: (W - 2035) / 2, y: (H - 1144) / 2 };
 const pic = (x, y) => [x * PL.k + PL.x, y * PL.k + PL.y];
 // back views (assets_v5): [support-foot x, y] in the picture and the figure's height, for placing them by their feet
-const BACK = { climbA: { foot: [455, 1379], h: 1356, head: [583, 23] }, climbB: { foot: [437, 1368], h: 1338, head: [587, 30] }, walkAway: { foot: [493, 1383], h: 1362 },
+const BACK = { climbA: { foot: [455, 1379], h: 1356, head: [583, 23] }, climbB: { foot: [437, 1368], h: 1338, head: [587, 30] }, walkAway: { foot: [569.5, 1383], h: 1362 }, walkAwayB: { foot: [569.5, 1383], h: 1362 },
   czBackSharp: { foot: [382, 1843], h: 1815 } };
 const STAND = {
   pivotX: 558, talkMouth: [511, 289],
@@ -233,13 +237,11 @@ const SIT = {
   p2: { off: [7.7, -4.2], eyes: [[534.1, 341.8, 25, 44], [654.0, 328.2, 25, 43]], skin: 'rgb(252,213,190)', closed: [563, 398], mask: [100, 500],
     a: [[171, 580], [382, 575], [400, 692], [185, 699]], b: [[190, 738], [408, 728], [429, 863], [207, 877]], tip: [361, 796] },
 };
-// the citizen (assets_v4, keyed off the user's sheets and upscaled 3x): eyes for blinks, eyelid skin, cup rims for the steam
+// the citizen (assets_v4, keyed off the user's sheets and upscaled 3x): eyes for blinks, eyelid skin
 const CZ = {
   side: { eyes: [[422.7, 371.1, 29, 67]], skin: 'rgb(254,215,176)' },
   q34: { eyes: [[667.4, 369.9, 32, 67], [815.3, 370.0, 28, 66]], skin: 'rgb(254,214,175)', smileOff: [0, 3] },
   front: { eyes: [[321.7, 315.0, 26, 52], [460.3, 314.8, 27, 52]], skin: 'rgb(254,216,181)' },
-  offer: { eyes: [[834.4, 223.8, 26, 47], [933.6, 199.7, 21, 44]], skin: 'rgb(253,214,178)', cup: [1309, 398] },
-  given: { eyes: [[735.4, 244.7, 26, 50], [828.7, 211.8, 21, 46]], skin: 'rgb(254,213,177)', cup: [1279, 391] },
 };
 
 const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
@@ -282,8 +284,10 @@ function stTablet(c, u) {               // CUT 6a: the tablet shot with the redr
   const st = base(c, u), e = smoother(u);
   st.cam = { s: 1 + 0.1 * e, fx: 840, fy: 680, dx: 20 * e, dy: -10 * e };
   st.swap = clamp((u - 0.455) / 0.03);
-  const talk = (u > 0.03 && u < 0.27) || (u > 0.52 && u < 0.76);
+  const talk = (u > 0.09 && u < 0.33) || (u > 0.55 && u < 0.82);
   st.closed = !(talk && Math.sin(2 * Math.PI * 4.4 * st.sec) > -0.1);
+  st.sub1 = win(u, 0.08, 0.12) * (1 - win(u, 0.4, 0.44));
+  st.sub2 = win(u, 0.54, 0.58) * (1 - win(u, 0.93, 0.98));
   st.blink = Math.max(bump(u, 0.3, 0.345), bump(u, 0.447, 0.497, 0.5), bump(u, 0.86, 0.9));
   st.hl1 = win(u, 0.07, 0.11) * (1 - win(u, 0.44, 0.5));
   st.icon1 = easeOutBack(win(u, 0.09, 0.15));
@@ -302,38 +306,36 @@ function stTablet(c, u) {               // CUT 6a: the tablet shot with the redr
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.1); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.5);
   return st;
 }
-function stOffer(c, u) {                // CUT 4a: he holds out the paper cup of tea, leaning a little toward the official (off screen right)
+function stSeated(c, u) {               // CUT 4: on the bench, turned toward the official sitting down beside him; a small nod
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1 + 0.035 * e, fx: 1100, fy: 560, dx: 0, dy: 0 };
-  st.lean = 14 * smoother(u / 0.6);
-  st.blink = bump(u, 0.62, 0.74);
+  st.cam = { s: 1 + 0.04 * e, fx: 760, fy: 480, dx: 0, dy: 0 };
+  st.bow = 0.4 * bump(u, 0.35, 0.85, 0.25);
   st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 0.3);
   return st;
 }
-function stGiven(c, u) {                // CUT 4b: the cup is in the official's hand now; a small nod, “drink up”
-  const st = base(c, u);
-  st.cam = { s: 1.035 + 0.02 * smoother(u), fx: 1100, fy: 560, dx: 0, dy: 0 };
-  st.bow = 0.45 * bump(u, 0.25, 0.62, 0.2);
-  st.blink = bump(u, 0.28, 0.58, 0.5);
-  st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 1.6);
-  return st;
-}
-function stCzTalk(c, u) {               // CUT 5a: in profile, looking out toward the sea, he talks
-  const st = base(c, u), e = smoother(u);
+function stCzTalk(c, u) {               // CUT 5a: over the official's shoulder: in profile, eyes heavy, head a little low, he tells
+  const st = base(c, u), e = smoother(u);  //   why he fell behind — slowly, with a pause between the two halves of the line
   st.cam = { s: 1 + 0.05 * e, fx: 760, fy: 560, dx: 0, dy: 0 };
-  const talking = (u > 0.07 && u < 0.46) || (u > 0.56 && u < 0.93);
-  st.open = talking && Math.sin(2 * Math.PI * 4.2 * st.sec + 0.6) > 0.05;
-  st.blink = bump(u, 0.48, 0.55);
+  const talking = (u > 0.08 && u < 0.44) || (u > 0.54 && u < 0.9);
+  st.open = talking && Math.sin(2 * Math.PI * 3.4 * st.sec + 0.6) > 0.15;
+  // his eye is drawn heavy-lidded (the lid a third of the way down) and stays so: a still, tired gaze. No blink here — the skin
+  // round this eye is shaded, so a flat lid painted over it at run time shows as a lighter oval
+  st.blink = 0;
   st.sub = win(u, 0.05, 0.11) * (1 - win(u, 0.93, 0.99));
-  st.breath = Math.sin(2 * Math.PI * 0.26 * st.sec + 0.9); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.18 * st.sec);
+  st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 0.9); st.sway = -2.2 + 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec);
   return st;
 }
-function stListen(c, u) {               // CUT 5b: close on the official, listening (head tilted), one slow nod
+function stListen(c, u) {               // CUT 5b: close on the official: he listens (head tilted), nods slowly, then answers
   const st = base(c, u), e = smoother(u);
   st.cam = { s: 1 + 0.04 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
-  st.frame = FRAME_B; st.variant = 'listen'; st.open = false;
-  st.bow = 0.8 * bump(u, 0.38, 0.66, 0.15);
-  st.blink = Math.max(bump(u, 0.4, 0.64, 0.55), bump(u, 0.9, 0.97));
+  st.frame = FRAME_B; st.variant = u < 0.47 ? 'listen' : 'neutral';
+  st.bow = 0.8 * bump(u, 0.14, 0.42, 0.15);
+  // 같이 / 방법을 / 찾아봐요: nine syllables in three words
+  const SYL = []; let t = 0.52;
+  for (const n of [2, 3, 4]) { for (let i = 0; i < n; i++) { SYL.push(t); t += 0.04; } t += 0.025; }
+  st.open = st.variant === 'neutral' && SYL.some((a) => u >= a && u < a + 0.04 * 0.62);
+  st.blink = Math.max(bump(u, 0.16, 0.4, 0.55), bump(u, 0.44, 0.5));
+  st.sub = win(u, 0.49, 0.53) * (1 - win(u, 0.95, 0.995));
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 1.3);
   return st;
 }
@@ -375,13 +377,19 @@ function stClimbFollow(c, u) {          // CUT 1b: close behind him going up the
 function stWalkAway(c, u) {             // CUT 7c: outside the gate at sunset he walks off along the sea path; the citizen watches him go
   const st = base(c, u);
   st.cam = { s: 1.02 + 0.04 * smoother(u), fx: 760, fy: 640, dx: 0, dy: 0 };
-  // from beside the citizen, across the front of the flower pots, then away down the sea path (a curve in picture pixels)
-  const t = clamp(0.04 + u * 0.96), q = 1 - t;
-  const px = q * q * 1000 + 2 * q * t * 700 + t * t * 560, py = q * q * 728 + 2 * q * t * 712 + t * t * 652;
-  const [fx, fy] = pic(px, py);
-  st.foot = [fx, fy - 9 * Math.abs(Math.sin(2 * Math.PI * 1.0 * st.sec))];
+  // past the flower pots and away down the sea path toward the lighthouse (a curve in picture pixels), getting smaller.
+  // Two drawings, one per step (left foot planted, then right: the second has only its legs mirrored), 2.4 steps a second
+  // (10 frames each). The body is lowest mid-step with the legs apart and highest as the feet change, and leans a little over
+  // the planted foot. (One drawing bobbing up and down read as hopping on one foot.)
+  const t = clamp(u), q = 1 - t;
+  const px = q * q * 930 + 2 * q * t * 680 + t * t * 500, py = q * q * 718 + 2 * q * t * 700 + t * t * 610;
+  st.foot = pic(px, py);
   st.h = 1.25 * (py - 480) * PL.k;            // perspective: size grows with distance below the horizon
-  st.tilt = 1.2 * Math.sin(2 * Math.PI * 1.0 * st.sec);
+  const step = 2.4 * st.sec + 1e-6, n = Math.floor(step), ph = step - n, side = n % 2 ? 1 : -1;
+  st.pose = n % 2 ? 'walkAwayB' : 'walkAway';
+  st.lift = 0.006 * st.h * Math.cos(2 * Math.PI * ph);
+  st.shift = side * 0.005 * st.h * Math.sin(Math.PI * ph);
+  st.tilt = side * 0.5 * Math.sin(Math.PI * ph);
   st.breath = Math.sin(2 * Math.PI * 0.25 * st.sec);
   return st;
 }
@@ -416,7 +424,12 @@ function eyelids(g, eyes, skin, c) {
   for (const [x, y, w, h] of eyes) {
     const rx = w / 2 + 3, ry = h / 2 + 3;
     g.save(); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.clip();
-    g.fillStyle = skin; g.fillRect(x - rx, y - ry, rx * 2, ry * 2 * Math.min(1, c * 1.15)); g.restore();
+    g.fillStyle = skin; g.fillRect(x - rx, y - ry, rx * 2, ry * 2 * Math.min(1, c * 1.15));
+    if (c > 0.15 && c <= 0.72) {          // a half-lowered lid: draw its edge
+      const ly = y - ry + ry * 2 * Math.min(1, c * 1.15);
+      g.strokeStyle = '#2A211F'; g.lineWidth = Math.max(3, w * 0.16); g.beginPath(); g.moveTo(x - rx, ly + 1); g.lineTo(x + rx, ly - 1); g.stroke();
+    }
+    g.restore();
     if (c > 0.72) {
       g.save(); g.globalAlpha = clamp((c - 0.72) / 0.2);
       g.strokeStyle = '#2A211F'; g.lineWidth = Math.max(3.5, w * 0.17); g.lineCap = 'round';
@@ -562,25 +575,9 @@ function drawBack(g, st, key) {
   g.save(); g.scale(1, 0.22); g.beginPath(); g.arc(0, 0, st.h * 0.2, 0, Math.PI * 2);
   const sg = g.createRadialGradient(0, 0, 0, 0, 0, st.h * 0.2); sg.addColorStop(0, 'rgba(40,30,50,0.32)'); sg.addColorStop(1, 'rgba(40,30,50,0)');
   g.fillStyle = sg; g.fill(); g.restore();
+  g.translate(st.shift || 0, -(st.lift || 0));
   g.rotate((st.tilt || 0) * D2R); g.scale(s, s * (1 + 0.004 * (st.breath || 0)));
   g.drawImage(im, -B.foot[0], -B.foot[1]);
-  g.restore();
-}
-function steam(g, x, y, s, sec) {          // three wisps rising from a cup rim at (x, y), each on its own loop
-  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';
-  for (let i = 0; i < 3; i++) {
-    const ph = (sec * 0.5 + i / 3) % 1, a = Math.sin(Math.PI * ph);
-    const x0 = x + (i - 1) * 15 * s, y0 = y - 8 * s - ph * 70 * s;
-    const path = () => {
-      g.beginPath();
-      for (let q = 0; q <= 12; q++) {
-        const t = q / 12, yy = y0 - t * 60 * s, xx = x0 + 9 * s * Math.sin(t * 5.5 + sec * 2.6 + i * 2.1);
-        q ? g.lineTo(xx, yy) : g.moveTo(xx, yy);
-      }
-    };
-    path(); g.strokeStyle = `rgba(150,140,128,${0.16 * a})`; g.lineWidth = 9 * s; g.stroke();
-    path(); g.strokeStyle = `rgba(255,255,255,${0.75 * a})`; g.lineWidth = 4.5 * s; g.stroke();
-  }
   g.restore();
 }
 function dusk(g, k) {                      // evening light over a finished shot: a warm multiply and a low sun glow, top right
@@ -701,36 +698,34 @@ function drawShot(g, c, sh, u) {
     g.restore();
     if (st.flash > 0.001) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(255,247,230,${0.45 * st.flash})`; g.fillRect(0, 0, W, H); }
     if (st.sub > 0) sub = { text: '요즘 지내시기 괜찮으세요?', a: st.sub };
-  } else if (k === 'offer' || k === 'given') {
-    const st = k === 'offer' ? stOffer(sh, u) : stGiven(sh, u);
-    drawBg(g, img.bgWall, st.cam, 0.4);
+  } else if (k === 'seated') {
+    const st = stSeated(sh, u);
+    // the yard wall, enlarged about a point high on it: the plate's own 평상 drops below the frame, so only his bench is seen
+    drawBg(g, img.bgWall, st.cam, 0.4, 1.3, 860, 300);
     bokeh(g, st.sec);
-    const P = k === 'offer' ? CZ.offer : CZ.given;
-    const m = drawCz(g, k === 'offer' ? img.czOffer : img.czGiven, st, (k === 'offer' ? 60 : 174) + (st.lean || 0), k === 'offer' ? 226 : 208, 1.12, P.eyes, P.skin);
-    const p = m.transformPoint(new DOMPoint(P.cup[0], P.cup[1]));
-    steam(g, p.x, p.y, 1.12 * st.cam.s, st.sec + (k === 'given' ? 1.75 : 0));
+    drawCz(g, img.czSeated, st, 190, 1080 - 880 * 0.95, 0.95);          // framed from the head to the shins
   } else if (k === 'czTalk') {
     const st = stCzTalk(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, st.open ? img.czSideTalk : img.czSide, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin);
-    // nearer than him: the official's hand holding the paper cup (from the CUT 4 picture), sleeve running off the right edge
-    g.save(); g.setTransform(...camXf(st.cam, 1.3));
-    const hs = 1.25, hx = 1930 - img.handCup.width * hs, hy = 1100 - img.handCup.height * hs;
-    g.drawImage(img.handCup, hx, hy, img.handCup.width * hs, img.handCup.height * hs);
-    const rim = new DOMMatrix(camXf(st.cam, 1.3)).transformPoint(new DOMPoint(hx + 87 * hs, hy + 61 * hs));
+    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin);
+    // nearer than him, out of focus: the official's head and shoulder from behind, turned toward him (a consultation, two people)
+    g.save(); g.setTransform(...camXf(st.cam, 1.3)); g.filter = 'brightness(0.86)';
+    g.drawImage(img.officialOts, 1272, 300, img.officialOts.width * 1.5, img.officialOts.height * 1.5);
     g.restore();
-    steam(g, rim.x, rim.y, 1.25 * st.cam.s, st.sec + 3);
     if (st.sub > 0) sub = { text: '몸이 안 좋아서 한동안 일을 못 했어요…', a: st.sub };
   } else if (k === 'listen') {
     const st = stListen(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
     bokeh(g, st.sec);
     drawStanding(g, st);
+    if (st.sub > 0) sub = { text: '같이 방법을 찾아봐요.', a: st.sub };
   } else if (k === 'tablet') {
     const st = stTablet(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
     bokeh(g, st.sec);
+    if (st.sub1 > 0) sub = { text: '나눠서 내실 수 있어요.', a: st.sub1 };
+    if (st.sub2 > 0) sub = { text: '필요한 도움도 이어 드릴게요.', a: st.sub2 };
     if (st.swap <= 0 || st.swap >= 1) drawPose(g, st.swap >= 1 ? 'p2' : 'p1', st);
     else {
       const b1 = bufP1.getContext('2d'), b2 = bufP2.getContext('2d'), mx = mixBuf.getContext('2d');
@@ -784,7 +779,7 @@ function drawShot(g, c, sh, u) {
     // the citizen, from behind, by his gate: the same light evening treatment as the faces in the two shots before
     const [cx, cy] = pic(1062, 714);
     drawLit(g, (c) => drawBack(c, { cam: st.cam, foot: [cx, cy], h: 1.25 * (714 - 480) * PL.k, breath: st.breath }, 'czBackSharp'));
-    drawBack(g, st, 'walkAway');
+    drawBack(g, st, st.pose);
   } else if (k === 'village') {
     const st = stVillage(sh, u);
     drawBg(g, img.vDark, st.cam, 1);
@@ -897,8 +892,8 @@ const CZNOTE = '첨부한 어르신 시트(턴어라운드·표정·자세)와 �
 // [title, what, text, noPrompt] — every picture the cuts need has arrived; these would replace movements now faked in code
 const REQS = [
   ['CUT 1 · 바닷가 마을로 들어서다', '있으면 더 좋음 · 인물 1장', `지금은 오른발을 든 두 장을 번갈아 써서 계단을 오릅니다. 왼발이 위 칸에 오른 뒷모습 한 장이 있으면 걸음이 번갈아 나옵니다.\n\n${COMMON}\n계단을 오르는 3/4 뒷모습 한 장. 왼발이 위 칸, 오른발이 아래 칸. 가방과 태블릿은 보내 주신 두 장과 같은 쪽.`],
-  ['CUT 7 · 배웅', '있으면 더 좋음 · 인물 1장', `지금은 걷는 뒷모습 한 장을 위아래로 흔들어 걷게 했어요. 반대 발이 앞에 나온 한 장이 있으면 다리가 번갈아 움직입니다.\n\n${COMMON}\n노을 역광 속에 걸어가는 뒷모습 한 장. 보내 주신 걷는 그림과 같은 크기·색감으로, 반대 발이 앞에.`],
-  ['CUT 4 · 평상에 마주 앉다', '있으면 더 좋음 · 인물 1장', `지금은 어르신 그림 속 주인공의 손만 보여요.\n\n${COMMON}\n평상에 앉아 왼쪽의 어르신에게서 종이컵을 두 손으로 받는 주인공 3/4 옆모습 한 장.`],
+  ['CUT 7 · 배웅', '있으면 더 좋음 · 인물 1장', `지금은 걷는 뒷모습 한 장과, 그 다리만 좌우로 뒤집은 반대 발 그림을 한 걸음마다 번갈아 써요. 반대 발이 앞에 나온 그림을 따로 그리면 다리의 빛과 주름까지 맞습니다.\n\n${COMMON}\n노을 역광 속에 걸어가는 뒷모습 한 장. 보내 주신 걷는 그림과 같은 크기·색감으로, 반대 발이 앞에.`],
+  ['CUT 4 · 평상에 마주 앉다', '있으면 더 좋음 · 두 사람 1장', `지금은 평상에 앉은 어르신만 보여요.\n\n주인공 시트와 어르신 시트를 함께 첨부하고: 평상에 비스듬히 마주 앉은 두 사람. 주인공은 무릎 위에 태블릿을 들고 어르신 쪽으로 몸을 조금 기울임. 두 사람과 평상만, 배경 없이 투명 PNG.`],
   ['CUT 5 · 이야기를 듣다', '있으면 더 좋음 · 인물 2장', `지금은 서 있는 ‘귀 기울임’ 얼굴을 가까이 잡아 썼어요.\n\n${COMMON}\n평상에 앉아 왼쪽을 보며 듣는 주인공 3/4 두 장: 기본 / 고개를 끄덕인 순간.`],
   ['CUT 3 · 문이 열린다', '있으면 더 좋음 · 인물 2장', `${CZNOTE}\n대문을 반쯤 열고 선 어르신 전신 한 장.\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
   ['CUT 2 · 문 앞에서', '있으면 더 좋음 · 배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다. 배경은 보내 주신 노을 대문 그림을 낮 시간으로 바꿔 써도 됩니다.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
@@ -956,7 +951,8 @@ subsIn.addEventListener('change', () => { subsOn = subsIn.checked; if (!playing)
       '똑! 끼익 괜찮으세요? 똑똑, 동해시 지방세입 체납관리단 0123456789 그림 대기 · 프리비즈 구도 임시 화면',
       '분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요',
       '동해시 CI 공식 파일 후반 합성 문의 033-530-2064 내레이션 “동해시 체납관리단입니다.”',
-      '계세요? 동해시청에서 나왔어요. 요즘 지내시기 괜찮으세요? 몸이 안 좋아서 한동안 일을 못 했어요…']).join(' ');
+      '계세요? 동해시청에서 나왔어요. 요즘 지내시기 괜찮으세요? 몸이 안 좋아서 한동안 일을 못 했어요…',
+      '같이 방법을 찾아봐요. 나눠서 내실 수 있어요. 필요한 도움도 이어 드릴게요.']).join(' ');
     const DISPLAY = '체납 뒤에 사람이 있습니다.';
     await Promise.race([Promise.all(['900', '800', '700', '500'].map((wt) => document.fonts.load(`${wt} 40px "Noto Sans KR"`, TEXT))
       .concat([document.fonts.load('400 40px "Gowun Dodum"', DISPLAY)])),
