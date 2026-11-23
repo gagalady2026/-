@@ -247,7 +247,7 @@ const statusEl = document.getElementById('status');
 const img = {};
 const load = (k, src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { img[k] = im; res(); }; im.onerror = () => rej(new Error(src)); im.src = src; });
 const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
-const cbuf = mk(), bufP1 = mk(), bufP2 = mk(), mixBuf = mk(), endBuf = mk();
+const cbuf = mk(), bufP1 = mk(), bufP2 = mk(), mixBuf = mk(), endBuf = mk(), charBuf = mk(), tintBuf = mk();
 const FONT = '"Noto Sans KR", "WenQuanYi Zen Hei", sans-serif';
 
 // ---------------------------------------------------------------- per-cut timing (pure functions of the cut's own u ∈ [0,1])
@@ -595,6 +595,21 @@ function dusk(g, k) {                      // evening light over a finished shot
   g.fillStyle = rg; g.fillRect(0, 0, W, H);
   g.restore();
 }
+// people at dusk: the background takes the full evening grade, the characters only a light one of their own — one very light
+// warm multiply (black hair and shirts stay black), a little less saturation and brightness, and no sun glow (a screen layer
+// would lift black hair to brown). Faces come out about 10% brighter than under the full grade and ~9% darker than by day:
+// people standing in the evening light, not people repainted in sunset colours.
+const CHAR_WARM = 'rgb(255,236,226)', CHAR_DUSK = 'saturate(0.95) brightness(0.97)';
+function drawLit(g, paint) {
+  const c = charBuf.getContext('2d'), t = tintBuf.getContext('2d');
+  for (const x of [c, t]) { x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.filter = 'none'; x.clearRect(0, 0, W, H); }
+  paint(c);
+  t.drawImage(charBuf, 0, 0);
+  t.globalCompositeOperation = 'multiply'; t.fillStyle = CHAR_WARM; t.fillRect(0, 0, W, H);
+  t.globalCompositeOperation = 'destination-in'; t.drawImage(charBuf, 0, 0);       // back to the figures' own shapes
+  t.globalCompositeOperation = 'source-over';
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.filter = CHAR_DUSK; g.drawImage(tintBuf, 0, 0); g.restore();
+}
 function drawBg(g, im, cam, k, zoom = 1, zx = W / 2, zy = H / 2) {
   g.save();
   g.setTransform(...camXf(cam, k));
@@ -743,14 +758,14 @@ function drawShot(g, c, sh, u) {
     const st = stBowHim(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawStanding(g, st);
-    dusk(g, 0.85);
+    dusk(g, 0.85);                            // the evening grade on the background only
+    drawLit(g, (c) => drawStanding(c, st));
   } else if (k === 'bowCz') {
     const st = stBowCz(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, img.czFront, st, 1150 - 405 * 0.85, 130, 0.85, CZ.front.eyes, CZ.front.skin);
     dusk(g, 0.85);
+    drawLit(g, (c) => drawCz(c, img.czFront, st, 1150 - 405 * 0.85, 130, 0.85, CZ.front.eyes, CZ.front.skin));
   } else if (k === 'alley') {
     const st = stAlley(sh, u);
     drawBg(g, img.stairs, st.cam, 1);
@@ -766,11 +781,9 @@ function drawShot(g, c, sh, u) {
   } else if (k === 'walkAway') {
     const st = stWalkAway(sh, u);
     drawBg(g, img.gateDusk, st.cam, 1);
-    // the citizen, from behind, by his gate (sunset tint so the daylight drawing sits in the evening picture)
+    // the citizen, from behind, by his gate: the same light evening treatment as the faces in the two shots before
     const [cx, cy] = pic(1062, 714);
-    g.save(); g.filter = 'sepia(0.28) saturate(1.15) brightness(0.9)';
-    drawBack(g, { cam: st.cam, foot: [cx, cy], h: 1.25 * (714 - 480) * PL.k, breath: st.breath }, 'czBackSharp');
-    g.restore();
+    drawLit(g, (c) => drawBack(c, { cam: st.cam, foot: [cx, cy], h: 1.25 * (714 - 480) * PL.k, breath: st.breath }, 'czBackSharp'));
     drawBack(g, st, 'walkAway');
   } else if (k === 'village') {
     const st = stVillage(sh, u);
