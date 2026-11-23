@@ -104,8 +104,9 @@ body.capture .stage .status { display: none; }
     <h1><span class="accent">36초</span> 애니매틱 · 10컷</h1>
     <p class="lead">원래 8컷 30초 대본의 순서와 행동은 그대로 두었습니다. 늘린 곳은 이렇습니다.</p>
     <ul class="lead">
-      <li>바다 마을 오프닝 3초를 새로 넣었습니다.</li>
-      <li>‘이야기를 듣다’를 0.5초, ‘분납·복지 연계 안내’를 1초 늘렸습니다.</li>
+      <li>바다 마을 오프닝 2.5초를 새로 넣었습니다.</li>
+      <li>‘문 앞에서’는 1초 늘려 대문 밖에서 누가 왔는지 밝히는 인사를 넣었습니다.</li>
+      <li>‘이야기를 듣다’와 ‘분납·복지 연계 안내’는 0.5초씩 늘렸습니다.</li>
       <li>‘배웅’은 1.5초 늘려 대문 밖 골목을 따라 등대 쪽으로 멀어지는 장면을 넣었습니다.</li>
       <li>마지막 6초는 메시지 컷 4초와 엔드 카드 2초입니다.</li>
     </ul>
@@ -130,12 +131,16 @@ body.capture .stage .status { display: none; }
   </ul>
   <ol class="cuts" id="cuts"></ol>
 
-  <h2>최종 문구</h2>
+  <h2>문구와 대사</h2>
   <dl class="copy">
-    <dt>CUT 8 · 상단 1/3에 페이드인</dt><dd>체납 뒤에 사람이 있습니다.</dd>
-    <dt>엔드 카드 · 마지막 2초</dt><dd>동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064</dd>
-    <dt>내레이션 · 엔드 카드</dt><dd>“동해시 체납관리단입니다.” 전화번호는 읽지 않고 화면에만 둡니다.</dd>
+    <dt>CUT 8 · 상단 1/3에 페이드인 (설계안)</dt><dd>체납 뒤에 사람이 있습니다.</dd>
+    <dt>엔드 카드 · 마지막 2초 (설계안)</dt><dd>동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064</dd>
+    <dt>내레이션 · 엔드 카드 (설계안)</dt><dd>“동해시 체납관리단입니다.” 전화번호는 읽지 않고 화면에만 둡니다.</dd>
+    <dt>CUT 2 · 대문 밖에서 (제안)</dt><dd>“계세요? 동해시청에서 나왔어요.”</dd>
+    <dt>CUT 3 · 문이 열리고 (제안)</dt><dd>“요즘 지내시기 괜찮으세요?”</dd>
+    <dt>CUT 5 · 어르신 (제안)</dt><dd>“몸이 안 좋아서 한동안 일을 못 했어요…”</dd>
   </dl>
+  <p class="note">대사는 제목 「똑똑, 괜찮으세요?」의 뜻이 장면 안에서 읽히도록 붙인 제안입니다. 문 앞에서는 ‘체납’을 말하지 않고 안부부터 묻고, 어르신의 사정을 들은 뒤 분납과 복지 연계를 안내하는 흐름입니다.</p>
 
   <h2>있으면 더 자연스러워질 그림</h2>
   <p class="note">꼭 필요한 그림은 모두 들어왔습니다. 아래 그림은 지금 코드로 흉내 낸 움직임을 실제 그림으로 바꿔 줍니다. 캐릭터 시트를 함께 올리고 문장을 붙여 쓰면 됩니다. 인물은 배경 없는 투명 PNG로 받습니다.</p>
@@ -169,13 +174,13 @@ const D2R = Math.PI / 180;
 // Each cut is one or more shots. Shot kinds: est = opening plate · ph = placeholder (previs composition, picture still to come)
 // gate / react / offer / given / czTalk / listen / tablet / relief / bowHim / bowCz = the user's GPT art moved by code · end = end card
 const CUTS = [
-  { n: 0, src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)', shots: [{ kind: 'est', sec: 3.0 }] },
-  { n: 1, src: 'gpt', title: '바닷가 마을로 들어서다', act: '바닷가 계단 골목. 카메라가 다가가는 사이 주인공이 계단을 오름', shots: [{ kind: 'climb', sec: 3.5 }] },
-  { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! 두 번 두드리는 소리, 끼익 문이 열림', shots: [{ kind: 'gate', sec: 2.5 }] },
-  { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감', shots: [{ kind: 'react', sec: 4.0 }] },
+  { n: 0, src: 'gpt', title: '묵호 바다와 언덕 마을', act: '바다·빨간 등대·언덕 마을을 천천히 훑는 오프닝(새로 넣음)', shots: [{ kind: 'est', sec: 2.5 }] },
+  { n: 1, src: 'gpt', title: '바닷가 마을로 들어서다', act: '바닷가 계단 골목 → 계단을 오르는 주인공을 바로 뒤에서 따라감', shots: [{ kind: 'alley', sec: 1.25 }, { kind: 'climbFollow', sec: 2.25 }] },
+  { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! → 대문 밖에서 “계세요? 동해시청에서 나왔어요.” → 끼익(+1초)', shots: [{ kind: 'gate', sec: 3.5 }] },
+  { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “요즘 지내시기 괜찮으세요?” → 귀 기울임 → 미소, 카메라가 다가감', shots: [{ kind: 'react', sec: 4.0 }] },
   { n: 4, src: 'gpt', title: '평상에 마주 앉다', act: '어르신이 김 나는 종이컵 차를 건넴 → 주인공 손으로 넘어감', shots: [{ kind: 'offer', sec: 1.75 }, { kind: 'given', sec: 1.25 }] },
-  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 이야기 → 주인공이 귀 기울이고 끄덕임(+0.5초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'listen', sec: 2.0 }] },
-  { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 어르신의 안도하는 미소(+1초)', shots: [{ kind: 'tablet', sec: 4.0 }, { kind: 'relief', sec: 1.0 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 먼 곳을 보며 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울이고 끄덕임(+0.5초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'listen', sec: 2.0 }] },
+  { n: 6, src: 'gpt', title: '분납과 복지 연계를 안내하다', act: '① 분납 안내를 톡톡 → ② 복지서비스 연계로 옮겨 톡톡 → 어르신의 안도하는 미소(+0.5초)', shots: [{ kind: 'tablet', sec: 3.75 }, { kind: 'relief', sec: 0.75 }] },
   { n: 7, src: 'gpt', title: '배웅', act: '노을빛 속 주인공 목례 → 어르신이 웃으며 화답 → 대문 앞 골목을 따라 등대 쪽으로 멀어짐(+1.5초)', shots: [{ kind: 'bowHim', sec: 1.25 }, { kind: 'bowCz', sec: 1.25 }, { kind: 'walkAway', sec: 2.0 }] },
   { n: 8, src: 'gpt', title: '집집마다 불이 켜진다', act: '해가 지고 가로등이 먼저, 이어 창문 불빛이 하나씩. 상단에 “체납 뒤에 사람이 있습니다.”', shots: [{ kind: 'village', sec: 4.0 }] },
   { n: 9, src: 'code', title: '엔드 카드', act: '동해시 CI(공식 파일 후반 합성) · 동해시 지방세입 체납관리단 · 문의 033-530-2064. 내레이션 “동해시 체납관리단입니다.”', shots: [{ kind: 'end', sec: 2.0 }] },
@@ -208,7 +213,7 @@ LIGHTS.forEach(([f]) => { SRC[f] = `assets_v5/v5_${f}.png`; });
 const PL = { k: 2035 / 1672, x: (W - 2035) / 2, y: (H - 1144) / 2 };
 const pic = (x, y) => [x * PL.k + PL.x, y * PL.k + PL.y];
 // back views (assets_v5): [support-foot x, y] in the picture and the figure's height, for placing them by their feet
-const BACK = { climbA: { foot: [455, 1379], h: 1356 }, climbB: { foot: [437, 1368], h: 1338 }, walkAway: { foot: [493, 1383], h: 1362 },
+const BACK = { climbA: { foot: [455, 1379], h: 1356, head: [583, 23] }, climbB: { foot: [437, 1368], h: 1338, head: [587, 30] }, walkAway: { foot: [493, 1383], h: 1362 },
   czBackSharp: { foot: [382, 1843], h: 1815 } };
 const STAND = {
   pivotX: 558, talkMouth: [511, 289],
@@ -249,22 +254,25 @@ function base(c, u) { return { c, u, sec: u * (c.nf - 1) / FPS }; }
 function stGate(c, u) {                 // CUT 2: the closed gate seen from the yard (the citizen's side): two knocks, then the creak of it opening
   const st = base(c, u), e = smoother(u);
   st.cam = { s: 1 + 0.07 * e, fx: 1300, fy: 600, dx: -12 * e, dy: 0 };
-  st.knocks = [[0.2, 1150, 470, -8], [0.4, 1450, 415, 7]].map(([t0, x, y, r]) => ({ k: win(u, t0, t0 + 0.07), out: win(u, 0.72, 0.82), x, y, r, hit: bump(u, t0, t0 + 0.06) }));
-  st.shake = Math.max(bump(u, 0.2, 0.25), bump(u, 0.4, 0.45));
-  st.creak = win(u, 0.8, 0.9);
+  st.knocks = [[0.1, 1150, 470, -8], [0.23, 1450, 415, 7]].map(([t0, x, y, r]) => ({ k: win(u, t0, t0 + 0.05), out: win(u, 0.4, 0.47), x, y, r, hit: bump(u, t0, t0 + 0.04) }));
+  st.shake = Math.max(bump(u, 0.1, 0.14), bump(u, 0.23, 0.27));
+  st.sub = win(u, 0.36, 0.41) * (1 - win(u, 0.84, 0.9));      // he introduces himself from outside: who is knocking, and why
+  st.creak = win(u, 0.86, 0.95);
   return st;
 }
 function stReact(c, u) {                // CUT 3: the gate has opened — a small bow, “괜찮으세요?”, then listening and a smile while the camera eases in
   const st = base(c, u);
-  const push = smoother((u - 0.42) / 0.5);
+  const push = smoother((u - 0.55) / 0.45);
   st.cam = { s: 1 + 0.27 * push, fx: 700, fy: 340, dx: 12 * smoother(u), dy: 0 };
   st.frame = FRAME_A;
-  st.variant = u < 0.53 ? 'neutral' : u < 0.77 ? 'listen' : 'smile';
-  st.bow = bump(u, 0.04, 0.22, 0.35);
-  const SYL = [[0.25, 0.295], [0.3, 0.345], [0.35, 0.385], [0.39, 0.425], [0.43, 0.48]];      // 괜-찮-으-세-요
-  st.open = SYL.some(([a, b]) => u >= a && u < a + (b - a) * 0.62);
-  st.blink = Math.max(bump(u, 0.05, 0.21, 0.6), bump(u, 0.5, 0.56, 0.45), bump(u, 0.74, 0.8, 0.45));
-  st.sub = win(u, 0.23, 0.27) * (1 - win(u, 0.6, 0.66));
+  st.variant = u < 0.66 ? 'neutral' : u < 0.84 ? 'listen' : 'smile';
+  st.bow = bump(u, 0.03, 0.19, 0.35);
+  // 요즘 / 지내시기 / 괜찮으세요: eleven syllables in three words, with a short breath between words
+  const SYL = []; let t = 0.22;
+  for (const n of [2, 4, 5]) { for (let i = 0; i < n; i++) { SYL.push(t); t += 0.0325; } t += 0.02; }
+  st.open = SYL.some((a) => u >= a && u < a + 0.0325 * 0.62);
+  st.blink = Math.max(bump(u, 0.04, 0.18, 0.6), bump(u, 0.63, 0.69, 0.45), bump(u, 0.81, 0.87, 0.45));
+  st.sub = win(u, 0.2, 0.24) * (1 - win(u, 0.68, 0.74));
   st.flash = 1 - smoother(u / 0.1);
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.0); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.7);
   return st;
@@ -315,6 +323,7 @@ function stCzTalk(c, u) {               // CUT 5a: in profile, looking out towar
   const talking = (u > 0.07 && u < 0.46) || (u > 0.56 && u < 0.93);
   st.open = talking && Math.sin(2 * Math.PI * 4.2 * st.sec + 0.6) > 0.05;
   st.blink = bump(u, 0.48, 0.55);
+  st.sub = win(u, 0.05, 0.11) * (1 - win(u, 0.93, 0.99));
   st.breath = Math.sin(2 * Math.PI * 0.26 * st.sec + 0.9); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.18 * st.sec);
   return st;
 }
@@ -345,15 +354,21 @@ function stBowHim(c, u) {               // CUT 7a: at the gate in the evening li
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.4); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec);
   return st;
 }
-function stClimb(c, u) {                // CUT 1: the camera closes in on the sea-side stairs while he climbs them
+function stAlley(c, u) {                // CUT 1a: the sea-side stair alley, the camera drifting toward the stairs
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1.04 + 0.26 * e, fx: 1240, fy: 700, dx: -30 * e, dy: -40 * e };
-  const steps = 0.4 + u * 6.6, n = Math.floor(steps), k = steps - n;   // half-steps: the two drawings alternate
+  st.cam = { s: 1.04 + 0.1 * e, fx: 1240, fy: 640, dx: -30 * e, dy: -20 * e };
+  return st;
+}
+function stClimbFollow(c, u) {          // CUT 1b: close behind him going up the stairs. Both climbing drawings lift the same
+  const st = base(c, u);                //   foot, so his legs stay below the frame: the steps read from the bob and the arm swing
+  const steps = u * 4.6, n = Math.floor(steps), k = steps - n;
   st.pose = n % 2 ? 'climbB' : 'climbA';
-  const p = (n + smoother(Math.min(1, k / 0.55))) / 7;                  // each half-step lifts him one stair, then he settles
-  const [x0, y0] = pic(1018, 712), [x1, y1] = pic(1088, 505);           // bottom stair (right of the rail) → two-thirds up
-  st.foot = [x0 + (x1 - x0) * p, y0 + (y1 - y0) * p - 7 * Math.sin(Math.PI * Math.min(1, k / 0.55))];
-  st.h = (300 - 46 * p) * PL.k;
+  st.lift = Math.sin(Math.PI * Math.min(1, k / 0.6));
+  const p = (n + smoother(Math.min(1, k / 0.6))) / 4.6;                 // one stair per step: the camera follows him up
+  const [px0, py0] = pic(1040, 650), [px1, py1] = pic(1112, 400);       // the stairs just ahead of him, bottom → top
+  const P = [px0 + (px1 - px0) * p, py0 + (py1 - py0) * p];
+  st.cam = { s: 2.2, fx: P[0], fy: P[1], dx: 1080 - P[0], dy: 520 - P[1] };   // that point of the stairs sits right of his head
+  st.sway = 0.8 * Math.sin(Math.PI * steps);
   return st;
 }
 function stWalkAway(c, u) {             // CUT 7c: outside the gate at sunset he walks off along the sea path; the citizen watches him go
@@ -567,11 +582,11 @@ function dusk(g, k) {                      // evening light over a finished shot
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalCompositeOperation = 'multiply';
   const lg = g.createLinearGradient(0, 0, 0, H);
-  lg.addColorStop(0, `rgba(255,170,112,${k})`); lg.addColorStop(0.55, `rgba(252,196,150,${k})`); lg.addColorStop(1, `rgba(206,150,146,${k})`);
+  lg.addColorStop(0, `rgba(255,170,150,${k})`); lg.addColorStop(0.55, `rgba(250,196,172,${k})`); lg.addColorStop(1, `rgba(196,160,200,${k})`);
   g.fillStyle = lg; g.fillRect(0, 0, W, H);
   g.globalCompositeOperation = 'screen';
   const rg = g.createRadialGradient(W * 0.86, H * 0.1, 0, W * 0.86, H * 0.1, H * 0.95);
-  rg.addColorStop(0, `rgba(255,150,70,${0.42 * k})`); rg.addColorStop(1, 'rgba(255,150,70,0)');
+  rg.addColorStop(0, `rgba(255,156,100,${0.4 * k})`); rg.addColorStop(1, 'rgba(255,156,100,0)');
   g.fillStyle = rg; g.fillRect(0, 0, W, H);
   g.restore();
 }
@@ -654,6 +669,7 @@ function drawShot(g, c, sh, u) {
       g.restore();
     }
     g.restore();
+    if (st.sub > 0) sub = { text: '계세요? 동해시청에서 나왔어요.', a: st.sub };
   } else if (k === 'react') {
     const st = stReact(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
@@ -664,7 +680,7 @@ function drawShot(g, c, sh, u) {
     drawCz(g, img.czBack, { cam: st.cam, breath: st.breath }, 1418, 403, 0.82, null, null, 1.6);
     g.restore();
     if (st.flash > 0.001) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(255,247,230,${0.45 * st.flash})`; g.fillRect(0, 0, W, H); }
-    if (st.sub > 0) sub = { text: '괜찮으세요?', a: st.sub };
+    if (st.sub > 0) sub = { text: '요즘 지내시기 괜찮으세요?', a: st.sub };
   } else if (k === 'offer' || k === 'given') {
     const st = k === 'offer' ? stOffer(sh, u) : stGiven(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
@@ -678,6 +694,7 @@ function drawShot(g, c, sh, u) {
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
     drawCz(g, st.open ? img.czSideTalk : img.czSide, st, 4, 124, 1.2, CZ.side.eyes, CZ.side.skin);
+    if (st.sub > 0) sub = { text: '몸이 안 좋아서 한동안 일을 못 했어요…', a: st.sub };
   } else if (k === 'listen') {
     const st = stListen(sh, u);
     drawBg(g, img.bgWall, st.cam, 0.4);
@@ -722,10 +739,18 @@ function drawShot(g, c, sh, u) {
     bokeh(g, st.sec);
     drawCz(g, img.czFront, st, 1150 - 405 * 0.85, 130, 0.85, CZ.front.eyes, CZ.front.skin);
     dusk(g, 0.85);
-  } else if (k === 'climb') {
-    const st = stClimb(sh, u);
+  } else if (k === 'alley') {
+    const st = stAlley(sh, u);
     drawBg(g, img.stairs, st.cam, 1);
-    drawBack(g, st, st.pose);
+  } else if (k === 'climbFollow') {
+    const st = stClimbFollow(sh, u);
+    g.filter = 'blur(3px)'; drawBg(g, img.stairs, st.cam, 1); g.filter = 'none';     // shallow focus on him
+    // his upper back, large, anchored by the top of his head (legs below the frame)
+    const B = BACK[st.pose], s = 1.45;
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.translate(860, 118 - 16 * st.lift); g.rotate(st.sway * D2R); g.scale(s, s);
+    g.drawImage(img[st.pose], -B.head[0], -B.head[1]);
+    g.restore();
   } else if (k === 'walkAway') {
     const st = stWalkAway(sh, u);
     drawBg(g, img.gateDusk, st.cam, 1);
@@ -793,7 +818,7 @@ function drawShot(g, c, sh, u) {
     if (sub && sub.a > 0) {
       g.textAlign = 'center'; g.globalAlpha = sub.a;
       if (sub.small) { g.font = `700 38px ${FONT}`; outlinedText(g, sub.text, W / 2, 985, '#FFFFFF', 'rgba(20,14,28,0.6)', 9); }
-      else { g.font = `800 62px ${FONT}`; outlinedText(g, sub.text, 1290, 972, '#FFFFFF', 'rgba(30,24,20,0.6)', 12); }
+      else { g.font = `700 54px ${FONT}`; outlinedText(g, sub.text, W / 2, 990, '#FFFFFF', 'rgba(20,14,12,0.72)', 10); }
       g.globalAlpha = 1; g.textAlign = 'left';
     }
     if (k !== 'end') {
@@ -824,7 +849,7 @@ function render(f) {
   } else {
     drawShot(ctx, c, sh, u);
   }
-  if (f < 18) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${1 - smoother(f / 18)})`; ctx.fillRect(0, 0, W, H); }
+  if (f < 12) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(0,0,0,${1 - smoother(f / 12)})`; ctx.fillRect(0, 0, W, H); }
   return c;                                   // the end card holds to the last frame (CI, name and number stay readable)
 }
 
@@ -904,7 +929,8 @@ labelsIn.addEventListener('change', () => { labelsOn = labelsIn.checked; if (!pl
     const TEXT = CUTS.map((c) => `CUT ${c.n} · ${c.title} 필요한 그림: ${c.need || ''}`).concat([
       '똑! 끼익 괜찮으세요? 똑똑, 동해시 지방세입 체납관리단 0123456789 그림 대기 · 프리비즈 구도 임시 화면',
       '분납 안내 나눠서 납부할 수 있어요 복지서비스 연계 필요한 도움과 이어 드려요',
-      '동해시 CI 공식 파일 후반 합성 문의 033-530-2064 내레이션 “동해시 체납관리단입니다.”']).join(' ');
+      '동해시 CI 공식 파일 후반 합성 문의 033-530-2064 내레이션 “동해시 체납관리단입니다.”',
+      '계세요? 동해시청에서 나왔어요. 요즘 지내시기 괜찮으세요? 몸이 안 좋아서 한동안 일을 못 했어요…']).join(' ');
     const DISPLAY = '체납 뒤에 사람이 있습니다.';
     await Promise.race([Promise.all(['900', '800', '700', '500'].map((wt) => document.fonts.load(`${wt} 40px "Noto Sans KR"`, TEXT))
       .concat([document.fonts.load('400 40px "Gowun Dodum"', DISPLAY)])),
