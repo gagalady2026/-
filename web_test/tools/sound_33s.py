@@ -3,15 +3,18 @@ this file from sine waves and noise. No samples, no third-party audio, nothing t
 stay as subtitles, and README.md has a timing sheet for recording them.
 
 usage: python3 tools/sound_33s.py OUT.f32 [CUES.json]
-  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 33.0 s, peak -3 dBFS; loudness-normalised and encoded with
-             ffmpeg (see README)
+  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 33.0 s; mastered with a fixed +3.45 dB and a limiter, then
+             encoded with ffmpeg (see README), so the effects keep their level whatever the music's
   CUES.json  every sound event with its time, for checking against the picture
 
 Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the hinge creak with 끼익, taps on the
 tablet presses, chimes as the ① / ② labels appear, the evening ambience from 28.0 s, the end-card bell with the message.
 
-Music: D major, 60 bpm, a chord every two seconds, following the story. A soft pad from the start; piano when the gate opens;
-thinner and lower while he tells his trouble; rising into the guidance; arriving on D in the sunset; a G -> D close.
+Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
+glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.25 s), sitting down (8.25 s), "같이 방법을
+찾아봐요." (16.25 s) and the sunset (28.25 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
+fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset and ends with a "ding".
+The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
 """
 import json, sys
 import numpy as np
@@ -21,6 +24,7 @@ DUR = 33.0
 N = int(round(SR * DUR))
 TAIL = 4 * SR
 rng = np.random.default_rng(20261123)          # fixed seed: every run writes the same file
+MUSIC_RMS = -28.0                              # music level over 18-28 s, dBFS before mastering: 6 dB under the first version
 CUES = []
 
 
@@ -125,51 +129,75 @@ def to_peak(x, target_db):
 
 
 # ---------------------------------------------------------------- instruments
-def piano(m, dur, vel):
-    """A soft felt piano: inharmonic partials, the upper ones quieter and shorter, two detuned strings, a felt thump."""
+def ks_pluck(m, dur, vel, bright=0.5, t60=1.4, seed=0):
+    """A plucked nylon string (Karplus-Strong): a noise burst circulating in a delay line one period long, averaged on every
+    pass, so the string loses its highs as it rings; resampled afterwards to the exact pitch."""
     f = hz(m)
-    t = tvec(dur + 1.8)
-    out = np.zeros_like(t)
-    reg = (f / 261.6) ** 0.5
-    for k in range(1, int(min(12, 8000 // f)) + 1):
-        fk = k * f * np.sqrt(1 + 0.0004 * k * k)
-        a = k ** -1.2 * np.exp(-(k - 1) * (0.42 - 0.2 * vel))
-        e = 0.6 * np.exp(-t * (2.0 + 1.0 * k) * reg) + 0.4 * np.exp(-t * (0.3 + 0.15 * k) * reg)
-        for c in (-0.8, 0.8):
-            out += 0.5 * a * e * np.sin(2 * np.pi * fk * 2 ** (c / 1200) * t + rng.uniform(0, 2 * np.pi))
-    out *= 1 - np.exp(-t / 0.003)
-    nb = S(0.04)
-    thump = rng.standard_normal(nb) * np.exp(-np.arange(nb) / SR / 0.007)
-    out[:nb] += 0.06 * ffilt(thump, lp(min(2.5 * f, 2500), 2))
-    rel = t > dur
-    out[rel] *= np.exp(-(t[rel] - dur) / 0.3)
-    return out * vel
+    L = max(2, int(SR / f - 0.5))
+    n = S(dur) + 8
+    r = np.random.default_rng(seed)
+    exc = r.uniform(-1, 1, L)
+    for _ in range(int(round(3 - 2 * bright))):
+        exc = 0.5 * (exc + np.roll(exc, 1))
+    exc -= exc.mean()
+    g = 0.001 ** (1 / (t60 * f))
+    z = np.zeros(n + 2 * L + 2)
+    z[1:L + 1] = exc
+    p = L + 1
+    while p < n + 1:
+        b = min(L, n + 1 - p)
+        z[p:p + b] = g * 0.5 * (z[p - L:p - L + b] + z[p - L - 1:p - L - 1 + b])
+        p += b
+    y = z[1:n + 1]
+    ratio = f / (SR / (L + 0.5))                     # the loop's own pitch is SR / (L + 0.5): stretch to the exact note
+    y = np.interp(np.arange(S(dur)) * ratio, np.arange(y.size), y)
+    fade = min(S(0.04), y.size)
+    y[-fade:] *= np.linspace(1, 0, fade)
+    return y * vel
 
 
-def pad_chord(notes, t0, t1, level, att, rel=0.8):
-    """Strings-like pad: three detuned band-limited saws per note, slow vibrato, swelling in and out. Returns stereo."""
-    t = tvec(t1 - t0 + rel)
-    env = np.minimum(1, t / att) ** 2 * np.where(t > t1 - t0, np.exp(-(t - (t1 - t0)) / (rel / 3)), 1)
-    out = np.zeros((2, t.size))
-    for m in notes:
-        f = hz(m)
-        for c, pan in ((-7, -0.55), (0, 0.0), (7, 0.55)):
-            vib = 1 + (2 ** (4 / 1200) - 1) * np.sin(2 * np.pi * 4.6 * t + rng.uniform(0, 6.3)) * np.minimum(1, t / 0.6)
-            ph = 2 * np.pi * np.cumsum(f * 2 ** (c / 1200) * vib) / SR + rng.uniform(0, 6.3)
-            v = sum((1 / k) * np.exp(-(k - 1) / 2.5) * np.sin(k * ph) for k in range(1, 8) if k * f < 6000)
-            a = (pan + 1) * np.pi / 4
-            out[0] += np.cos(a) * v
-            out[1] += np.sin(a) * v
-    return out * env * level
+def brush(vel, seed):
+    """Fingers across the strings."""
+    r = np.random.default_rng(seed)
+    t = tvec(0.05)
+    env = np.where(t < 0.035, np.sin(np.pi * t / 0.035) ** 2, 0)
+    return ffilt(r.standard_normal(t.size), bp(2000, 7000, 1)) * env * vel * 0.08
 
 
-def bass(m, dur):
+def bass_pluck(m, dur, vel):
+    """A round fingerstyle bass note."""
     f = hz(m)
-    t = tvec(dur + 0.8)
-    v = np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t) + 0.08 * np.sin(6 * np.pi * f * t)
-    env = (1 - np.exp(-t / 0.03)) * (0.7 + 0.3 * np.exp(-t / 0.5))
-    env = np.where(t > dur, env * np.exp(-(t - dur) / 0.25), env)
-    return v * env
+    t = tvec(dur + 0.25)
+    sig = np.sin(2 * np.pi * f * t) + 0.35 * np.exp(-t / 0.12) * np.sin(4 * np.pi * f * t) + 0.12 * np.exp(-t / 0.06) * np.sin(6 * np.pi * f * t)
+    env = (1 - np.exp(-t / 0.004)) * np.exp(-t / 0.9)
+    env = np.where(t > dur, env * np.exp(-(t - dur) / 0.05), env)
+    return sig * env * vel
+
+
+def kick():
+    """A soft, round kick."""
+    t = tvec(0.35)
+    f = 50 + 75 * np.exp(-t / 0.03)
+    sig = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.12) * (1 - np.exp(-t / 0.0015))
+    nc = S(0.004)
+    sig[:nc] += 0.15 * ffilt(rng.standard_normal(nc), lp(3000, 2))
+    return sig
+
+
+def snap(seed):
+    """A finger snap / light clap."""
+    r = np.random.default_rng(seed)
+    t = tvec(0.12)
+    burst = lambda d: np.where(t >= d, np.exp(-np.maximum(0, t - d) / 0.006), 0)
+    env = burst(0) + 0.7 * burst(0.007) + 0.35 * np.exp(-t / 0.035)
+    return ffilt(r.standard_normal(t.size), bp(1100, 4500, 2)) * env
+
+
+def shaker(seed):
+    r = np.random.default_rng(seed)
+    t = tvec(0.07)
+    env = np.minimum(1, t / 0.006) * np.exp(-t / 0.022)
+    return ffilt(r.standard_normal(t.size), hp(5500, 2)) * env
 
 
 def bell(m, vel, dur=3.0):
@@ -331,74 +359,135 @@ def wind(n):
 
 
 # ================================================================ the score
-CHORDS = [  # (start, end, pad notes, level): D major, a chord about every two seconds, placed on the story's beats
-    (0.0, 2.0, [50, 57, 62, 64, 66], .35),       # Dadd9      climbing the stairs
-    (2.0, 4.25, [50, 55, 59, 62, 69], .3),       # G(add9)/D  knocking at the gate
-    (4.25, 6.0, [50, 57, 62, 66, 69], .45),      # D          the gate opens: "요즘 지내시기 괜찮으세요?"
-    (6.0, 8.0, [49, 57, 61, 64, 69], .45),       # A/C#
-    (8.0, 10.0, [47, 54, 59, 62, 66], .4),       # Bm         on the bench
-    (10.0, 12.0, [52, 59, 62, 67], .28),         # Em7        "몸이 안 좋아서 한동안 일을 못 했어요…"
-    (12.0, 14.0, [43, 55, 59, 62, 67], .34),     # G          "많이 힘드셨겠어요."
-    (14.0, 16.0, [47, 54, 59, 62], .28),         # Bm         "그러다 보니 세금도 밀렸네요…"
-    (16.0, 17.0, [43, 55, 59, 62, 66], .4),      # Gmaj7      "같이 방법을 찾아봐요."
-    (17.0, 17.5, [45, 57, 62, 64, 69], .45),     # Asus4
-    (17.5, 18.0, [45, 57, 61, 64, 69], .5),      # A
-    (18.0, 20.0, [50, 57, 62, 66, 69], .5),      # D          ① 분납 상담
-    (20.0, 22.0, [49, 57, 61, 64, 69], .5),      # A/C#       he nods
-    (22.0, 24.0, [43, 55, 59, 62, 67], .55),     # G          ② 복지서비스 연계
-    (24.0, 26.0, [42, 57, 62, 66, 69], .55),     # D/F#       relief
-    (26.0, 27.0, [52, 59, 62, 67], .55),         # Em7        "고마워요, 마음이 좀 놓이네요."
-    (27.0, 28.0, [45, 57, 61, 64, 69], .62),     # A
-    (28.0, 30.5, [50, 57, 62, 66, 69, 74], .85), # D          the sunset: they nod to each other
-    (30.5, 31.5, [43, 55, 59, 62, 69], .62),     # Gadd9      the end card: the message
-    (31.5, 33.0, [50, 57, 62, 66, 69], .55),     # D          the name and number
-]
+BPM = 120
+BEAT = 60 / BPM
+BAR0 = 0.25          # bars start at 0.25 + 2k s: the gate opening (4.25), sitting down (8.25), "같이 방법을 찾아봐요." (16.25) and the
+                     # sunset (28.25) all land on a downbeat
 
 
-def arp(t0, notes, vels=(.4, .33, .33, .3), dur=.9):
-    return [(t0 + 0.5 * i, m, dur, v) for i, (m, v) in enumerate(zip(notes, vels))]
+def at(bar, beat=0.0):
+    return BAR0 + (4 * bar + beat) * BEAT
 
 
-def roll(t0, notes, vels, dur, gap=0.05):
-    return [(t0 + gap * i, m, dur - gap * i, v) for i, (m, v) in enumerate(zip(notes, vels))]
+UKE = {'D': [69, 62, 66, 69], 'A': [69, 61, 64, 69], 'Bm': [71, 62, 66, 71], 'G': [67, 62, 67, 71], 'Em': [67, 64, 67, 71]}   # G C E A strings
+ROOT = {'D': 38, 'A': 45, 'Bm': 47, 'G': 43, 'Em': 40}
+FIFTH = {'D': 45, 'A': 52, 'Bm': 54, 'G': 50, 'Em': 47}
+# bar: (chord on beats 1-2, chord on beats 3-4, style). Before bar 2 (4.25 s): one soft strum and a little run while he climbs,
+# then the music steps aside for the knocks, his voice at the gate and the creak.
+BARS = {2: ('D', 'A', 'groove'), 3: ('Bm', 'G', 'groove'), 4: ('D', 'A', 'groove'),         # the gate opens, the greeting, the bench
+        5: ('Em', 'Bm', 'soft'), 6: ('G', 'D', 'soft'), 7: ('Em', 'A', 'soft'),              # he tells his trouble
+        8: ('G', 'A', 'build'),                                                              # "같이 방법을 찾아봐요."
+        9: ('D', 'A', 'groove'), 10: ('Bm', 'G', 'groove'), 11: ('D', 'A', 'groove'), 12: ('Bm', 'G', 'groove'),   # ① and ②
+        13: ('Em', 'A', 'light'),                                                            # "고마워요, 마음이 좀 놓이네요."
+        14: ('D', 'A', 'chorus'),                                                            # the sunset
+        15: ('G', 'A', 'end')}                                                               # the end card; D on the next downbeat
+QUIET = (9.5, 16.25)     # from his first word to the official's answer: no drums, no strumming, soft fingerpicking
+STRUM = {0: ('D', .75), 1: ('D', .55), 1.5: ('U', .45), 2.5: ('U', .45), 3: ('D', .6), 3.5: ('U', .45)}   # beat: stroke, velocity
+PICK = (1, 2, 0, 3, 2, 0, 1, 3)        # fingerpicking order over the four strings, one note an eighth
+MELODY = [  # (bar, beat, midi, beats, velocity): the glockenspiel tune in the sunset and the close
+    (14, 0, 78, 1, .5), (14, 1, 81, .5, .45), (14, 1.5, 78, .5, .42), (14, 2, 76, 1, .48), (14, 3, 73, .5, .42), (14, 3.5, 76, .5, .42),
+    (15, 0, 74, 1.5, .45), (15, 2, 76, 1.5, .42), (16, 0, 86, 2, .5)]
+RUNS = [(0.25, [74, 78, 81]), (4.25, [81, 86]), (17.875, [81, 83, 85])]   # little glockenspiel runs (16ths): climbing, the gate, into ①
 
 
-PIANO = (
-    # the gate opens: a rolled D and the greeting motif
-    roll(4.25, [50, 57, 62], [.5, .42, .4], 1.7, 0.06)
-    + [(4.25, 69, .75, .55), (5.0, 74, .5, .5), (5.5, 76, .5, .5), (6.0, 78, 1.5, .58), (7.5, 76, .5, .45),
-       (8.0, 74, 1.0, .5), (9.0, 73, .5, .4), (9.5, 71, 1.5, .35)]
-    + roll(6.0, [49, 57], [.42, .36], 1.8, 0.06) + roll(8.0, [47, 54], [.42, .36], 1.8, 0.06)
-    # he tells his trouble: sparse, low and soft
-    + [(10.0, 52, 2.0, .34), (10.3, 59, 1.7, .28), (12.0, 43, 2.0, .34), (12.3, 62, 1.7, .28), (12.6, 71, 1.4, .26),
-       (14.0, 47, 2.0, .3), (14.3, 54, 1.7, .26), (15.2, 62, .8, .22)]
-    # "같이 방법을 찾아봐요.": rising toward the guidance
-    + [(16.0, 43, 1.9, .38), (16.25, 62, 1.2, .32), (16.5, 66, 1.2, .33), (16.75, 71, 1.2, .36),
-       (17.0, 45, 1.0, .38), (17.25, 64, .7, .33), (17.5, 69, .6, .36), (17.75, 73, .5, .4)]
-    # the guidance: eighth-note arpeggios and a hopeful line
-    + arp(18.0, [50, 57, 62, 57]) + arp(20.0, [49, 57, 64, 57]) + arp(22.0, [43, 50, 59, 50]) + arp(24.0, [42, 57, 62, 57])
-    + arp(26.0, [52, 59, 45, 64])
-    + [(18.0, 78, 1.5, .55), (19.5, 76, .5, .45), (20.0, 76, 1.0, .5), (21.0, 73, 1.0, .45), (22.0, 74, 1.5, .55),
-       (23.5, 71, .5, .45), (24.0, 69, 1.0, .5), (25.0, 74, 1.0, .55), (26.0, 71, 1.0, .45), (27.0, 73, .75, .5), (27.75, 76, .25, .45)]
-    # the sunset: arriving on D
-    + roll(28.0, [38, 45, 50, 57, 62], [.55, .5, .45, .42, .4], 2.4) + [(28.0, 78, 1.0, .6), (29.0, 76, .5, .5), (29.5, 74, 1.0, .5)]
-    # the end card: G -> D
-    + roll(30.5, [43, 50, 59, 69], [.5, .45, .4, .38], 1.1) + [(30.75, 71, .75, .45)]
-    + roll(31.5, [38, 45, 50, 54, 57, 62], [.5, .46, .44, .4, .38, .36], 1.6) + [(31.5, 69, .5, .45), (32.0, 74, 1.0, .5)]
-)
-BASS = [(18.0, 38, 2.0), (20.0, 37, 2.0), (22.0, 43, 2.0), (24.0, 42, 2.0), (26.0, 40, 1.0), (27.0, 45, 1.0),
-        (28.0, 38, 2.5), (30.5, 43, 1.0), (31.5, 38, 1.5)]
+def score():
+    """Every note and hit of the band: lists of (time, ...)."""
+    strums, picks, basses, kicks, snaps, shakes, glock = [(0.25, 'D', 'D', .45)], [], [], [], [], [], []
+    for b, (c1, c2, style) in sorted(BARS.items()):
+        for i in range(8):
+            beat = i / 2
+            t = at(b, beat)
+            ch = c1 if beat < 2 else c2
+            quiet = QUIET[0] <= t < QUIET[1]
+            st = 'soft' if quiet else style
+            if st == 'soft':
+                picks.append((t, UKE[ch][PICK[i]], .34 + (.06 if i % 4 == 0 else 0)))
+                if beat in (0, 2) or (style != 'soft' and t == QUIET[0]):
+                    basses.append((t, ROOT[ch], 2 * BEAT if beat in (0, 2) else 1.5 * BEAT, .55))
+                continue
+            if st == 'end':
+                if beat in (0, 1, 2, 3):
+                    strums.append((t, ch, 'D', (.6, .45, .58, .42)[int(beat)]))
+                if beat in (0, 2):
+                    basses.append((t, ROOT[ch], 2 * BEAT, .7))
+                if beat == 0:
+                    kicks.append((t, .8))
+                if beat < 2:
+                    shakes.append((t, .4 if i % 2 == 0 else .6))
+                continue
+            k = {'groove': 1.0, 'chorus': 1.05, 'light': .72, 'build': .85}[st]
+            if beat in STRUM:
+                stroke, v = STRUM[beat]
+                strums.append((t, ch, stroke, v * k))
+            if st == 'build':
+                if beat in (0, 1, 2, 3):                     # walking up into D: G B A C#
+                    basses.append((t, ROOT[ch] + (4 if beat in (1, 3) else 0), BEAT, .8))
+                if beat == 3:
+                    snaps.append((t, .7))
+                continue
+            if beat in (0, 1.5, 2, 3.5):
+                note = ROOT[c1] if beat < 2 else (ROOT[c2] if beat == 2 else FIFTH[c2])
+                basses.append((t, note, (BEAT if beat in (0, 2) else BEAT / 2), .65 if st == 'light' else .85))
+            if st != 'light' and (beat in (0, 2) or (st == 'chorus' and beat == 2.5)):
+                kicks.append((t, 1.0 if beat == 0 else .85))
+            if beat in (1, 3):
+                snaps.append((t, .6 if st == 'light' else .85))
+            shakes.append((t, (.35 if i % 2 == 0 else .6) * (.75 if st == 'light' else 1)))
+    for i in range(8):                                   # bar 8: the shaker swells in sixteenths toward the guidance
+        shakes.append((at(8, 2 + i * 0.25), .25 + .07 * i))
+    t_end = at(16)                                       # the last downbeat: D, a ding, a kick
+    strums.append((t_end, 'D', 'D', .7))
+    basses.append((t_end, ROOT['D'], 3 * BEAT, .8))
+    kicks.append((t_end, .9))
+    for b, beat, m, beats, v in MELODY:
+        glock.append((at(b, beat), m, v))
+    for t0, notes in RUNS:
+        for j, m in enumerate(notes):
+            glock.append((t0 + 0.125 * j, m, .38 + .04 * j))
+    return strums, picks, basses, kicks, snaps, shakes, glock
 
 
 def main(out_path, cues_path=None):
-    piano_b, pad_b, bass_b, bell_b = Bus(), Bus(), Bus(), Bus()
-    for t0, m, d, v in PIANO:
-        piano_b.add(piano(m, d, v), t0, pan=np.clip((m - 60) / 30, -0.5, 0.5))
-    for i, (t0, t1, notes, lvl) in enumerate(CHORDS):
-        pad_b.add(pad_chord(notes, t0, t1, lvl, att=1.6 if i == 0 else 0.35), t0)
-    for t0, m, d in BASS:
-        bass_b.add(bass(m, d), t0)
-    # chimes: the ① / ② labels, the bars filling / the links lighting, the end card's message and sign-off
+    strums, picks, basses, kicks, snaps, shakes, glock = score()
+    uke, bass_b, kick_b, snap_b, shk_b, glock_b, bell_b = Bus(), Bus(), Bus(), Bus(), Bus(), Bus(), Bus()
+    seeds = iter(range(1000, 10 ** 6))
+    strums.sort()
+    for j, (t0, ch, stroke, v) in enumerate(strums):
+        nxt = strums[j + 1][0] if j + 1 < len(strums) else DUR
+        ring = min(1.6, max(0.12, nxt - t0 + 0.03))       # a new strum damps the strings it replays
+        notes = UKE[ch] if stroke == 'D' else UKE[ch][::-1]
+        for i, m in enumerate(notes):
+            uke.add(ks_pluck(m, ring, v * (0.9 + 0.1 * rng.random()), bright=.55 if stroke == 'D' else .45, seed=next(seeds)),
+                    t0 + i * (0.011 if stroke == 'D' else 0.008), pan=-0.25 + 0.15 * i)
+        uke.add(brush(v, next(seeds)), t0)
+    for t0, m, v in picks:
+        uke.add(ks_pluck(m, 1.1, v, bright=.4, seed=next(seeds)), t0, pan=-0.2 + 0.4 * ((m - 60) / 12))
+    for t0, m, d, v in basses:
+        bass_b.add(bass_pluck(m, d, v), t0)
+    for t0, v in kicks:
+        kick_b.add(kick() * v, t0)
+    for t0, v in snaps:
+        snap_b.add(snap(next(seeds)) * v, t0, pan=0.15)
+    for t0, v in shakes:
+        shk_b.add(shaker(next(seeds)) * v, t0, pan=0.35)
+    for t0, m, v in glock:
+        glock_b.add(bell(m, v, 1.6), t0, pan=0.2)
+    uke_x = ffilt(uke.x, lambda f: lp(5500, 1)(f) * hp(140, 1)(f))
+    music_dry = (to_rms(uke_x, 18.25, 26.25, -30) + to_rms(bass_b.x, 18.25, 26.25, -33) + to_rms(kick_b.x, 18.25, 26.25, -37)
+                 + to_rms(snap_b.x, 18.25, 26.25, -40) + to_rms(shk_b.x, 18.25, 26.25, -44) + to_peak(glock_b.x, -20))
+    send = music_dry.mean(axis=0) * 0.6
+    music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
+    music = to_rms(music, 18, 28, MUSIC_RMS)
+    music *= curve([(0, 1), (32.55, 1), (33.0, 0), (40, 0)])
+    cue(0.25, "music: a strum and a little run")
+    cue(4.25, "music: the band comes in (the gate opens)")
+    cue(9.5, "music: soft fingerpicking (he tells his trouble)")
+    cue(16.25, "music: strums again, the shaker swells")
+    cue(18.25, "music: full groove (the guidance)")
+    cue(28.25, "music: the glockenspiel tune (sunset)")
+    cue(32.25, "music: the last D, a ding")
+
+    # chimes (effects, not music: they keep their level): the ① / ② labels, the bars filling / links lighting, the end card
     for t0, notes in ((18.32, [74, 78, 81]), (22.32, [79, 83, 86])):
         for j, m in enumerate(notes):
             bell_b.add(bell(m, .5 - .08 * j, 1.6), t0 + 0.06 * j, pan=-0.3)
@@ -411,15 +500,8 @@ def main(out_path, cues_path=None):
     bell_b.add(bell(81, .35, 2.5), 31.32)
     cue(30.78, "bell: end-card message")
     cue(31.32, "bell: CI place and name")
-
-    piano_x = to_rms(piano_b.x, 18, 28, -24)
-    pad_x = to_rms(pad_b.x, 18, 28, -28)
-    bass_x = to_rms(bass_b.x, 18, 28, -31)
     bell_x = to_peak(bell_b.x, -17)
-    music_dry = piano_x + pad_x + bass_x + bell_x
-    send = (0.35 * piano_x + 0.5 * pad_x + 0.6 * bell_x).mean(axis=0)
-    music = music_dry + 0.32 * conv(send, reverb_ir(2.2, 3.0, 0.02, 5500, 1))[:, :N + TAIL]
-    music *= curve([(0, 0), (0.3, 1), (1.15, 1), (1.25, 0.72), (4.2, 0.72), (4.3, 1), (32.35, 1), (33.0, 0), (40, 0)])
+    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (32.35, 1), (33.0, 0), (40, 0)])
 
     # ---------------------------------------------------------------- effects
     fx = Bus()
@@ -465,10 +547,10 @@ def main(out_path, cues_path=None):
     amb += air_x
     amb *= curve([(0, 0), (0.2, 1), (40, 1)])
 
-    mix = (music + fx_x + amb)[:, :N]
-    mix = to_peak(mix, -3.0)
+    mix = (music + bells + fx_x + amb)[:, :N] * 10 ** (0.43 / 20)    # the first version's normalisation gain, kept fixed so
+                                                                        # effects and ambience stay where they were
     mix.T.astype("<f4").tofile(out_path)
-    stems = {"music": music[:, :N], "effects": fx_x[:, :N], "ambience": amb[:, :N]}
+    stems = {"music": music[:, :N], "chimes": bells[:, :N], "effects": fx_x[:, :N], "ambience": amb[:, :N]}
     report = {k: {"rms_dbfs": round(rms_db(v, 0, DUR), 1), "peak_dbfs": round(20 * np.log10(np.abs(v).max() + 1e-12), 1)} for k, v in stems.items()}
     print(json.dumps(report))
     if cues_path:
