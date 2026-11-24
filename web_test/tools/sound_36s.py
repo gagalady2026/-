@@ -1,26 +1,28 @@
-"""Original soundtrack for the 34-second animatic (animatic_34s.html): music, sound effects and ambience, all synthesized in
+"""Original soundtrack for the 36-second animatic (animatic_36s.html): music, sound effects and ambience, all synthesized in
 this file from sine waves and noise. No samples, no third-party audio, nothing to license. There are no voices: the lines
 stay as subtitles, and README.md has a timing sheet for recording them.
 
-usage: python3 tools/sound_34s.py OUT.f32 [CUES.json]
-  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 34.0 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
+usage: python3 tools/sound_36s.py OUT.f32 [CUES.json]
+  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 36.0 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
              encoded with ffmpeg (see README); one gain for the whole mix keeps the music under the effects
   CUES.json  every sound event with its time, for checking against the picture
 
-Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the hinge creak with 끼익, taps on the
-tablet presses, chimes as the ① / ② labels appear, the evening ambience from 28.0 s, the end-card bell with the message.
+Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the latch and the hinge creak as the gate's
+leaf swings open (끼익), taps on the tablet presses, chimes as the ① / ② labels appear, the evening ambience from 28.5 s, the
+end-card bell with the message over the village.
 
 Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
-glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.25 s), sitting down (8.25 s), "같이 방법을
-찾아봐요." (16.25 s) and the sunset (28.25 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
-fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset and ends with a "ding".
+glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.75 s), sitting down (8.75 s), "같이 방법을
+찾아봐요." (16.75 s), the sunset (28.75 s) and the sign-off (32.75 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
+fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset, ends with a "ding" as
+the sign-off appears and lets a last soft glockenspiel figure ring under it.
 The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
 
 Mix moves (the tune itself is unchanged), so the lines — subtitles now, voices if they are recorded — sit clearly on top:
-  - 6-24 s, the conversation: the music 2 dB lower, and a further 2.5 dB lower while a line is on screen (the line spans
+  - 6.5-24.5 s, the conversation: the music 2 dB lower, and a further 2.5 dB lower while a line is on screen (the line spans
     of the timing sheet, merged where the gaps are short so it does not pump; 0.25 s in, 0.5 s out);
-  - 10-17 s, while he tells his trouble: 1.5 dB lower again (it is already only soft fingerpicking there);
-  - from 28 s, the farewell: back up, 1 dB over where it was; from 30.5 s, under "체납 뒤에 사람이 있습니다.", opened a little
+  - 10.5-17.5 s, while he tells his trouble: 1.5 dB lower again (it is already only soft fingerpicking there);
+  - from 28.5 s, the farewell: back up, 1 dB over where it was; from 31 s, under "체납 뒤에 사람이 있습니다.", opened a little
     more (+2.5 dB in all) so the close lingers;
   - the knocks, the latch and the creak about 2.5 dB further forward (fuller bodies under the same peaks: a soft clip before
     their level is set, since the master limiter would flatten higher peaks), the air of the gate opening 1.5 dB.
@@ -29,11 +31,11 @@ import json, sys
 import numpy as np
 
 SR = 48000
-DUR = 34.0
+DUR = 36.0
 N = int(round(SR * DUR))
 TAIL = 4 * SR
 rng = np.random.default_rng(20261123)          # fixed seed: every run writes the same file
-MUSIC_RMS = -28.0                              # music level over 18-28 s, dBFS before mastering: 6 dB under the first version
+MUSIC_RMS = -28.0                              # music level over 18.5-28.5 s, dBFS before mastering: 6 dB under the first version
 CUES = []
 
 
@@ -143,7 +145,7 @@ def dense(x, k):
 
 
 # the lines as they are on screen (the README's timing sheet): the music steps back under them
-LINES = [(2.0, 4.0), (5.1, 6.7), (9.6, 11.9), (12.8, 14.0), (14.1, 16.2), (16.3, 18.0), (18.4, 21.0), (22.4, 25.0), (26.2, 28.0)]
+LINES = [(2.0, 4.0), (5.6, 7.2), (10.1, 12.4), (13.3, 14.5), (14.6, 16.7), (16.8, 18.5), (18.9, 21.5), (22.9, 25.5), (26.7, 28.5)]
 
 
 def db_curve(points):
@@ -155,8 +157,8 @@ def db_curve(points):
 def music_moves():
     """The music's level moves under the picture (dB): the conversation, his story, each line on screen, the farewell, the close."""
     t = np.arange(N + TAIL) / SR
-    section = np.interp(t, [0, 5.2, 6.0, 24.0, 25.0, 27.8, 28.6, 30.5, 31.1, 40], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
-    story = np.interp(t, [0, 9.6, 10.2, 16.8, 17.4, 40], [0, 0, -1.5, -1.5, 0, 0])
+    section = np.interp(t, [0, 5.7, 6.5, 24.5, 25.5, 28.3, 29.1, 31.0, 31.6, 40], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
+    story = np.interp(t, [0, 10.1, 10.7, 17.3, 17.9, 40], [0, 0, -1.5, -1.5, 0, 0])
     spans = []                                                    # lines closer than 0.8 s count as one: no pumping between them
     for a, b in LINES:
         if a < 5.0:
@@ -404,8 +406,8 @@ def wind(n):
 # ================================================================ the score
 BPM = 120
 BEAT = 60 / BPM
-BAR0 = 0.25          # bars start at 0.25 + 2k s: the gate opening (4.25), sitting down (8.25), "같이 방법을 찾아봐요." (16.25) and the
-                     # sunset (28.25) all land on a downbeat
+BAR0 = 0.75          # bars start at 0.75 + 2k s: the gate opening (4.75), sitting down (8.75), "같이 방법을 찾아봐요." (16.75), the
+                     # sunset (28.75) and the sign-off (32.75) all land on a downbeat
 
 
 def at(bar, beat=0.0):
@@ -415,7 +417,7 @@ def at(bar, beat=0.0):
 UKE = {'D': [69, 62, 66, 69], 'A': [69, 61, 64, 69], 'Bm': [71, 62, 66, 71], 'G': [67, 62, 67, 71], 'Em': [67, 64, 67, 71]}   # G C E A strings
 ROOT = {'D': 38, 'A': 45, 'Bm': 47, 'G': 43, 'Em': 40}
 FIFTH = {'D': 45, 'A': 52, 'Bm': 54, 'G': 50, 'Em': 47}
-# bar: (chord on beats 1-2, chord on beats 3-4, style). Before bar 2 (4.25 s): one soft strum and a little run while he climbs,
+# bar: (chord on beats 1-2, chord on beats 3-4, style). Before bar 2 (4.75 s): one soft strum and a little run while he climbs,
 # then the music steps aside for the knocks, his voice at the gate and the creak.
 BARS = {2: ('D', 'A', 'groove'), 3: ('Bm', 'G', 'groove'), 4: ('D', 'A', 'groove'),         # the gate opens, the greeting, the bench
         5: ('Em', 'Bm', 'soft'), 6: ('G', 'D', 'soft'), 7: ('Em', 'A', 'soft'),              # he tells his trouble
@@ -424,18 +426,19 @@ BARS = {2: ('D', 'A', 'groove'), 3: ('Bm', 'G', 'groove'), 4: ('D', 'A', 'groove
         13: ('Em', 'A', 'light'),                                                            # "고마워요, 마음이 좀 놓이네요."
         14: ('D', 'A', 'chorus'),                                                            # the sunset
         15: ('G', 'A', 'end')}                                                               # the end card; D on the next downbeat
-QUIET = (9.5, 16.25)     # from his first word to the official's answer: no drums, no strumming, soft fingerpicking
+QUIET = (10.0, 16.75)    # from his first word to the official's answer: no drums, no strumming, soft fingerpicking
 STRUM = {0: ('D', .75), 1: ('D', .55), 1.5: ('U', .45), 2.5: ('U', .45), 3: ('D', .6), 3.5: ('U', .45)}   # beat: stroke, velocity
 PICK = (1, 2, 0, 3, 2, 0, 1, 3)        # fingerpicking order over the four strings, one note an eighth
 MELODY = [  # (bar, beat, midi, beats, velocity): the glockenspiel tune in the sunset and the close
     (14, 0, 78, 1, .5), (14, 1, 81, .5, .45), (14, 1.5, 78, .5, .42), (14, 2, 76, 1, .48), (14, 3, 73, .5, .42), (14, 3.5, 76, .5, .42),
-    (15, 0, 74, 1.5, .45), (15, 2, 76, 1.5, .42), (16, 0, 86, 2, .5)]
-RUNS = [(0.25, [74, 78, 81]), (4.25, [81, 86]), (17.875, [81, 83, 85])]   # little glockenspiel runs (16ths): climbing, the gate, into ①
+    (15, 0, 74, 1.5, .45), (15, 2, 76, 1.5, .42), (16, 0, 86, 2, .5),
+    (16, 2, 74, 1, .3), (16, 2.5, 78, 1, .28), (16, 3, 81, 1, .28), (17, 0, 86, 2, .3)]   # under the sign-off: a last soft figure, left to ring
+RUNS = [(0.75, [74, 78, 81]), (4.75, [81, 86]), (18.375, [81, 83, 85])]   # little glockenspiel runs (16ths): climbing, the gate, into ①
 
 
 def score():
     """Every note and hit of the band: lists of (time, ...)."""
-    strums, picks, basses, kicks, snaps, shakes, glock = [(0.25, 'D', 'D', .45)], [], [], [], [], [], []
+    strums, picks, basses, kicks, snaps, shakes, glock = [(BAR0, 'D', 'D', .45)], [], [], [], [], [], []
     for b, (c1, c2, style) in sorted(BARS.items()):
         for i in range(8):
             beat = i / 2
@@ -516,37 +519,38 @@ def main(out_path, cues_path=None):
     for t0, m, v in glock:
         glock_b.add(bell(m, v, 1.6), t0, pan=0.2)
     uke_x = ffilt(uke.x, lambda f: lp(5500, 1)(f) * hp(140, 1)(f))
-    music_dry = (to_rms(uke_x, 18.25, 26.25, -30) + to_rms(bass_b.x, 18.25, 26.25, -33) + to_rms(kick_b.x, 18.25, 26.25, -37)
-                 + to_rms(snap_b.x, 18.25, 26.25, -40) + to_rms(shk_b.x, 18.25, 26.25, -44) + to_peak(glock_b.x, -20))
+    music_dry = (to_rms(uke_x, 18.75, 26.75, -30) + to_rms(bass_b.x, 18.75, 26.75, -33) + to_rms(kick_b.x, 18.75, 26.75, -37)
+                 + to_rms(snap_b.x, 18.75, 26.75, -40) + to_rms(shk_b.x, 18.75, 26.75, -44) + to_peak(glock_b.x, -20))
     send = music_dry.mean(axis=0) * 0.6
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
-    music = to_rms(music, 18, 28, MUSIC_RMS)
+    music = to_rms(music, 18.5, 28.5, MUSIC_RMS)
     moves, spans = music_moves()
-    music *= moves * curve([(0, 1), (33.5, 1), (34.0, 0), (40, 0)])
+    music *= moves * curve([(0, 1), (35.4, 1), (36.0, 0), (40, 0)])
     for a, b in spans:
         cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
-    cue(0.25, "music: a strum and a little run")
-    cue(4.25, "music: the band comes in (the gate opens)")
-    cue(9.5, "music: soft fingerpicking (he tells his trouble)")
-    cue(16.25, "music: strums again, the shaker swells")
-    cue(18.25, "music: full groove (the guidance)")
-    cue(28.25, "music: the glockenspiel tune (sunset)")
-    cue(32.25, "music: the last D, a ding")
+    cue(0.75, "music: a strum and a little run")
+    cue(4.75, "music: the band comes in (the gate opens)")
+    cue(10.0, "music: soft fingerpicking (he tells his trouble)")
+    cue(16.75, "music: strums again, the shaker swells")
+    cue(18.75, "music: full groove (the guidance)")
+    cue(28.75, "music: the glockenspiel tune (sunset)")
+    cue(32.75, "music: the last D, a ding (the sign-off)")
+    cue(33.75, "music: a last soft glockenspiel figure, left to ring")
 
     # chimes (effects, not music: they keep their level): the ① / ② labels, the bars filling / links lighting, the end card
-    for t0, notes in ((18.32, [74, 78, 81]), (22.32, [79, 83, 86])):
+    for t0, notes in ((18.82, [74, 78, 81]), (22.82, [79, 83, 86])):
         for j, m in enumerate(notes):
             bell_b.add(bell(m, .5 - .08 * j, 1.6), t0 + 0.06 * j, pan=-0.3)
-        cue(t0, "chime: label " + ("①" if t0 < 20 else "②"))
-    for t0, notes in ((18.64, [78, 81, 86]), (22.64, [79, 83, 86])):
+        cue(t0, "chime: label " + ("①" if t0 < 20.5 else "②"))
+    for t0, notes in ((19.14, [78, 81, 86]), (23.14, [79, 83, 86])):
         for j, m in enumerate(notes):
             bell_b.add(plink(m, .4), t0 + 0.14 * j, pan=-0.35)
-        cue(t0, "plinks: " + ("bars fill" if t0 < 20 else "links light"))
-    bell_b.add(bell(86, .55, 3.0), 30.78)
-    cue(30.78, "bell: end-card message")
-    # the sign-off (CI place, name, number) appears on the music's last downbeat (32.25 s): the band's final D and 'ding' mark it
+        cue(t0, "plinks: " + ("bars fill" if t0 < 20.5 else "links light"))
+    bell_b.add(bell(86, .55, 3.0), 31.28)
+    cue(31.28, "bell: end-card message over the village")
+    # the sign-off (logo, name, number) appears on the music's last downbeat (32.75 s): the band's final D and 'ding' mark it
     bell_x = to_peak(bell_b.x, -17)
-    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (33.4, 1), (34.0, 0), (40, 0)])
+    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (35.4, 1), (36.0, 0), (40, 0)])
 
     # ---------------------------------------------------------------- effects
     fx = Bus()
@@ -557,13 +561,13 @@ def main(out_path, cues_path=None):
         fx.add(to_peak(dense(knock(20 + i), 1.3), -7.0 + 0.5 * i), t0, pan=(0.22, 0.4)[i])   # the title's 똑똑: the loudest effect,
                                                                                                # fuller under the same peak (forward)
         cue(t0, "knock")
-    fx.add(to_peak(dense(latch(), 1.2), -19), 3.62, pan=0.3)                # the gate's sounds ~2.5 dB further forward
-    cue(3.62, "latch")
-    fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.70, pan=0.32)             # 끼익 shows at 3.76
-    cue(3.70, "hinge creak")
-    fx.add(to_peak(whoosh(), -25.5), 4.12, pan=0.1)
-    cue(4.12, "air, gate open")
-    for i, t0 in enumerate((18.23, 18.59, 22.23, 22.59)):                    # CUT 6: the two presses on each panel
+    fx.add(to_peak(dense(latch(), 1.2), -19), 3.75, pan=0.3)                # the gate's sounds ~2.5 dB further forward
+    cue(3.75, "latch")
+    fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.85, pan=0.32)             # the leaf starts to swing at 3.85, 끼익 at 3.9
+    cue(3.85, "hinge creak (the leaf swings open)")
+    fx.add(to_peak(whoosh(), -25.5), 4.45, pan=0.1)
+    cue(4.45, "air, gate open")
+    for i, t0 in enumerate((18.73, 19.09, 22.73, 23.09)):                    # CUT 6: the two presses on each panel
         fx.add(to_peak(tap(30 + i), -21), t0, pan=-0.4)
         cue(t0, "tablet tap")
     fx_send = fx.x.mean(axis=0)
@@ -571,23 +575,23 @@ def main(out_path, cues_path=None):
 
     # ---------------------------------------------------------------- ambience
     n = N + TAIL
-    amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (0.97, 1), (1.03, .4), (9.45, .4), (9.55, .3), (28.0, .3), (28.5, .65),
-                                                (31.0, .65), (33.7, 0), (40, 0)])
-    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (0.97, .8), (1.03, .5), (28.0, .5), (28.5, .6), (31.0, .6), (33.7, 0), (40, 0)])
+    amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (0.97, 1), (1.03, .4), (9.95, .4), (10.05, .3), (28.5, .3), (29.0, .65),
+                                                (33.0, .65), (35.7, 0), (40, 0)])
+    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (0.97, .8), (1.03, .5), (28.5, .5), (29.0, .6), (33.0, .6), (35.7, 0), (40, 0)])
     air = Bus()
     for i, t0 in enumerate((0.12, 0.40)):                                    # CUT 1: gulls over the harbour, far off
         air.add(to_peak(ffilt(gull_call(40 + i), lp(3800, 2)), -27 - 2 * i), t0, pan=-0.45)
-    air.add(to_peak(ffilt(gull_call(42), lp(3000, 2)), -33), 28.75, pan=-0.5)
+    air.add(to_peak(ffilt(gull_call(42), lp(3000, 2)), -33), 29.25, pan=-0.5)
     cue(0.12, "gulls, far")
-    cue(28.75, "gull, very far")
-    for i, t0 in enumerate((2.75, 7.4, 8.85, 19.35, 23.55, 25.6)):           # day: a sparrow now and then (not while he tells his trouble)
+    cue(29.25, "gull, very far")
+    for i, t0 in enumerate((2.75, 7.9, 9.35, 19.85, 24.05, 26.1)):           # day: a sparrow now and then (not while he tells his trouble)
         air.add(to_peak(chirp_bird(50 + i), -29), t0, pan=(0.55, -0.5, 0.4, 0.6, -0.55, 0.45)[i])
         cue(t0, "sparrow")
     crick = Bus()
     for j, (f, period, pan) in enumerate(((4300, 0.52, -0.6), (4650, 0.47, 0.55), (4480, 0.6, 0.1))):
-        crick.add(cricket(28.0, 34.0, f, period, 60 + j), 28.0, pan=pan)
-    cue(28.0, "crickets (evening)")
-    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (28.0, 0), (28.5, 1), (31.0, 1), (33.7, 0), (40, 0)])
+        crick.add(cricket(28.5, 36.0, f, period, 60 + j), 28.5, pan=pan)
+    cue(28.5, "crickets (evening)")
+    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (28.5, 0), (29.0, 1), (33.0, 1), (35.7, 0), (40, 0)])
     air_x = air.x + crick_x
     air_x = air_x + 0.35 * conv(air_x.mean(axis=0), reverb_ir(1.5, 2.0, 0.03, 5000, 3))[:, :n]
     amb += air_x
