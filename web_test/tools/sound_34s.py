@@ -15,6 +15,15 @@ glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate open
 찾아봐요." (16.25 s) and the sunset (28.25 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
 fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset and ends with a "ding".
 The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
+
+Mix moves (the tune itself is unchanged), so the lines — subtitles now, voices if they are recorded — sit clearly on top:
+  - 6-24 s, the conversation: the music 2 dB lower, and a further 2.5 dB lower while a line is on screen (the line spans
+    of the timing sheet, merged where the gaps are short so it does not pump; 0.25 s in, 0.5 s out);
+  - 10-17 s, while he tells his trouble: 1.5 dB lower again (it is already only soft fingerpicking there);
+  - from 28 s, the farewell: back up, 1 dB over where it was; from 30.5 s, under "체납 뒤에 사람이 있습니다.", opened a little
+    more (+2.5 dB in all) so the close lingers;
+  - the knocks, the latch and the creak about 2.5 dB further forward (fuller bodies under the same peaks: a soft clip before
+    their level is set, since the master limiter would flatten higher peaks), the air of the gate opening 1.5 dB.
 """
 import json, sys
 import numpy as np
@@ -126,6 +135,40 @@ def to_rms(x, t0, t1, target_db):
 
 def to_peak(x, target_db):
     return x * 10 ** (target_db / 20) / (np.abs(x).max() + 1e-12)
+
+
+def dense(x, k):
+    """A soft clip that fills out a sound's body under the same peak (the master limiter would flatten a higher peak)."""
+    return np.tanh(k * x / (np.abs(x).max() + 1e-12)) / np.tanh(k)
+
+
+# the lines as they are on screen (the README's timing sheet): the music steps back under them
+LINES = [(2.0, 4.0), (5.1, 6.7), (9.6, 11.9), (12.8, 14.0), (14.1, 16.2), (16.3, 18.0), (18.4, 21.0), (22.4, 25.0), (26.2, 28.0)]
+
+
+def db_curve(points):
+    """Piecewise-linear automation in dB over the whole track: [(time, dB), ...] → gain."""
+    ts, ds = zip(*points)
+    return 10 ** (np.interp(np.arange(N + TAIL) / SR, ts, ds) / 20)
+
+
+def music_moves():
+    """The music's level moves under the picture (dB): the conversation, his story, each line on screen, the farewell, the close."""
+    t = np.arange(N + TAIL) / SR
+    section = np.interp(t, [0, 5.2, 6.0, 24.0, 25.0, 27.8, 28.6, 30.5, 31.1, 40], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
+    story = np.interp(t, [0, 9.6, 10.2, 16.8, 17.4, 40], [0, 0, -1.5, -1.5, 0, 0])
+    spans = []                                                    # lines closer than 0.8 s count as one: no pumping between them
+    for a, b in LINES:
+        if a < 5.0:
+            continue                                              # at the gate the music is out of the way already
+        if spans and a - spans[-1][1] < 0.8:
+            spans[-1][1] = b
+        else:
+            spans.append([a, b])
+    duck = np.zeros_like(t)
+    for a, b in spans:
+        duck = np.minimum(duck, np.interp(t, [a - 0.25, a, b, b + 0.5], [0, -2.5, -2.5, 0], left=0, right=0))
+    return 10 ** ((section + story + duck) / 20), spans
 
 
 # ---------------------------------------------------------------- instruments
@@ -478,7 +521,10 @@ def main(out_path, cues_path=None):
     send = music_dry.mean(axis=0) * 0.6
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
     music = to_rms(music, 18, 28, MUSIC_RMS)
-    music *= curve([(0, 1), (33.5, 1), (34.0, 0), (40, 0)])
+    moves, spans = music_moves()
+    music *= moves * curve([(0, 1), (33.5, 1), (34.0, 0), (40, 0)])
+    for a, b in spans:
+        cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
     cue(0.25, "music: a strum and a little run")
     cue(4.25, "music: the band comes in (the gate opens)")
     cue(9.5, "music: soft fingerpicking (he tells his trouble)")
@@ -508,13 +554,14 @@ def main(out_path, cues_path=None):
         fx.add(to_peak(footstep(10 + i), -18), t0 - 0.004, pan=(-0.08, 0.08)[i])
         cue(t0, "footstep")
     for i, t0 in enumerate((1.3208, 1.7379)):                                 # CUT 2: 똑! 똑! (u = 0.10, 0.23 of the gate shot)
-        fx.add(to_peak(knock(20 + i), -7.0 + 0.5 * i), t0, pan=(0.22, 0.4)[i])            # the title's 똑똑: clearly the loudest effect
+        fx.add(to_peak(dense(knock(20 + i), 1.3), -7.0 + 0.5 * i), t0, pan=(0.22, 0.4)[i])   # the title's 똑똑: the loudest effect,
+                                                                                               # fuller under the same peak (forward)
         cue(t0, "knock")
-    fx.add(to_peak(latch(), -19), 3.62, pan=0.3)
+    fx.add(to_peak(dense(latch(), 1.2), -19), 3.62, pan=0.3)                # the gate's sounds ~2.5 dB further forward
     cue(3.62, "latch")
-    fx.add(to_peak(creak(), -12.5), 3.70, pan=0.32)                          # 끼익 shows at 3.76
+    fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.70, pan=0.32)             # 끼익 shows at 3.76
     cue(3.70, "hinge creak")
-    fx.add(to_peak(whoosh(), -27), 4.12, pan=0.1)
+    fx.add(to_peak(whoosh(), -25.5), 4.12, pan=0.1)
     cue(4.12, "air, gate open")
     for i, t0 in enumerate((18.23, 18.59, 22.23, 22.59)):                    # CUT 6: the two presses on each panel
         fx.add(to_peak(tap(30 + i), -21), t0, pan=-0.4)
