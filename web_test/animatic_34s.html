@@ -107,6 +107,8 @@ body.capture .stage .status { display: none; }
       <li>영상은 바닷가 계단을 오르는 주인공으로 바로 시작합니다. 계단 장면은 1초로 줄였고(배경만 나오던 장면은 뺐습니다), 그 시간을 대화에 썼습니다.</li>
       <li>어르신이 사정을 털어놓으면(“…일을 못 했어요…”), 주인공이 끄덕이며 “많이 힘드셨겠어요.”라고 먼저 공감합니다. 어르신이 이어서 “그러다 보니 세금도 밀렸네요…”라고 말하고, 주인공이 답한 뒤 ① 분납 상담, ② 복지서비스 연계를 차례로 안내합니다. 두 가지는 화면에도 이름이 뜨고, 그 사이에 어르신이 고개를 끄덕이며 알아듣습니다. 승인이 아니라 상담·연계라는 뜻이 되도록 말을 골랐습니다.</li>
       <li>마지막은 걸어가는 장면 대신, 노을 진 대문 앞에서 두 사람이 마주 보고 가볍게 고개를 끄덕이고, 카메라만 천천히 조금 물러납니다. 노을은 28초부터 들어옵니다.</li>
+      <li>인물은 그림 한 장이 통째로 눌리지 않고 목과 허리에서 굽습니다. 인사할 때 허리부터 살짝 숙이고, 말할 때는 낱말마다 고개가 까딱이며, 들을 때는 고개를 기울였다가 천천히 끄덕입니다. 숨 쉴 때 가슴과 어깨가 오르내립니다. 태블릿을 든 장면은 고개만 움직여 화면 속 안내가 흔들리지 않습니다.</li>
+      <li>마지막 장면의 두 사람에게는 배경 그림과 같은 노을빛을 입혔습니다. 해가 낮게 걸린 왼쪽 가장자리에 주황빛, 반대쪽에 옅은 그늘, 땅에는 오른쪽으로 길게 드리운 그림자. 얼굴은 밝게 두었습니다.</li>
       <li>엔드 카드(3.5초)는 그 마지막 장면이 부드럽게 흐려지며 “체납 뒤에 사람이 있습니다.”가 먼저 혼자 1.5초 보이고, 이어 CI 자리·기관명·문의번호가 함께 떠올라 끝까지 남습니다.</li>
       <li>목소리 없이 자막으로 보는 영상입니다. 첫 대사 “계세요? 동해시청에서 나왔어요.”는 두 번째 노크 직후부터 ‘끼익’까지 1.8초 동안 보입니다.</li>
       <li>주인공 목걸이 명찰에 ‘동해시 / 실태조사원’이 보입니다.</li>
@@ -230,7 +232,7 @@ const SRC = {
   cz34: 'assets_v10/v10_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png', cz34Talk: 'assets_v10/v10_cz_34_talk.png',
   czSeated: 'assets_v7/v7_cz_seated.png', czSideSad: 'assets_v7/v7_cz_side_sad.png', czSideSadTalk: 'assets_v7/v7_cz_side_sad_talk.png', officialOts: 'assets_v7/v7_official_ots.png',
   czBack: 'assets_v4/v4_cz_back_blur.png',
-  offSide: 'assets_v10/v10_official_side.png', cz34Full: 'assets_v10/v10_cz_34_full.png',
+  offSide: 'assets_v11/v11_official_side_dusk.png', cz34Full: 'assets_v11/v11_cz_34_full_dusk.png',   // lit by the low sun (v11)
   stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
   gateDusk: 'assets_v5/v5_gate_dusk.jpg',
 };
@@ -246,6 +248,7 @@ const STAND = {
   smile: { off: [0, -6], eyes: [[497.2, 256.9, 19, 33], [585.7, 256.8, 19, 32]], skin: 'rgb(252,213,189)', card: [540.5, 592.5, 82, 42, 0.0, 15] },
 };
 const FRAME_A = { s: 1.2, ox: 48, oy: 18 };            // the v2 standing framing (shot A)
+const LISTEN_TILT = -11.6;                              // the 'listen' picture's head is drawn tilted this far (its eye line, °)
 const FRAME_B = { s: 1.62, ox: 271, oy: 23 };           // close on his face (CUT 5): face near (1150, 430); 10% under the first
                                                         // framing (1.8), so his face is within ~8% of the tablet shot's
 // seated pair (assets_v4): the redrawn ② holds the tablet on the screen-left side, toward the citizen, so ① is mirrored to match.
@@ -267,8 +270,22 @@ const CZ = {
 // CUT 7 (tools/v10_prep.py): both of them full figure from their turnaround sheets (the official's side view, the citizen's 3/4
 // mirrored) — feet, height, eyes and the skin round the eyes (halo-free pictures, for the lids)
 const FULL = {
-  off: { feet: [325.5, 2069], h: 2027, eyes: [[227.1, 381.9, 19, 54]], skin: 'rgb(251,220,195)' },   // side view, facing him
-  cz: { feet: [421.5, 1859], h: 1825, eyes: [[456.4, 317.9, 26, 52], [576.3, 318.4, 22, 51]], skin: 'rgb(252,215,183)' },
+  off: { feet: [325.5, 2069], h: 2027, eyes: [[227.1, 381.9, 19, 54]], skin: 'rgb(251,220,195)', rig: 'offSide' },   // side view, facing him
+  cz: { feet: [421.5, 1859], h: 1825, eyes: [[456.4, 317.9, 26, 52], [576.3, 318.4, 22, 51]], skin: 'rgb(252,215,183)', rig: 'czFull' },
+};
+// rigs (each in its picture's own pixels): the head turns about `neck`; above the chin line `line` (a polyline under the jaw)
+// it is rigid, below it its weight falls to 0 over `band` px, so the neck stretches and the collar stays where it is. hh: the
+// head's height above the pivot (how far a nod drops it). Standing, the upper body also bows about `waist`: rigid above wTop,
+// its weight falling to 0 at wBot (the legs never move). Measured on 2x crops with a 20 px grid.
+const RIG = {
+  stand: { neck: [546, 352], line: [[300, 350], [800, 350]], band: 44, hh: 320, waist: [548, 690], wTop: 630, wBot: 720 },
+  p1: { neck: [605, 487], line: [[380, 392], [470, 472], [950, 472]], band: 42, hh: 440 },     // the tablet's corner stays put
+  p2: { neck: [608, 485], line: [[380, 402], [470, 470], [950, 470]], band: 42, hh: 440 },
+  q34: { neck: [690, 603], line: [[380, 523], [700, 603], [950, 603]], band: 40, hh: 570 },    // 3/4: the pivot under his chin
+  side: { neck: [640, 592], line: [[400, 632], [545, 600], [720, 560], [900, 530]], band: 38, hh: 550 },   // profile, facing left
+  seated: { neck: [585, 330], line: [[380, 318], [780, 318]], band: 30, hh: 285 },
+  offSide: { neck: [330, 530], line: [[100, 551], [300, 527], [440, 505], [600, 482]], band: 32, hh: 440 },  // profile, facing left
+  czFull: { neck: [470, 505], line: [[250, 426], [470, 503], [700, 503]], band: 36, hh: 455 },          // 3/4, facing right
 };
 
 const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
@@ -276,7 +293,7 @@ const statusEl = document.getElementById('status');
 const img = {};
 const load = (k, src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { img[k] = im; res(); }; im.onerror = () => rej(new Error(src)); im.src = src; });
 const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
-const cbuf = mk(), lastBuf = mk(), endBuf = mk(), charBuf = mk(), tintBuf = mk();
+const cbuf = mk(), lastBuf = mk(), endBuf = mk(), charBuf = mk(), tintBuf = mk(), shadowBuf = mk();
 const FONT = '"Noto Sans KR", "WenQuanYi Zen Hei", sans-serif';
 
 // ---------------------------------------------------------------- per-cut timing (pure functions of the cut's own u ∈ [0,1])
@@ -298,7 +315,6 @@ function stReact(c, u) {                // CUT 3: the gate has opened — a smal
   st.cam = { s: 1 + 0.27 * push, fx: 700, fy: 340, dx: 12 * smoother(u), dy: 0 };
   st.frame = FRAME_A;
   st.variant = u < 0.66 ? 'neutral' : u < 0.84 ? 'listen' : 'smile';
-  st.bow = 0.4 * bump(u, 0.03, 0.2, 0.3);              // a very slight bow, eyes open (a greeting, not a pause)
   // 요즘 / 지내시기 / 괜찮으세요: eleven syllables in three words, with a short breath between words
   const SYL = []; let t = 0.22;
   for (const n of [2, 4, 5]) { for (let i = 0; i < n; i++) { SYL.push(t); t += 0.0325; } t += 0.02; }
@@ -307,6 +323,14 @@ function stReact(c, u) {                // CUT 3: the gate has opened — a smal
   st.sub = win(u, 0.2, 0.24) * (1 - win(u, 0.68, 0.74));
   st.flash = 1 - smoother(u / 0.1);
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.0); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.7);
+  // his body: a very slight bow from the waist with a nod (a greeting, eyes open); his head marks each word, tips a little at
+  // “괜찮으세요?”, and goes on into the listening tilt drawn in the 'listen' picture, then back toward upright for the smile.
+  // The pictures swap inside the two blinks, each turned to meet the other halfway, so the head moves through the swap
+  const greet = bump(u, 0.03, 0.2, 0.3);
+  const tilt = -1.6 * win(u, 0.45, 0.6) - 3.9 * win(u, 0.6, 0.66) - 6.1 * win(u, 0.66, 0.75) + 5.6 * win(u, 0.77, 0.84) + 3.6 * win(u, 0.84, 0.93);
+  const W = wordStarts(0.22, [2, 4, 5], 0.0325, 0.02).map((x) => x * (c.nf - 1) / FPS);
+  st.rig = { rot: tilt - (st.variant === 'listen' ? LISTEN_TILT : 0), bdip: 0.8 * greet, breath: st.breath,
+    dip: 0.9 * greet + 0.4 * beats(st.sec, W, 0.22) + 0.7 * bump(u, 0.71, 0.8, 0.2) };      // … and one slow nod, listening
   return st;
 }
 function stTablet(c, u, part) {         // CUT 6a/6c: ① 분납 상담 on pose p1, then (after his nod) ② 복지서비스 연계 on pose p2.
@@ -334,12 +358,19 @@ function stTablet(c, u, part) {         // CUT 6a/6c: ① 분납 상담 on pose 
   st.press = Math.max(bump(s, 0.2, 0.34), bump(s, 0.56, 0.7));
   st.blink = bump(s, 2.5, 2.66);
   st.breath = Math.sin(2 * Math.PI * 0.28 * s + 1.1); st.sway = 0.3 * Math.sin(2 * Math.PI * 0.2 * s + 0.5);
+  // his head (only his head: the tablet is still): down toward the screen as he taps it, then up to the citizen; it marks the
+  // words, turns a little as he goes on, and ends on a small nod (“…드릴게요.”)
+  const look = bump(s, 0.08, 0.8, 0.35);
+  const W = part === 1 ? wordStarts(0.45, [3, 2, 3, 3, 4], 0.12, 0.05) : wordStarts(0.45, [5, 3, 3, 4], 0.12, 0.05);
+  st.rig = { rot: -1.4 * look + 0.9 * win(s, 0.9, 1.6) * (1 - win(s, 2.4, 2.9)), dip: 0.7 * look + 0.3 * beats(s, W) + 0.5 * bump(s, 2.45, 2.95, 0.1) };
   return st;
 }
 function stCzNod(c, u) {                // CUT 6b: between ① and ②, his face as he takes it in: a slow nod, eyes closing softly
   const st = base(c, u);
   st.cam = { s: 1.02 + 0.03 * smoother(u), fx: 900, fy: 560, dx: 0, dy: 0 };
-  st.bow = 0.9 * bump(u, 0.12, 0.88, 0.25);
+  const nod = bump(u, 0.12, 0.88, 0.25);
+  st.bow = 0.9 * nod;
+  st.rig = { rot: 2.0 * nod, dip: 1.4 * nod };                 // the nod is in his neck (he faces right: forward is clockwise)
   st.blink = bump(u, 0.16, 0.84, 0.6);
   st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 0.7);
   return st;
@@ -347,7 +378,9 @@ function stCzNod(c, u) {                // CUT 6b: between ① and ②, his face
 function stSeated(c, u) {               // CUT 4: on the bench, turned toward the official sitting down beside him; a small nod
   const st = base(c, u), e = smoother(u);
   st.cam = { s: 1 + 0.04 * e, fx: 760, fy: 480, dx: 0, dy: 0 };
-  st.bow = 0.4 * bump(u, 0.35, 0.85, 0.25);
+  const nod = bump(u, 0.35, 0.85, 0.25);
+  st.bow = 0.4 * nod;
+  st.rig = { rot: -1.6 * nod, dip: 1.0 * nod };                // turned to his left (screen left): forward is anticlockwise
   st.breath = Math.sin(2 * Math.PI * 0.3 * st.sec + 0.3);
   return st;
 }
@@ -361,6 +394,9 @@ function stCzTalk(c, u) {               // CUT 5a: over the official's shoulder:
   st.blink = 0;
   st.sub = win(u, 0.05, 0.11) * (1 - win(u, 0.93, 0.99));
   st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 0.9); st.sway = -2.2 + 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec);
+  // his head (in profile, facing left: down is anticlockwise) hangs a little, bobs slowly as he speaks and sinks in the pause
+  const env = win(u, 0.06, 0.1) * (1 - win(u, 0.42, 0.47)) + win(u, 0.52, 0.56) * (1 - win(u, 0.88, 0.93));
+  st.rig = { rot: -1.2 - 0.9 * env * (0.5 - 0.5 * Math.cos(2 * Math.PI * 1.7 * st.sec + 0.6)) - 1.0 * bump(u, 0.4, 0.62, 0.3) };
   return st;
 }
 // lip flaps for a spoken line: syllables per word, from t0 (seconds), d seconds a syllable, a short breath between words
@@ -372,17 +408,27 @@ function flaps(sec, t0, words, d, gap) {
   }
   return false;
 }
+// the onsets of the words of a line timed as for flaps()
+function wordStarts(t0, words, d, gap) { const out = []; let t = t0; for (const n of words) { out.push(t); t += n * d + gap; } return out; }
+// speech beats: the head dips a little on the first syllable of each word (where Korean puts its weight)
+function beats(sec, starts, d = 0.26) { let v = 0; for (const t of starts) v = Math.max(v, bump(sec, t - 0.03, t + d)); return v; }
 function stNod(c, u) {                  // CUT 5b: close on the official: he listens (head tilted), nods slowly with his eyes closed,
   const st = base(c, u), s = st.sec;     //   then looks up and meets what he heard before anything else: “많이 힘드셨겠어요.”
   st.cam = { s: 1 + 0.02 * smoother(u), fx: 1150, fy: 450, dx: 0, dy: 0 };
   st.frame = FRAME_B;
   st.variant = s < 0.62 ? 'listen' : 'neutral';            // the face changes while the eyes are shut in the nod
-  st.bow = 0.8 * bump(s, 0.1, 0.78, 0.2);
+  // the nod is in his neck, with a little of his upper body; through it his head comes from the listening tilt (drawn in the
+  // 'listen' picture) toward upright — the swap at 0.62 s with each picture turned to meet the other — and keeps a slight
+  // tilt for “많이 힘드셨겠어요.”, marking its two words
+  const nod = bump(s, 0.1, 0.78, 0.2);
+  const tilt = LISTEN_TILT + 6.1 * win(s, 0.3, 0.62) + 4.0 * win(s, 0.62, 0.9);
   st.blink = bump(s, 0.12, 0.74, 0.75);       // eyes shut quickly and open quickly (a half-open lid with a smile looks smug)
   st.open = st.variant === 'neutral' && flaps(s, 0.86, [2, 6], 0.12, 0.07);   // 많이 / 힘드셨겠어요
   st.sub = win(s, 0.78, 0.86) * (1 - win(s, 1.9, 1.98));
   st.badge = 1 - win(s, 0.78, 0.86);       // the subtitle runs across his ID card here: its lettering steps aside until the cut
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 1.3);
+  st.rig = { rot: tilt - (st.variant === 'listen' ? LISTEN_TILT : 0), dip: 1.3 * nod + 0.35 * beats(s, wordStarts(0.86, [2, 6], 0.12, 0.07)),
+    bdip: 0.5 * nod, breath: st.breath };
   return st;
 }
 function stCzTalk2(c, u) {              // CUT 5c: closer on him: “그러다 보니 세금도 밀렸네요…” — the arrears come up from him, not
@@ -394,6 +440,9 @@ function stCzTalk2(c, u) {              // CUT 5c: closer on him: “그러다 �
   st.sub = win(u, 0.03, 0.09) * (1 - win(u, 0.94, 0.99));
   st.sigh = bump(u, 0.86, 1.0, 0.3);
   st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 2.1); st.sway = -3 + 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec + 1);
+  // lower than in CUT 5a, bobbing slowly as he speaks; it drops further on the breath out
+  const env = win(u, 0.04, 0.08) * (1 - win(u, 0.36, 0.41)) + win(u, 0.45, 0.49) * (1 - win(u, 0.84, 0.89));
+  st.rig = { rot: -2.2 - 0.9 * env * (0.5 - 0.5 * Math.cos(2 * Math.PI * 1.7 * st.sec + 1.4)) - 2.4 * st.sigh };
   return st;
 }
 function stReply(c, u) {                // CUT 5d: close on the official again, he answers: “같이 방법을 찾아봐요.”
@@ -405,6 +454,10 @@ function stReply(c, u) {                // CUT 5d: close on the official again, 
   st.sub = win(u, 0.05, 0.11) * (1 - win(u, 0.95, 1.0));
   st.badge = 1 - win(u, 0.05, 0.11);       // the subtitle runs across his ID card here: its lettering steps aside until the cut
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.3);
+  // his head marks the words and turns a little as he speaks; on “찾아봐요” a reassuring nod, leaning in a little
+  const assure = bump(st.sec, 0.95, 1.6, 0.2);
+  st.rig = { rot: -1.2 + 2.0 * win(st.sec, 0.5, 1.2), dip: 0.35 * beats(st.sec, wordStarts(0.22, [2, 3, 4], 0.12, 0.07)) + 0.8 * assure,
+    bdip: 0.45 * assure, breath: st.breath };
   return st;
 }
 function stRelief(c, u) {               // CUT 6d: his face softens into a relieved smile (eyes closed, a breath out, a small nod),
@@ -412,18 +465,23 @@ function stRelief(c, u) {               // CUT 6d: his face softens into a relie
   st.cam = { s: 1 + 0.04 * smoother(u), fx: 900, fy: 560, dx: 0, dy: 0 };
   st.smile = win(s, 0.25, 0.6) * (1 - win(s, 1.1, 1.25));
   st.sigh = bump(s, 0.3, 1.1, 0.3);
-  st.bow = 0.5 * bump(s, 0.3, 1.05, 0.3);
+  const nod = bump(s, 0.3, 1.05, 0.3), thanks = bump(s, 1.28, 1.85, 0.2);
+  st.bow = 0.5 * nod;
   st.open = flaps(s, 1.3, [4, 3, 1, 4], 0.11, 0.07);       // 고마워요 / 마음이 / 좀 / 놓이네요
   st.sub = win(s, 1.2, 1.3) * (1 - win(s, 2.86, 2.95));
   st.breath = Math.sin(2 * Math.PI * 0.3 * s);
+  // the breath out with a small nod; a little bow of the head on “고마워요”; the words marked; a warm tilt to finish
+  st.rig = { rot: 1.5 * nod + 1.2 * thanks + 1.2 * win(s, 1.9, 2.5), dip: 1.5 * nod + 0.9 * thanks + 0.3 * beats(s, wordStarts(1.3, [4, 3, 1, 4], 0.11, 0.07)) };
   return st;
 }
 function stClosing(c, u) {              // CUT 7: at the gate at sunset, face to face. ① each nods lightly, eyes closing for a moment
   const st = base(c, u), s = st.sec;      //   (no big movement), ② then the camera alone eases back a little
   const back = smoother((s - 1.45) / 1.05);
   st.cam = { s: 2.0 - 0.05 * smoother(s / 1.45) - 0.38 * back, fx: 1190, fy: 650, dx: 0, dy: 20 * back };
-  st.off = { bow: 0.7 * bump(s, 0.12, 0.95, 0.3), blink: bump(s, 0.16, 0.9, 0.6), breath: Math.sin(2 * Math.PI * 0.3 * s) };
-  st.cz = { bow: 0.8 * bump(s, 0.42, 1.25, 0.3), blink: bump(s, 0.46, 1.2, 0.6), breath: Math.sin(2 * Math.PI * 0.27 * s + 1.3) };
+  // the nods are in their necks: the official in profile facing left (forward is anticlockwise), the citizen 3/4 facing right
+  const offNod = bump(s, 0.12, 0.95, 0.3), czNod = bump(s, 0.42, 1.25, 0.3);
+  st.off = { bow: 0.7 * offNod, blink: bump(s, 0.16, 0.9, 0.6), breath: Math.sin(2 * Math.PI * 0.3 * s), rig: { rot: -6 * offNod } };
+  st.cz = { bow: 0.8 * czNod, blink: bump(s, 0.46, 1.2, 0.6), breath: Math.sin(2 * Math.PI * 0.27 * s + 1.3), rig: { rot: 2.4 * czNod, dip: 1.3 * czNod } };
   return st;
 }
 function stClimbFollow(c, u) {          // CUT 1b: close behind him going up the stairs. Both climbing drawings lift the same
@@ -535,10 +593,13 @@ function drawPose(g, key, st) {
   const bx = ox + SIT.pivotX * s, by = H + 40;
   g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
   g.translate(ox, oy + 3 * st.press); g.scale(s, s);
-  g.drawImage(img[key], 0, 0);
+  // only his head moves on its own (the tablet, its screens and his pointing hand stay exactly where the panels are drawn)
+  const X = drawRigged(g, img[key], RIG[key], st.rig);
   drawBadge(g, P.card, st.badge ?? 1);
+  g.save(); g.setTransform(X.head);
   if (st.closed) g.drawImage(img[key + 'c'], P.closed[0], P.closed[1]);
   eyelids(g, P.eyes, P.skin, st.blink);
+  g.restore();
   const m = g.getTransform(), c = cbuf.getContext('2d');
   const masked = (paint) => {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, W, H);
@@ -591,34 +652,141 @@ function drawLabel(g, { n, a }) {
   g.textAlign = 'left'; g.fillStyle = '#1E2733'; g.font = `800 50px ${FONT}`; g.fillText(L.text, x + 88, y + h / 2 + 2);
   g.restore();
 }
+// ---------------------------------------------------------------- rigs: a picture drawn bent at the neck (and the waist)
+// The picture is cut into a grid of cells. Cells wholly in one part (the legs, the upper body, the head) are drawn together,
+// each part with its own affine; cells in the neck and waist bands, where the weights change, are drawn one by one with the
+// best affine for their four corners and clipped to their true corners pushed out by 1 px, so each fully covers the pixels
+// it shares with its neighbours (at 0.6 px a pixel on a cell edge kept ~3% see-through: a faint line).
+// Pose (all optional): rot (°, the head turning in the picture plane: a profile's nod, a tilt), dip (a nod seen from the
+// front: the face shortens a little and drops), brot / bdip (the same for the upper body), breath (the chest, -1..1).
+const RIG_DEBUG = new URLSearchParams(location.search).has('rig');   // ?rig: tint the parts (blend cells red→yellow, head blue)
+const rigBuf = mk();
+if (CAPTURE) window.__rig = { RIG, rigShift, drawRigged, img };     // for the rig test script
+function rigShift(R, dx, dy) {
+  return { ...R, neck: [R.neck[0] + dx, R.neck[1] + dy], line: R.line.map(([x, y]) => [x + dx, y + dy]),
+    ...(R.waist ? { waist: [R.waist[0] + dx, R.waist[1] + dy], wTop: R.wTop + dy, wBot: R.wBot + dy } : {}) };
+}
+function lineY(L, x) {
+  if (x <= L[0][0]) return L[0][1];
+  for (let i = 1; i < L.length; i++) if (x <= L[i][0]) { const [x0, y0] = L[i - 1], [x1, y1] = L[i]; return y0 + (y1 - y0) * (x - x0) / (x1 - x0); }
+  return L[L.length - 1][1];
+}
+function rigMats(R, P) {                    // picture → picture: the upper body (B) and the head on it (BH)
+  const B = new DOMMatrix();
+  if (R.waist) {
+    const [wx, wy] = R.waist;
+    B.translateSelf(wx, wy).rotateSelf(P.brot || 0).scaleSelf(1, (1 - 0.03 * (P.bdip || 0)) * (1 + 0.005 * (P.breath || 0))).translateSelf(-wx, -wy);
+  }
+  const [nx, ny] = R.neck, dip = P.dip || 0;
+  const Hd = new DOMMatrix().translateSelf(nx, ny + 0.015 * R.hh * dip).rotateSelf(P.rot || 0).scaleSelf(1, 1 - 0.045 * dip).translateSelf(-nx, -ny);
+  return { B, H: Hd, BH: B.multiply(Hd) };
+}
+function rigPoint(R, M, x, y) {             // where a picture point goes: [x', y', head weight, body weight]
+  const wh = 1 - smoother((y - lineY(R.line, x)) / R.band);
+  const wb = R.waist ? 1 - smoother((y - R.wTop) / (R.wBot - R.wTop)) : 1;
+  const h = M.H, b = M.B;
+  const qx = x + (h.a * x + h.c * y + h.e - x) * wh, qy = y + (h.b * x + h.d * y + h.f - y) * wh;
+  return [x + (b.a * qx + b.c * qy + b.e - x) * wb, y + (b.b * qx + b.d * qy + b.f - y) * wb, wh, wb];
+}
+function rigRows(R, h) {
+  const ys = [0, h], add = (a, b, step) => { const n = Math.max(1, Math.ceil((b - a) / step)); for (let k = 0; k <= n; k++) ys.push(a + (b - a) * k / n); };
+  const ly = R.line.map((p) => p[1]);
+  add(Math.max(0, Math.min(...ly) - 1), Math.min(h, Math.max(...ly) + R.band + 1), 10);
+  if (R.waist) add(R.wTop, R.wBot, 16);
+  return [...new Set(ys.filter((y) => y >= 0 && y <= h).map((y) => Math.round(y * 100) / 100))].sort((a, b) => a - b);
+}
+function growQuad(D, e) {                   // a convex quad pushed out by e px on every side
+  const cx = (D[0].x + D[1].x + D[2].x + D[3].x) / 4, cy = (D[0].y + D[1].y + D[2].y + D[3].y) / 4;
+  const n = D.map((p, k) => {
+    const q = D[(k + 1) % 4]; let nx = q.y - p.y, ny = p.x - q.x; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+    if (((p.x + q.x) / 2 - cx) * nx + ((p.y + q.y) / 2 - cy) * ny < 0) { nx = -nx; ny = -ny; }
+    return [nx, ny];
+  });
+  return D.map((p, k) => { const a = n[(k + 3) % 4], b = n[k]; return { x: p.x + e * (a[0] + b[0]), y: p.y + e * (a[1] + b[1]) }; });
+}
+// draws `im` (its top left at the current origin, in the current transform) bent by pose P on rig R; returns the transforms
+// of its head and its upper body (for the eyelids, mouths and card lettering drawn on them). Drawn at partial opacity it goes
+// through a buffer first, so the overlapping cell edges cannot show.
+function drawRigged(g, im, R, P = {}) {
+  const T = g.getTransform();
+  if (!(P.rot || P.dip || P.brot || P.bdip || P.breath) && !RIG_DEBUG) { g.drawImage(im, 0, 0); return { head: T, body: T }; }
+  const M = rigMats(R, P);
+  if (g.globalAlpha < 0.999 && g !== rigBuf.getContext('2d')) {
+    const b = rigBuf.getContext('2d');
+    b.setTransform(1, 0, 0, 1, 0, 0); b.globalAlpha = 1; b.globalCompositeOperation = 'source-over'; b.filter = 'none'; b.clearRect(0, 0, W, H);
+    b.setTransform(T); drawRigged(b, im, R, P);
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(rigBuf, 0, 0); g.restore();
+    return { head: T.multiply(M.BH), body: T.multiply(M.B) };
+  }
+  const iw = im.width, ih = im.height, xs = [], ys = rigRows(R, ih);
+  for (let x = 0; x < iw; x += 32) xs.push(x);
+  xs.push(iw);
+  const nx = xs.length, pts = [];
+  for (const y of ys) for (const x of xs) pts.push(rigPoint(R, M, x, y));
+  const part = { id: [], body: [], head: [] }, blend = [];
+  const all = (q, k, v) => q.every((p) => p[k] === v);
+  for (let j = 0; j < ys.length - 1; j++) for (let i = 0; i < nx - 1; i++) {
+    const q = [pts[j * nx + i], pts[j * nx + i + 1], pts[(j + 1) * nx + i + 1], pts[(j + 1) * nx + i]];
+    if (all(q, 3, 0) || (!R.waist && all(q, 2, 0))) part.id.push([i, j]);
+    else if (all(q, 3, 1) && all(q, 2, 0)) part.body.push([i, j]);
+    else if (all(q, 3, 1) && all(q, 2, 1)) part.head.push([i, j]);
+    else blend.push([i, j, q]);
+  }
+  const region = (cells, mat, tint) => {
+    if (!cells.length) return;
+    g.save(); g.setTransform(T.multiply(mat));
+    g.beginPath(); for (const [i, j] of cells) g.rect(xs[i], ys[j], xs[i + 1] - xs[i], ys[j + 1] - ys[j]);
+    g.clip(); g.drawImage(im, 0, 0);
+    if (RIG_DEBUG && tint) { g.fillStyle = tint; g.fillRect(0, 0, iw, ih); }
+    g.restore();
+  };
+  region(part.id, new DOMMatrix()); region(part.body, M.B, 'rgba(0,160,255,0.12)'); region(part.head, M.BH, 'rgba(0,90,255,0.22)');
+  for (const [i, j, q] of blend) {
+    const x0 = xs[i], x1 = xs[i + 1], y0 = ys[j], y1 = ys[j + 1], cw = x1 - x0, ch = y1 - y0;
+    const D = q.map(([x, y]) => T.transformPoint({ x, y }));
+    // the affine closest to the cell's four corners: its axes from the mean of opposite edges, its centre from their mean
+    const ax = (D[1].x - D[0].x + D[2].x - D[3].x) / (2 * cw), ay = (D[1].y - D[0].y + D[2].y - D[3].y) / (2 * cw);
+    const bx = (D[3].x - D[0].x + D[2].x - D[1].x) / (2 * ch), by = (D[3].y - D[0].y + D[2].y - D[1].y) / (2 * ch);
+    const mx = (D[0].x + D[1].x + D[2].x + D[3].x) / 4, my = (D[0].y + D[1].y + D[2].y + D[3].y) / 4, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.beginPath(); growQuad(D, 1).forEach((p, k) => (k ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y))); g.closePath(); g.clip();
+    g.setTransform(ax, ay, bx, by, mx - ax * cx - bx * cy, my - ay * cx - by * cy);
+    const sx = Math.max(0, x0 - 3), sy = Math.max(0, y0 - 3), sw = Math.min(iw, x1 + 3) - sx, sh = Math.min(ih, y1 + 3) - sy;
+    g.drawImage(im, sx, sy, sw, sh, sx, sy, sw, sh);
+    if (RIG_DEBUG) { g.fillStyle = `rgba(255,${Math.round(255 * q[0][2])},0,0.3)`; g.fillRect(x0, y0, cw, ch); }
+    g.restore();
+  }
+  return { head: T.multiply(M.BH), body: T.multiply(M.B) };
+}
 function drawStanding(g, st) {
   const v = STAND[st.variant], F = st.frame, s = F.s, ox = F.ox + v.off[0] * s, oy = F.oy + v.off[1] * s;
   g.save();
   g.setTransform(...camXf(st.cam, 1));
   const bx = ox + STAND.pivotX * s, by = H + 30;
-  // a small bow seen from the front: the figure dips (squashes about the feet) with the eyes shut
-  g.translate(bx, by); g.rotate(st.sway * D2R); g.scale(1, (1 + 0.004 * st.breath) * (1 - 0.03 * (st.bow || 0))); g.translate(-bx, -by);
+  g.translate(bx, by); g.rotate(st.sway * D2R); g.translate(-bx, -by);      // the whole figure sways a little on his feet
   g.translate(ox, oy); g.scale(s, s);
-  g.drawImage(img[st.variant], 0, 0);
-  drawBadge(g, v.card, st.badge ?? 1);
+  // he bows from the waist and nods from the neck (the legs stay planted); the card is on his chest, the mouth and lids on his face
+  const X = drawRigged(g, img[st.variant], rigShift(RIG.stand, -v.off[0], -v.off[1]), st.rig);
+  g.setTransform(X.body); drawBadge(g, v.card, st.badge ?? 1);
+  g.setTransform(X.head);
   if (st.variant === 'neutral' && st.open) g.drawImage(img.talkMouth, STAND.talkMouth[0], STAND.talkMouth[1]);
   eyelids(g, v.eyes, v.skin, st.blink);
   g.restore();
 }
 // a keyed citizen picture at scale s with its top-left at (x, y), under the camera (k = parallax). A bow or a sigh is a dip
 // about a point below the frame (his feet or the bench); eyelids close over the measured eyes. Returns the picture → frame transform.
-function drawCz(g, im, st, x, y, s, eyes, skin, k = 1) {
+function drawCz(g, im, st, x, y, s, eyes, skin, k = 1, rig = null) {
   g.save();
   g.setTransform(...camXf(st.cam, k));
   const bx = x + im.width * s / 2, by = H + 60;
+  // the whole bust breathes, sways and sinks a little (a bow, a sigh); with a rig the head also nods and turns on its neck
   g.translate(bx, by); g.rotate((st.sway || 0) * D2R);
-  g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - 0.03 * (st.bow || 0)) * (1 - 0.012 * (st.sigh || 0))); g.translate(-bx, -by);
+  g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - (rig ? 0.012 : 0.03) * (st.bow || 0)) * (1 - 0.012 * (st.sigh || 0))); g.translate(-bx, -by);
   g.translate(x, y); g.scale(s, s);
-  g.drawImage(im, 0, 0);
+  const X = rig ? drawRigged(g, im, rig, st.rig) : (g.drawImage(im, 0, 0), { head: g.getTransform() });
+  g.setTransform(X.head);
   if (eyes && st.blink) eyelids(g, eyes, skin, st.blink);
-  const m = g.getTransform();
   g.restore();
-  return m;
 }
 // a full figure stood on a plate: feet at frame point foot (under the camera), h = its height on the frame. A nod is a small
 // dip about the feet (as the other figures' bows); lids close over the measured eyes; the official's card gets its lettering.
@@ -628,12 +796,35 @@ function drawFigure(g, cam, im, D, foot, h, st) {
   g.save(); g.translate(foot[0], foot[1]); g.scale(1, 0.2); g.beginPath(); g.arc(0, 0, h * 0.17, 0, Math.PI * 2);
   const sg = g.createRadialGradient(0, 0, 0, 0, 0, h * 0.17); sg.addColorStop(0, 'rgba(48,30,48,0.3)'); sg.addColorStop(1, 'rgba(48,30,48,0)');
   g.fillStyle = sg; g.fill(); g.restore();
-  g.translate(foot[0], foot[1]); g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - 0.022 * (st.bow || 0))); g.scale(s, s);
+  g.translate(foot[0], foot[1]); g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - 0.006 * (st.bow || 0))); g.scale(s, s);
   g.translate(-D.feet[0], -D.feet[1]);
-  g.drawImage(im, 0, 0);
+  const X = drawRigged(g, im, RIG[D.rig], st.rig);                       // the nod is in the neck, not the whole figure
   if (D.card) drawBadge(g, D.card);
+  g.setTransform(X.head);
   if (st.blink) eyelids(g, D.eyes, D.skin, st.blink);
   g.restore();
+}
+// CUT 7: where they stand (feet in frame px) and how tall they are drawn. He on the right (by the gate), the citizen on the left:
+// the screen sides of the whole consultation. A standard figure's height at a depth is 1.25 * (feet y - horizon) in picture
+// pixels; he is drawn a little taller than the older man
+const C7 = { off: [pic(1100, 716), 1.25 * (716 - 480) * PL.k * 1.04], cz: [pic(945, 722), 1.25 * (722 - 480) * PL.k * 0.98] };
+// their shadows: the sun is low on the left, over the sea, so — like the plate's railings and pots — they throw long shadows
+// along the ground to the right and a little toward us. The silhouette is sheared onto the ground (up the figure → right and
+// slightly down), filled with the plate's shadow tint, softened, fading with distance, and multiplied over the ground
+const SHADOW_DIR = [0.9, 0.14], SHADOW_TINT = 'rgb(206,190,226)';
+function castShadow(g, cam, im, D, foot, h) {
+  const s = h / D.h, c = shadowBuf.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.filter = 'none'; c.clearRect(0, 0, W, H);
+  c.setTransform(...camXf(cam, 1));
+  c.transform(1, 0, -SHADOW_DIR[0], -SHADOW_DIR[1], foot[0], foot[1]);
+  c.scale(s, s); c.translate(-D.feet[0], -D.feet[1]);
+  c.drawImage(im, 0, 0);
+  c.globalCompositeOperation = 'source-in'; c.fillStyle = SHADOW_TINT; c.fillRect(-200, -200, im.width + 400, im.height + 400);
+  const fade = c.createLinearGradient(0, D.feet[1], 0, D.feet[1] - D.h);
+  fade.addColorStop(0, 'rgba(0,0,0,0.92)'); fade.addColorStop(1, 'rgba(0,0,0,0.3)');
+  c.globalCompositeOperation = 'destination-in'; c.fillStyle = fade; c.fillRect(-200, -200, im.width + 400, im.height + 400);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'multiply'; g.filter = `blur(${(2.5 * cam.s).toFixed(1)}px)`;
+  g.drawImage(shadowBuf, 0, 0); g.restore();
 }
 // people at sunset (the closing two-shot): the background stays warm, the faces only take a light grade of their own — one
 // very light warm multiply (black hair and shirts stay black), a touch less saturation, no darkening and no sun glow (a screen
@@ -733,12 +924,12 @@ function drawShot(g, c, sh, u) {
     // the yard wall, enlarged about a point high on it: the plate's own 평상 drops below the frame, so only his bench is seen
     drawBg(g, img.bgWall, st.cam, 0.4, 1.3, 860, 300);
     bokeh(g, st.sec);
-    drawCz(g, img.czSeated, st, 190, 1080 - 880 * 0.95, 0.95);          // framed from the head to the shins
+    drawCz(g, img.czSeated, st, 190, 1080 - 880 * 0.95, 0.95, null, null, 1, RIG.seated);          // framed from the head to the shins
   } else if (k === 'czTalk') {
     const st = stCzTalk(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin);
+    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin, 1, RIG.side);
     // nearer than him, out of focus: the official's head and shoulder from behind, turned toward him (a consultation, two people)
     g.save(); g.setTransform(...camXf(st.cam, 1.3)); g.filter = 'brightness(0.86)';
     g.drawImage(img.officialOts, 1272, 300, img.officialOts.width * 1.5, img.officialOts.height * 1.5);
@@ -748,7 +939,7 @@ function drawShot(g, c, sh, u) {
     const st = stCzTalk2(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin);
+    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin, 1, RIG.side);
     g.save(); g.setTransform(...camXf(st.cam, 1.3)); g.filter = 'brightness(0.86)';
     g.drawImage(img.officialOts, 1272, 300, img.officialOts.width * 1.5, img.officialOts.height * 1.5);
     g.restore();
@@ -771,14 +962,14 @@ function drawShot(g, c, sh, u) {
     const st = stCzNod(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, img.cz34, st, 11, 124, 1.2, CZ.q34.eyes, CZ.q34.skin);
+    drawCz(g, img.cz34, st, 11, 124, 1.2, CZ.q34.eyes, CZ.q34.skin, 1, RIG.q34);
   } else if (k === 'relief') {
     const st = stRelief(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
     const x = 11, y = 124;
-    if (st.smile < 1) drawCz(g, st.open ? img.cz34Talk : img.cz34, st, x, y, 1.2, CZ.q34.eyes, CZ.q34.skin);
-    if (st.smile > 0) { g.save(); g.globalAlpha = st.smile; drawCz(g, img.cz34Smile, st, x + CZ.q34.smileOff[0] * 1.2, y + CZ.q34.smileOff[1] * 1.2, 1.2); g.restore(); }
+    if (st.smile < 1) drawCz(g, st.open ? img.cz34Talk : img.cz34, st, x, y, 1.2, CZ.q34.eyes, CZ.q34.skin, 1, RIG.q34);
+    if (st.smile > 0) { g.save(); g.globalAlpha = st.smile; drawCz(g, img.cz34Smile, st, x + CZ.q34.smileOff[0] * 1.2, y + CZ.q34.smileOff[1] * 1.2, 1.2, null, null, 1, rigShift(RIG.q34, -CZ.q34.smileOff[0], -CZ.q34.smileOff[1])); g.restore(); }
     if (st.sub > 0) sub = { text: '고마워요, 마음이 좀 놓이네요.', a: st.sub };
   } else if (k === 'climbFollow') {
     const st = stClimbFollow(sh, u);
@@ -792,11 +983,11 @@ function drawShot(g, c, sh, u) {
   } else if (k === 'closing') {
     const st = stClosing(sh, u);
     drawBg(g, img.gateDusk, st.cam, 1);
-    // he on the right (by the gate), the citizen on the left: the screen sides of the whole consultation. A standard figure's
-    // height at a depth is 1.25 * (feet y - horizon) in picture pixels; he is drawn a little taller than the older man
+    castShadow(g, st.cam, img.offSide, FULL.off, ...C7.off);
+    castShadow(g, st.cam, img.cz34Full, FULL.cz, ...C7.cz);
     drawLit(g, (c) => {
-      drawFigure(c, st.cam, img.offSide, FULL.off, pic(1100, 716), 1.25 * (716 - 480) * PL.k * 1.04, st.off);
-      drawFigure(c, st.cam, img.cz34Full, FULL.cz, pic(945, 722), 1.25 * (722 - 480) * PL.k * 0.98, st.cz);
+      drawFigure(c, st.cam, img.offSide, FULL.off, ...C7.off, st.off);
+      drawFigure(c, st.cam, img.cz34Full, FULL.cz, ...C7.cz, st.cz);
     });
   } else if (k === 'end') {
     // the closing shot's last frame, softly blurred and dimmed; over it the message, alone for 1.5 s, then the sign-off (CI
@@ -905,10 +1096,11 @@ const COMMON = '첨부한 캐릭터 시트(턴어라운드·표정)와 같은 �
 const CZNOTE = '첨부한 어르신 시트(턴어라운드·표정·자세)와 같은 인물, 같은 그림체로 그려 주세요. 짧은 머리(옆머리 회색), 눈가 주름과 볼터치, 올리브색 맨투맨(회색 목둘레), 검정 바지, 회색 슬리퍼. 배경 없이 투명 PNG, 인물이 잘리지 않게.';
 // [title, what, text, noPrompt] — every picture the cuts need has arrived; these would replace movements now faked in code
 const REQS = [
+  ['CUT 7 · 상담을 마치며', '있으면 가장 좋음 · 두 사람 1장', `지금은 두 사람을 턴어라운드 시트에서 잘라 쓰고, 노을빛(해 쪽 가장자리 빛, 반대쪽 그늘, 오른쪽으로 드리운 그림자)은 코드로 입혔어요. 앞 장면들과 같은 그림체로 그린 한 장이 있으면 이 장면이 가장 크게 좋아집니다.\n\n주인공 시트, 어르신 시트, 보내 주신 노을 대문 그림을 함께 첨부하고: 노을 진 대문 앞에 두 사람이 마주 서서 웃는 순간. 왼쪽에 어르신(3/4, 오른쪽을 봄), 오른쪽에 주인공(옆모습, 왼쪽을 봄). 해는 왼쪽 바다 쪽에 낮게 있어 두 사람의 왼쪽 가장자리가 주황빛으로 빛나고, 얼굴은 밝게(어둡지 않게). 앞 장면들(대문 앞·평상)과 같은 선 굵기와 채색. 두 사람만, 배경 없이 투명 PNG, 발끝까지 잘리지 않게.`],
   ['CUT 1 · 바닷가 마을로 들어서다', '있으면 더 좋음 · 인물 1장', `지금은 오른발을 든 두 장을 번갈아 써서 계단을 오릅니다. 왼발이 위 칸에 오른 뒷모습 한 장이 있으면 걸음이 번갈아 나옵니다.\n\n${COMMON}\n계단을 오르는 3/4 뒷모습 한 장. 왼발이 위 칸, 오른발이 아래 칸. 가방과 태블릿은 보내 주신 두 장과 같은 쪽.`],
   ['CUT 4 · 평상에 마주 앉다', '있으면 더 좋음 · 두 사람 1장', `지금은 평상에 앉은 어르신만 보여요.\n\n주인공 시트와 어르신 시트를 함께 첨부하고: 평상에 비스듬히 마주 앉은 두 사람. 주인공은 무릎 위에 태블릿을 들고 어르신 쪽으로 몸을 조금 기울임. 두 사람과 평상만, 배경 없이 투명 PNG.`],
   ['CUT 5 · 이야기를 듣다', '있으면 더 좋음 · 인물 2장', `지금은 서 있는 ‘귀 기울임’ 얼굴을 가까이 잡아 썼어요.\n\n${COMMON}\n평상에 앉아 왼쪽을 보며 듣는 주인공 3/4 두 장: 기본 / 고개를 끄덕인 순간.`],
-  ['CUT 3 · 문이 열린다', '있으면 더 좋음 · 인물 2장', `${CZNOTE}\n대문을 반쯤 열고 선 어르신 전신 한 장.\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 살짝 눌러 목례처럼 보이게 했어요).`],
+  ['CUT 3 · 문이 열린다', '있으면 더 좋음 · 인물 2장', `${CZNOTE}\n대문을 반쯤 열고 선 어르신 전신 한 장.\n\n${COMMON}\n허리를 15도쯤 숙여 목례하는 정면 자세 한 장(지금은 서 있는 그림을 허리와 목에서 조금 굽혀 목례처럼 보이게 했어요).`],
   ['CUT 2 · 문 앞에서', '있으면 더 좋음 · 배경 1장 + 인물 2장', `지금은 마당 안에서 본 대문에 노크 소리만 넣었어요. 대문 밖에서 명찰을 고르고 노크하는 장면이 있으면 그 앞에 붙입니다. 배경은 보내 주신 노을 대문 그림을 낮 시간으로 바꿔 써도 됩니다.\n\n${COMMON}\n대문을 마주 보고 선 3/4 뒷모습 두 장: 명찰을 매만지는 순간 / 오른손으로 문을 두드리는 순간.`],
 ];
 const reqsEl = document.getElementById('reqs');
@@ -977,7 +1169,7 @@ subsIn.addEventListener('change', () => { subsOn = subsIn.checked; if (!playing)
   try {
     await Promise.all(Object.entries(SRC).map(([k, v]) => load(k, v)));
   } catch (e) {
-    statusEl.textContent = '그림 파일(assets_v2~assets_v8 폴더)을 불러오지 못했습니다. 페이지와 같은 위치에 이 폴더들이 있는지 확인해 주세요. 같은 장면의 MP4도 함께 드렸습니다.';
+    statusEl.textContent = '그림 파일(assets_v2~assets_v11 폴더)을 불러오지 못했습니다. 페이지와 같은 위치에 이 폴더들이 있는지 확인해 주세요. 같은 장면의 MP4도 함께 드렸습니다.';
     return;
   }
   try {
