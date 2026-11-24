@@ -1,10 +1,10 @@
-"""Original soundtrack for the 33-second animatic (animatic_33s.html): music, sound effects and ambience, all synthesized in
+"""Original soundtrack for the 34-second animatic (animatic_34s.html): music, sound effects and ambience, all synthesized in
 this file from sine waves and noise. No samples, no third-party audio, nothing to license. There are no voices: the lines
 stay as subtitles, and README.md has a timing sheet for recording them.
 
-usage: python3 tools/sound_33s.py OUT.f32 [CUES.json]
-  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 33.0 s; mastered with a fixed +3.45 dB and a limiter, then
-             encoded with ffmpeg (see README), so the effects keep their level whatever the music's
+usage: python3 tools/sound_34s.py OUT.f32 [CUES.json]
+  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 34.0 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
+             encoded with ffmpeg (see README); one gain for the whole mix keeps the music under the effects
   CUES.json  every sound event with its time, for checking against the picture
 
 Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the hinge creak with 끼익, taps on the
@@ -20,7 +20,7 @@ import json, sys
 import numpy as np
 
 SR = 48000
-DUR = 33.0
+DUR = 34.0
 N = int(round(SR * DUR))
 TAIL = 4 * SR
 rng = np.random.default_rng(20261123)          # fixed seed: every run writes the same file
@@ -478,7 +478,7 @@ def main(out_path, cues_path=None):
     send = music_dry.mean(axis=0) * 0.6
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
     music = to_rms(music, 18, 28, MUSIC_RMS)
-    music *= curve([(0, 1), (32.55, 1), (33.0, 0), (40, 0)])
+    music *= curve([(0, 1), (33.5, 1), (34.0, 0), (40, 0)])
     cue(0.25, "music: a strum and a little run")
     cue(4.25, "music: the band comes in (the gate opens)")
     cue(9.5, "music: soft fingerpicking (he tells his trouble)")
@@ -497,11 +497,10 @@ def main(out_path, cues_path=None):
             bell_b.add(plink(m, .4), t0 + 0.14 * j, pan=-0.35)
         cue(t0, "plinks: " + ("bars fill" if t0 < 20 else "links light"))
     bell_b.add(bell(86, .55, 3.0), 30.78)
-    bell_b.add(bell(81, .35, 2.5), 31.32)
     cue(30.78, "bell: end-card message")
-    cue(31.32, "bell: CI place and name")
+    # the sign-off (CI place, name, number) appears on the music's last downbeat (32.25 s): the band's final D and 'ding' mark it
     bell_x = to_peak(bell_b.x, -17)
-    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (32.35, 1), (33.0, 0), (40, 0)])
+    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (33.4, 1), (34.0, 0), (40, 0)])
 
     # ---------------------------------------------------------------- effects
     fx = Bus()
@@ -526,8 +525,8 @@ def main(out_path, cues_path=None):
     # ---------------------------------------------------------------- ambience
     n = N + TAIL
     amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (0.97, 1), (1.03, .4), (9.45, .4), (9.55, .3), (28.0, .3), (28.5, .65),
-                                                (30.5, .65), (32.6, 0), (40, 0)])
-    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (0.97, .8), (1.03, .5), (28.0, .5), (28.5, .6), (30.5, .6), (32.6, 0), (40, 0)])
+                                                (31.0, .65), (33.7, 0), (40, 0)])
+    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (0.97, .8), (1.03, .5), (28.0, .5), (28.5, .6), (31.0, .6), (33.7, 0), (40, 0)])
     air = Bus()
     for i, t0 in enumerate((0.12, 0.40)):                                    # CUT 1: gulls over the harbour, far off
         air.add(to_peak(ffilt(gull_call(40 + i), lp(3800, 2)), -27 - 2 * i), t0, pan=-0.45)
@@ -539,9 +538,9 @@ def main(out_path, cues_path=None):
         cue(t0, "sparrow")
     crick = Bus()
     for j, (f, period, pan) in enumerate(((4300, 0.52, -0.6), (4650, 0.47, 0.55), (4480, 0.6, 0.1))):
-        crick.add(cricket(28.0, 33.0, f, period, 60 + j), 28.0, pan=pan)
+        crick.add(cricket(28.0, 34.0, f, period, 60 + j), 28.0, pan=pan)
     cue(28.0, "crickets (evening)")
-    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (28.0, 0), (28.5, 1), (30.5, 1), (32.6, 0), (40, 0)])
+    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (28.0, 0), (28.5, 1), (31.0, 1), (33.7, 0), (40, 0)])
     air_x = air.x + crick_x
     air_x = air_x + 0.35 * conv(air_x.mean(axis=0), reverb_ir(1.5, 2.0, 0.03, 5000, 3))[:, :n]
     amb += air_x
