@@ -8,13 +8,16 @@ usage: python3 -I tools/v14_prep.py BENCH.webp FACE.webp BOW.webp OUT
   OUT/v14_bench_pair.png, OUT/v14_c7_face.png, OUT/v14_c7_bow.png
       the pictures as they are drawn, with their transparency cleaned: the generator left a faint dark haze round the figures
       (alpha 1-24, ~1-7% of the picture) and figures that are 1-4% see-through (alpha 246-254, lossy alpha). The haze is
-      cleared, the near-opaque made opaque, specks under 1500 px dropped; edges (alpha 25-245) are kept as drawn
+      cleared, the near-opaque made opaque, specks under 1500 px dropped; edges (alpha 25-245) are kept as drawn.
+      The two CUT 7 pictures are drawn small on screen (full figures), so their ink lines read about half as thick as the rest
+      of the film: their dark lines (luminance < 95: outlines, eyes, mouths; not the lighter wrinkle and fold strokes) are
+      thickened 2 px a side, worked at twice the size so the new edges stay soft
   OUT/v14_meta.json  sizes; eyes [x, y, w, h] and the skin round them (for blinks); the figures' feet and heights
 """
 import json, os, sys
 from collections import deque
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 BENCH, FACE, BOW, OUT = sys.argv[1:5]
 os.makedirs(OUT, exist_ok=True)
@@ -48,6 +51,25 @@ def clean(src, dst):
     return a
 
 
+def thicken(path, grow, Lmax=95):
+    """The picture's dark ink lines grown by `grow` px a side (at 2x: dilate the ink, fill the new ring with the darkest ink
+    colour round it, make it opaque; then back down to 1x, premultiplied)."""
+    img = Image.open(path).convert("RGBA")
+    w, h = img.size
+    a = np.asarray(img.resize((w * 2, h * 2), Image.LANCZOS)).astype(np.float32)
+    rgb, al = a[..., :3].copy(), a[..., 3].copy()
+    ink = (rgb @ np.array([0.299, 0.587, 0.114]) < Lmax) & (al > 100)
+    k = int(round(4 * grow)) | 1
+    ring = (np.asarray(Image.fromarray((ink * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(k))) > 0) & ~ink
+    src = rgb.copy(); src[~ink] = 255
+    mn = np.dstack([np.asarray(Image.fromarray(src[..., i].astype(np.uint8)).filter(ImageFilter.MinFilter(k))) for i in range(3)])
+    rgb[ring] = mn[ring]; al[ring] = 255
+    pre = Image.fromarray(np.clip(np.dstack([rgb * al[..., None] / 255, al]), 0, 255).astype(np.uint8), "RGBA").resize((w, h), Image.LANCZOS)
+    o = np.asarray(pre).astype(np.float32)
+    rgb2 = np.where(o[..., 3:4] > 0, o[..., :3] * 255 / np.maximum(o[..., 3:4], 1), 0)
+    Image.fromarray(np.clip(np.dstack([rgb2, o[..., 3]]) + 0.5, 0, 255).astype(np.uint8), "RGBA").save(path, optimize=True)
+
+
 def skin_round(a, ex, ey, h):
     r = int(h * 0.9) + 12
     yy, xx = np.mgrid[int(ey - r):int(ey + r), int(ex - r):int(ex + r)]
@@ -79,5 +101,8 @@ meta["bench"] = {"size": [int(b.shape[1]), int(b.shape[0])], "extent": extent(b,
 meta["c7"] = {"size": [int(f.shape[1]), int(f.shape[0])], "split_x": 620,
               "face": {"cz": extent(f, 0, 620), "off": extent(f, 620, f.shape[1])},
               "bow": {"cz": extent(w, 0, 620), "off": extent(w, 620, w.shape[1])}}
+for name in ("v14_c7_face.png", "v14_c7_bow.png"):
+    thicken(f"{OUT}/{name}", 2.0)
+meta["c7"]["lines_thickened_px"] = 2.0
 json.dump(meta, open(f"{OUT}/v14_meta.json", "w"), indent=1)
 print(json.dumps(meta))

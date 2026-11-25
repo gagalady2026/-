@@ -8,12 +8,12 @@ usage: python3 tools/sound_36s.py OUT.f32 [CUES.json]
   CUES.json  every sound event with its time, for checking against the picture
 
 Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the latch and the hinge creak as the gate's
-leaf swings open (끼익), taps on the tablet presses, chimes as the names 분납 상담 / 복지서비스 연계 appear, the evening ambience from 28.5 s, the
+leaf swings open (끼익, heard only), taps on the tablet presses, chimes as the names 분납 상담 / 복지서비스 연계 appear, the evening ambience from 28.5 s, the
 end-card bell with the message over the village.
 
 Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
 glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.75 s), sitting down (8.75 s), "같이 방법을
-찾아볼게요." (16.75 s), the sunset (28.75 s) and the sign-off (32.75 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
+찾아볼게요." (16.75 s), the sunset (28.75 s) and the last chord (32.75 s, under the end-card message; the sign-off follows a beat later) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
 fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset, ends with a "ding" as
 the sign-off appears and lets a last soft glockenspiel figure ring under it.
 The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
@@ -407,7 +407,7 @@ def wind(n):
 BPM = 120
 BEAT = 60 / BPM
 BAR0 = 0.75          # bars start at 0.75 + 2k s: the gate opening (4.75), sitting down (8.75), "같이 방법을 찾아봐요." (16.75), the
-                     # sunset (28.75) and the sign-off (32.75) all land on a downbeat
+                     # sunset (28.75) and the last chord (32.75) all land on a downbeat
 
 
 def at(bar, beat=0.0):
@@ -534,7 +534,7 @@ def main(out_path, cues_path=None):
     cue(16.75, "music: strums again, the shaker swells")
     cue(18.75, "music: full groove (the guidance)")
     cue(28.75, "music: the glockenspiel tune (sunset)")
-    cue(32.75, "music: the last D, a ding (the sign-off)")
+    cue(32.75, "music: the last D, a ding (under the end-card message; the sign-off comes in a beat later, 33.25)")
     cue(33.75, "music: a last soft glockenspiel figure, left to ring")
 
     # chimes (effects, not music: they keep their level): the ① / ② labels, the bars filling / links lighting, the end card
@@ -548,7 +548,7 @@ def main(out_path, cues_path=None):
         cue(t0, "plinks: " + ("bars fill" if t0 < 20.5 else "links light"))
     bell_b.add(bell(86, .55, 3.0), 31.28)
     cue(31.28, "bell: end-card message over the village")
-    # the sign-off (logo, name, number) appears on the music's last downbeat (32.75 s): the band's final D and 'ding' mark it
+    # the music's last downbeat (32.75 s) lands under the message alone; the sign-off (symbol, name, number) follows at 33.25
     bell_x = to_peak(bell_b.x, -17)
     bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (35.4, 1), (36.0, 0), (40, 0)])
 
@@ -564,7 +564,7 @@ def main(out_path, cues_path=None):
     fx.add(to_peak(dense(latch(), 1.2), -19), 3.62, pan=0.3)                # the gate's sounds ~2.5 dB further forward
     cue(3.62, "latch")
     fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.70, pan=0.32)             # the leaf starts to swing at 3.70 (fastest at
-    cue(3.70, "hinge creak (the leaf swings open)")                         #   first, open by 4.6), 끼익 on screen at 3.75
+    cue(3.70, "hinge creak (the leaf swings open)")                         #   first, open by 4.6); 끼익 is heard, not written
     fx.add(to_peak(whoosh(), -25.5), 3.82, pan=0.1)
     cue(3.82, "air, gate open")
     for i, t0 in enumerate((18.73, 19.09, 22.73, 23.09)):                    # CUT 6: the two presses on each panel
