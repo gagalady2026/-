@@ -1,11 +1,8 @@
-"""Two faces for the citizen's line of feeling (assets_v13).
+"""The citizen's open-eyed smile and the official's pointing arm as a layer (assets_v13).
 
 usage: python3 tools/v13_prep.py WEB OUT
-  WEB  the folder holding assets_v7/v7_cz_seated.png, assets_v10/v10_cz_34_neutral.png and assets_v4/v4_cz_34_smile.png
+  WEB  the folder holding assets_v10/v10_cz_34_neutral.png, assets_v4/v4_cz_34_smile.png and the seated pair (assets_v4)
   writes
-  OUT/v13_cz_seated_careful.png  CUT 4: the seated citizen with a careful, unsmiling mouth (he is about to tell a hard thing).
-                                 His smile is filled with the skin round it (diffused inward) and a short, almost straight
-                                 line is drawn in the mouth's own colour and weight; the rest of the picture is unchanged
   OUT/v13_cz_34_smile_open.png   CUT 6 end: his 3/4 face with his eyes open and a gentle closed smile: the halo-free neutral
                                  face with the smiling picture's mouth (aligned: that picture sits 3 px lower) blended in over a
                                  feathered oval. Between the words of “고마워요, 마음이 좀 놓이네요.” he keeps smiling instead of
@@ -41,35 +38,6 @@ def diffuse_fill(rgb, hole, iters=500):
         F[hole] = avg[hole]
     return F
 
-
-# ---------------------------------------------------------------- CUT 4: the seated citizen, careful
-im = np.asarray(Image.open(f"{WEB}/assets_v7/v7_cz_seated.png").convert("RGBA")).astype(np.float32)
-X0, Y0, X1, Y1 = 470, 252, 564, 304                       # the smile curve (x 487-546, y 272-285) with room round it
-win = im[Y0:Y1, X0:X1]
-r, g, b = win[..., 0], win[..., 1], win[..., 2]
-line = (r - g > 40) & (r < 230) & (win[..., 3] > 200)    # the mouth's ink (reddish brown), not the skin
-line[:, :486 - X0] = False                               # only the mouth (x 488-545): not the folds of his
-line[:, 548 - X0:] = False                               # cheeks either side (x 470-475, 552-563)
-# the ink and the light halo the 3x upscale left round it: filled from clean skin beyond the halo
-hole = np.asarray(Image.fromarray((line * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(11))) > 0
-ink = np.median(win[line][:, :3], axis=0)
-core = np.percentile(win[line][:, :3], 15, axis=0)       # the darker middle of the stroke
-win[..., :3] = diffuse_fill(win[..., :3], hole)
-# a short mouth, a touch lower at the corners (careful, not sad): drawn 4x and scaled down for a soft edge
-K = 4
-lay = Image.new("RGBA", ((X1 - X0) * K, (Y1 - Y0) * K), (0, 0, 0, 0))
-d = ImageDraw.Draw(lay)
-cx, cy, half = 516.5 - X0, 279.5 - Y0, 17.0
-pts = [((cx - half + 2 * half * t) * K, (cy + 1.6 * (2 * t - 1) ** 2) * K) for t in np.linspace(0, 1, 24)]
-d.line(pts, fill=tuple(int(v) for v in core) + (255,), width=int(4.2 * K), joint="curve")
-for p in (pts[0], pts[-1]):                                  # round ends
-    d.ellipse([p[0] - 2.1 * K, p[1] - 2.1 * K, p[0] + 2.1 * K, p[1] + 2.1 * K], fill=tuple(int(v) for v in core) + (255,))
-lay = np.asarray(lay.resize((X1 - X0, Y1 - Y0), Image.LANCZOS)).astype(np.float32)
-a = lay[..., 3:4] / 255
-win[..., :3] = win[..., :3] * (1 - a) + lay[..., :3] * a
-im[Y0:Y1, X0:X1] = win
-Image.fromarray(np.clip(im, 0, 255).astype(np.uint8), "RGBA").save(f"{OUT}/v13_cz_seated_careful.png", optimize=True)
-meta["cz_seated_careful"] = {"mouth_centre": [516.5, 279.5], "mouth_half_width": half, "ink": [int(v) for v in ink], "core": [int(v) for v in core]}
 
 # ---------------------------------------------------------------- CUT 6 end: eyes open, a gentle closed smile
 neu = np.asarray(Image.open(f"{WEB}/assets_v10/v10_cz_34_neutral.png").convert("RGBA")).astype(np.float32)

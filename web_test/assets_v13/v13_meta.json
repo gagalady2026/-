@@ -1,21 +1,4 @@
 {
- "cz_seated_careful": {
-  "mouth_centre": [
-   516.5,
-   279.5
-  ],
-  "mouth_half_width": 17.0,
-  "ink": [
-   195,
-   130,
-   97
-  ],
-  "core": [
-   170,
-   103,
-   69
-  ]
- },
  "cz_34_smile_open": {
   "mouth_oval": [
    736,
