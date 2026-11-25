@@ -100,7 +100,7 @@ body.capture .stage .status { display: none; }
 
 <main class="wrap">
   <header>
-    <p class="eyebrow">동해시 지방세입 체납관리단 · 홍보 애니메이션 「똑똑, 괜찮으세요?」 · 30초 대본을 36초로 늘린 애니매틱</p>
+    <p class="eyebrow">동해시 지방세입 체납관리단 · 홍보 애니메이션 「똑똑, 괜찮으세요?」 · 30초 대본을 36초로 늘린 애니매틱(검토용 시안)</p>
     <h1><span class="accent">36초</span> 애니매틱 · 8컷</h1>
     <p class="lead">원래 8컷 30초 대본의 순서는 그대로 두고, 납세자(어르신)와의 대화에 시간을 썼습니다. 남기고 싶은 메시지는 하나입니다: 체납 사실을 확인하는 데서 그치지 않고, 시민의 사정을 듣고 해결 방법을 함께 찾습니다.</p>
     <ul class="lead">
@@ -116,7 +116,7 @@ body.capture .stage .status { display: none; }
       <li>목소리 없이 자막으로 보는 영상입니다. 첫 대사 “계세요? 동해시청에서 나왔어요.”는 두 번째 노크 직후부터 ‘끼익’까지 1.8초 동안 보입니다.</li>
       <li>주인공 목걸이 명찰에 ‘동해시 / 체납관리단’이 보입니다(영상 끝의 기관명과 같은 이름).</li>
     </ul>
-    <p class="lead">여덟 컷 모두 보내주신 GPT 그림을 코드로 움직입니다. 엔드 카드에는 지금 로고를 넣지 않았습니다: 깃발 판매처 그림에서 오렸던 임시 로고는 뺐고, 그 자리를 대신 채우는 그림도 없습니다. 시청에서 공식 CI 파일(PNG 권장, 흰 바탕 또는 투명 바탕)을 받아 <code>assets_ci/donghae_ci.png</code>로 넣기만 하면, 기관명 바로 위에 흰 판과 함께 들어가고 기관명과 문의번호는 그대로 그 아래에 남습니다(파일을 다시 그리거나 색을 바꾸지 않음).</p>
+    <p class="lead">여덟 컷 모두 보내주신 GPT 그림을 코드로 움직입니다. 엔드 카드의 동해시 로고는 받으신 공식 CI 파일을 그대로 썼습니다: 둘레의 흰 여백만 잘라 <code>assets_ci/donghae_ci.png</code>로 넣었고, 다시 그리거나 색을 바꾸지 않았습니다. 기관명 바로 위 흰 판에 놓입니다. 깃발 판매처 그림에서 오렸던 임시 로고는 지웠습니다. 시청에서 더 큰 원본(PNG, 또는 PNG로 바꾼 AI)을 받으면 같은 이름으로 바꾸기만 하면 같은 자리에 맞춰 들어갑니다.</p>
   </header>
 
   <figure class="stage" id="stage">
@@ -142,7 +142,7 @@ body.capture .stage .status { display: none; }
   <h2>문구와 대사</h2>
   <dl class="copy">
     <dt>엔드 카드 · 메시지 (설계안)</dt><dd>체납 뒤에 사람이 있습니다.</dd>
-    <dt>엔드 카드 · 기관 (설계안)</dt><dd>동해시 지방세입 체납관리단 · 문의 033-530-2064 (공식 CI 파일을 넣으면 그 위에 동해시 로고)</dd>
+    <dt>엔드 카드 · 기관 (설계안)</dt><dd>동해시 공식 CI · 동해시 지방세입 체납관리단 · 문의 033-530-2064</dd>
     <dt>내레이션 · 엔드 카드 (설계안)</dt><dd>“동해시 체납관리단입니다.” 전화번호는 읽지 않고 화면에만 둡니다.</dd>
     <dt>CUT 2 · 대문 밖에서 (제안)</dt><dd>“계세요? 동해시청에서 나왔어요.”</dd>
     <dt>CUT 3 · 문이 열리고 (제안)</dt><dd>“요즘은 좀 어떠세요?”</dd>
@@ -216,7 +216,7 @@ const CUTS = [
   { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 무거운 얼굴로 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕인 뒤 “많이 힘드셨겠어요.” → 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아볼게요.”(+1초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'nod', sec: 2.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
   { n: 6, src: 'gpt', title: '분납 상담과 복지서비스 연계', act: '① “나눠서 내는 방법도 상담해 드릴게요.” 태블릿의 분납 상담 칸을 손가락으로 짚고, 왼쪽 위에 ‘분납 상담’ → 어르신이 고개를 끄덕이며 알아들음 → ② “필요하시면 복지서비스도 연계해 드릴게요.” 복지서비스 연계 칸, 왼쪽 위에 ‘복지서비스 연계’ → 어르신이 눈을 감고 안도의 미소, 눈을 뜬 편안한 미소로 “고마워요, 마음이 좀 놓이네요.”', shots: [{ kind: 'tablet1', sec: 3.0 }, { kind: 'czNod', sec: 1.0 }, { kind: 'tablet2', sec: 3.0 }, { kind: 'relief', sec: 3.0 }] },
   { n: 7, src: 'gpt', title: '상담을 마치며', act: '28.5초부터 노을: 대문 앞에서 주인공이 정중하게 작은 목례, 어르신은 끄덕이며 배웅(1.5초) → 두 사람은 그대로, 카메라만 천천히 조금 물러남(1초)', shots: [{ kind: 'closing', sec: 2.5 }] },
-  { n: 8, src: 'gpt', title: '집집마다 불이 켜진다 · 엔드 카드', act: '노을 진 묵호 마을 전경으로 넘어가 해가 지고, 가로등에 이어 창문 불빛이 언덕 위로 하나씩 켜짐. “체납 뒤에 사람이 있습니다.”가 먼저 떠오르고, 음악의 마지막 박(32.75초)에 동해시 지방세입 체납관리단 · 문의 033-530-2064가 함께 떠올라 끝까지(약 2.8초). 공식 CI 파일을 넣으면 기관명 위에 로고', shots: [{ kind: 'end', sec: 5.0 }] },
+  { n: 8, src: 'gpt', title: '집집마다 불이 켜진다 · 엔드 카드', act: '노을 진 묵호 마을 전경으로 넘어가 해가 지고, 가로등에 이어 창문 불빛이 언덕 위로 하나씩 켜짐. “체납 뒤에 사람이 있습니다.”가 먼저 떠오르고, 음악의 마지막 박(32.75초)에 동해시 공식 CI · 동해시 지방세입 체납관리단 · 문의 033-530-2064가 함께 떠올라 끝까지(약 2.8초)', shots: [{ kind: 'end', sec: 5.0 }] },
 ];
 let acc = 0;
 for (const c of CUTS) {
@@ -249,8 +249,8 @@ const SRC = {
 const LIGHTS = [['light_00', 92, 776], ['light_01', 76, 708], ['light_02', 140, 451], ['light_03', 137, 538], ['light_04', 741, 487], ['light_05', 149, 417],
   ['light_06', 707, 361], ['light_07', 716, 363], ['light_08', 336, 274], ['light_09', 660, 342], ['light_10', 857, 264], ['light_11', 0, 6]];
 LIGHTS.forEach(([f]) => { SRC[f] = `assets_v5/v5_${f}.png`; });
-// the official Donghae City CI, when the city's file is put here (any lock-up, PNG on white or transparent): the end card draws
-// it in its place above the team's name. Until then nothing stands in for it (no stand-in logo is ever shown)
+// the official Donghae City CI: the city's own file as the user gave it, only its white margin cropped (assets_ci/README.md);
+// any lock-up, PNG on white or transparent. The end card draws it above the team's name; without the file nothing stands in
 const CI_FILE = 'assets_ci/donghae_ci.png';
 // the 1672x941 pictures are drawn as 2035x1144 plates centred on the frame: a picture point p lands at p * 1.217 - (57.5, 32)
 const PL = { k: 2035 / 1672, x: (W - 2035) / 2, y: (H - 1144) / 2 };
@@ -1160,7 +1160,8 @@ function drawShot(g, c, sh, u) {
       bg2.addColorStop(0, 'rgba(22,12,36,0)'); bg2.addColorStop(1, 'rgba(22,12,36,0.66)');
       g.fillStyle = bg2; g.fillRect(0, top, W, H - top);
       if (ci) {                               // the official CI as the city made it (never redrawn or recoloured), on a white plate
-        const k2 = Math.min(380 / ci.width, 132 / ci.height), lw = ci.width * k2, lh = ci.height * k2, pad = 18;
+        // a vertical lock-up (the symbol over 동해시) up to 168 px tall, so the name in it reads; a horizontal one up to 380 wide
+        const k2 = Math.min(380 / ci.width, 168 / ci.height), lw = ci.width * k2, lh = ci.height * k2, pad = 18;
         const pw = lw + 2 * pad, ph = lh + 2 * pad, px = W / 2 - pw / 2, py = 858 - ph + rise;
         g.shadowColor = 'rgba(10,6,20,0.38)'; g.shadowBlur = 20; g.shadowOffsetY = 5;
         roundRect(g, px, py, pw, ph, 20); g.fillStyle = '#FFFFFF'; g.fill();
