@@ -7,8 +7,8 @@ usage: python3 tools/v12_gate.py WEB OUT
   OUT/v12_gate_leaf.png    the gate's right leaf (the one with the ring), cut out of the plate with the whole ring on it, for the
                            page to swing inward about its hinge (the right edge)
   OUT/v12_gate_open.jpg    the plate with what the swinging leaf uncovers: behind it, the alley in daylight (the stairs plate,
-                           softened and a little brighter) and the official standing at the gate, close behind it, so his face
-                           shows in the opening; on the left leaf, the sliver of the ring that overlapped the seam is painted
+                           softened and a little brighter) and the official standing at the gate, close behind it, so his whole
+                           face shows in the opening when the leaf stands open (~58°); on the left leaf, the sliver of the ring that overlapped the seam is painted
                            over with the leaf's own boards
   OUT/v12_meta.json        the leaf's box in the plate, its hinge, top and bottom (plate pixels)
 
@@ -72,7 +72,7 @@ behind.paste(outside, (bx0 + (bx1 - bx0) // 2 - bwid // 2, by0 - 20))
 off = Image.open(f"{WEB}/assets_v2/v2_st_neutral.png").convert("RGBA")
 k = 0.463                                                                          # a 1.7 m figure behind a 1.8 m gate
 offs = off.resize((int(off.width * k), int(off.height * k)), Image.LANCZOS).filter(ImageFilter.GaussianBlur(0.8))
-behind.alpha_composite(offs, (int(1396 - 543 * k), int(398 - 20 * k)))              # his face centred on the opening
+behind.alpha_composite(offs, (int(1446 - 543 * k), int(398 - 20 * k)))              # his whole face inside the opening (~58°)
 B = np.asarray(behind).astype(np.float32)
 leaf_area = mask > 0.5
 leaf_area[ry0:ry1, rx0:1363] = False                                               # (the ring's sliver over the left leaf stays boards)

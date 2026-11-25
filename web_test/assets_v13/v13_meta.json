@@ -1,0 +1,65 @@
+{
+ "cz_seated_careful": {
+  "mouth_centre": [
+   516.5,
+   279.5
+  ],
+  "mouth_half_width": 17.0,
+  "ink": [
+   195,
+   130,
+   97
+  ],
+  "core": [
+   170,
+   103,
+   69
+  ]
+ },
+ "cz_34_smile_open": {
+  "mouth_oval": [
+   736,
+   510,
+   72,
+   24
+  ],
+  "smile_offset": [
+   0,
+   3
+  ]
+ },
+ "sit_p1_arm": {
+  "at": [
+   365,
+   580
+  ],
+  "size": [
+   533,
+   379
+  ],
+  "pivot": [
+   844.0,
+   776.9
+  ],
+  "arm_px": 68007,
+  "mask_px_before": 62515,
+  "mask_px_after": 63824
+ },
+ "sit_p2_arm": {
+  "at": [
+   351,
+   773
+  ],
+  "size": [
+   537,
+   219
+  ],
+  "pivot": [
+   834.0,
+   786.2
+  ],
+  "arm_px": 63603,
+  "mask_px_before": 49816,
+  "mask_px_after": 52281
+ }
+}

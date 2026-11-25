@@ -8,12 +8,12 @@ usage: python3 tools/sound_36s.py OUT.f32 [CUES.json]
   CUES.json  every sound event with its time, for checking against the picture
 
 Timing follows the page's shot list (24 fps): knocks on the frames where 똑! appears, the latch and the hinge creak as the gate's
-leaf swings open (끼익), taps on the tablet presses, chimes as the ① / ② labels appear, the evening ambience from 28.5 s, the
+leaf swings open (끼익), taps on the tablet presses, chimes as the names 분납 상담 / 복지서비스 연계 appear, the evening ambience from 28.5 s, the
 end-card bell with the message over the village.
 
 Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
 glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.75 s), sitting down (8.75 s), "같이 방법을
-찾아봐요." (16.75 s), the sunset (28.75 s) and the sign-off (32.75 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
+찾아볼게요." (16.75 s), the sunset (28.75 s) and the sign-off (32.75 s) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
 fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset, ends with a "ding" as
 the sign-off appears and lets a last soft glockenspiel figure ring under it.
 The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
@@ -561,12 +561,12 @@ def main(out_path, cues_path=None):
         fx.add(to_peak(dense(knock(20 + i), 1.3), -7.0 + 0.5 * i), t0, pan=(0.22, 0.4)[i])   # the title's 똑똑: the loudest effect,
                                                                                                # fuller under the same peak (forward)
         cue(t0, "knock")
-    fx.add(to_peak(dense(latch(), 1.2), -19), 3.75, pan=0.3)                # the gate's sounds ~2.5 dB further forward
-    cue(3.75, "latch")
-    fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.85, pan=0.32)             # the leaf starts to swing at 3.85, 끼익 at 3.9
-    cue(3.85, "hinge creak (the leaf swings open)")
-    fx.add(to_peak(whoosh(), -25.5), 4.45, pan=0.1)
-    cue(4.45, "air, gate open")
+    fx.add(to_peak(dense(latch(), 1.2), -19), 3.62, pan=0.3)                # the gate's sounds ~2.5 dB further forward
+    cue(3.62, "latch")
+    fx.add(to_peak(dense(creak(), 1.0), -12.5), 3.70, pan=0.32)             # the leaf starts to swing at 3.70 (fastest at
+    cue(3.70, "hinge creak (the leaf swings open)")                         #   first, open by 4.6), 끼익 on screen at 3.75
+    fx.add(to_peak(whoosh(), -25.5), 3.82, pan=0.1)
+    cue(3.82, "air, gate open")
     for i, t0 in enumerate((18.73, 19.09, 22.73, 23.09)):                    # CUT 6: the two presses on each panel
         fx.add(to_peak(tap(30 + i), -21), t0, pan=-0.4)
         cue(t0, "tablet tap")
