@@ -1,12 +1,8 @@
-"""The citizen's open-eyed smile and the official's pointing arm as a layer (assets_v13).
+"""The official's pointing arm as a layer of its own (assets_v13).
 
 usage: python3 tools/v13_prep.py WEB OUT
-  WEB  the folder holding assets_v10/v10_cz_34_neutral.png, assets_v4/v4_cz_34_smile.png and the seated pair (assets_v4)
+  WEB  the folder holding the seated pair (assets_v4)
   writes
-  OUT/v13_cz_34_smile_open.png   CUT 6 end: his 3/4 face with his eyes open and a gentle closed smile: the halo-free neutral
-                                 face with the smiling picture's mouth (aligned: that picture sits 3 px lower) blended in over a
-                                 feathered oval. Between the words of “고마워요, 마음이 좀 놓이네요.” he keeps smiling instead of
-                                 dropping back to the neutral mouth, and he ends on it
   OUT/v13_sit_p1_still.png, OUT/v13_sit_p2_still.png
                                  CUT 6: the seated official with his pointing arm taken out and the place it covered filled
                                  with the colours round it (diffused inward), the rest of the picture unchanged
@@ -16,7 +12,7 @@ usage: python3 tools/v13_prep.py WEB OUT
   OUT/v13_sit_p1_panelmask.png, OUT/v13_sit_p2_panelmask.png
                                  the tablet-panel masks (v4) with the finger's notch filled: the screens are painted whole and
                                  the arm is drawn over them
-  OUT/v13_meta.json              where each mouth is; where each arm layer sits and the point it turns about
+  OUT/v13_meta.json              where each arm layer sits and the point it turns about
 """
 import json, os, sys
 from collections import deque
@@ -38,20 +34,6 @@ def diffuse_fill(rgb, hole, iters=500):
         F[hole] = avg[hole]
     return F
 
-
-# ---------------------------------------------------------------- CUT 6 end: eyes open, a gentle closed smile
-neu = np.asarray(Image.open(f"{WEB}/assets_v10/v10_cz_34_neutral.png").convert("RGBA")).astype(np.float32)
-smi = np.asarray(Image.open(f"{WEB}/assets_v4/v4_cz_34_smile.png").convert("RGBA")).astype(np.float32)
-H, W = neu.shape[:2]
-sm = np.zeros_like(neu)
-sm[3:, :] = smi[:H - 3, :W]                                # the smiling picture sits 3 px lower (CZ.q34.smileOff)
-mask = Image.new("L", (W, H), 0)
-ImageDraw.Draw(mask).ellipse([736 - 72, 510 - 24, 736 + 72, 510 + 24], fill=255)
-m = np.asarray(mask.filter(ImageFilter.GaussianBlur(5))).astype(np.float32)[..., None] / 255
-out = neu.copy()
-out[..., :3] = neu[..., :3] * (1 - m) + sm[..., :3] * m
-Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), "RGBA").save(f"{OUT}/v13_cz_34_smile_open.png", optimize=True)
-meta["cz_34_smile_open"] = {"mouth_oval": [736, 510, 72, 24], "smile_offset": [0, 3]}
 
 # ---------------------------------------------------------------- CUT 6: his pointing arm, a layer of its own
 # seed: a skin point in his fist; quad: the tablet panel his finger is on (picture px, TL TR BR BL, as SIT in the page); mask_at:

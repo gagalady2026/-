@@ -213,7 +213,7 @@ const CUTS = [
   { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! → 대문 밖에서 “계세요? 동해시청에서 나왔어요.” → (끼익 소리) 대문 오른쪽 문짝이 안쪽으로 크게(약 58°) 열리며 바깥 햇빛과 주인공이 보임', shots: [{ kind: 'gate', sec: 3.75 }] },
   { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “요즘은 좀 어떠세요?” → 귀 기울임 → 미소, 카메라가 다가감', shots: [{ kind: 'react', sec: 4.0 }] },
   { n: 4, src: 'gpt', title: '평상에 마주 앉아', act: '평상에 나란히 앉아 서로를 향한 두 사람(보내주신 새 그림): 태블릿 없이 주인공은 귀 기울이며 작게 끄덕이고, 어르신은 걱정스러운 얼굴로 시선을 내렸다가 말을 꺼내려 함', shots: [{ kind: 'bench', sec: 1.25 }] },
-  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 무거운 얼굴로 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕인 뒤 “많이 힘드셨겠어요.” → 주인공 쪽으로 돌아앉은 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아볼게요.”(+1초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'nod', sec: 2.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '어르신이 무거운 얼굴로 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕인 뒤 “많이 힘드셨겠어요.” → 주인공 쪽을 보는 3/4 얼굴로 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아볼게요.”(+1초)', shots: [{ kind: 'czTalk', sec: 2.5 }, { kind: 'nod', sec: 2.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
   { n: 6, src: 'gpt', title: '분납 상담과 복지서비스 연계', act: '① “나눠서 내는 방법도 상담해 드릴게요.” 태블릿의 분납 상담 칸을 손가락으로 짚고, 왼쪽 위에 ‘분납 상담’ → 어르신이 고개를 끄덕이며 알아들음 → ② “필요하시면 복지서비스도 연계해 드릴게요.” 복지서비스 연계 칸, 왼쪽 위에 ‘복지서비스 연계’ → 어르신이 눈을 감고 안도의 미소, 눈을 뜬 편안한 미소로 “고마워요, 마음이 좀 놓이네요.”', shots: [{ kind: 'tablet1', sec: 3.0 }, { kind: 'czNod', sec: 1.0 }, { kind: 'tablet2', sec: 3.0 }, { kind: 'relief', sec: 3.0 }] },
   { n: 7, src: 'gpt', title: '상담을 마치며', act: '28.5초부터 노을(보내주신 새 그림 두 장): 대문 앞에서 주인공이 살짝 몸을 숙였다가 태블릿을 든 채 정중하게 목례하고 다시 바로 섬, 어르신은 편안한 미소로 손을 들어 배웅(1.5초) → 두 사람은 그대로, 카메라만 천천히 조금 물러남(1초)', shots: [{ kind: 'closing', sec: 2.5 }] },
   { n: 8, src: 'gpt', title: '집집마다 불이 켜진다 · 엔드 카드', act: '노을 진 묵호 마을 전경으로 넘어가 해가 지고, 가로등에 이어 창문 불빛이 언덕 위로 하나씩 켜짐. “체납 뒤에 사람이 있습니다.”가 먼저 떠오르고, 메시지만 약 2초 → 33.25초에 메시지가 살짝 물러나며 동해시 심벌 · 동해시 지방세입 체납관리단 · 문의 033-530-2064가 함께 떠올라 끝까지(약 2.75초)', shots: [{ kind: 'end', sec: 5.0 }] },
@@ -234,12 +234,14 @@ const SRC = {
   p1: 'assets_v13/v13_sit_p1_still.png', p2: 'assets_v13/v13_sit_p2_still.png', p1c: 'assets_v4/v4_sit_p1_closed.png', p2c: 'assets_v4/v4_sit_p2_closed.png',
   p1m: 'assets_v13/v13_sit_p1_panelmask.png', p2m: 'assets_v13/v13_sit_p2_panelmask.png',
   p1arm: 'assets_v13/v13_sit_p1_arm.png', p2arm: 'assets_v13/v13_sit_p2_arm.png',
-  cz34: 'assets_v10/v10_cz_34_neutral.png', cz34Smile: 'assets_v4/v4_cz_34_smile.png', cz34Talk: 'assets_v10/v10_cz_34_talk.png',
+  // the citizen's 3/4 close-ups (the user's pictures, tools/v15_prep.py): listening, the arrears (shut / talking), the relieved
+  // smile (eyes closed), the smile (shut / talking); all one drawing's size and place
+  czAttentive: 'assets_v15/v15_cz_attentive.png', czHeavy: 'assets_v15/v15_cz_heavy.png', czHeavyTalk: 'assets_v15/v15_cz_heavy_talk.png',
+  czRelief: 'assets_v15/v15_cz_relief.png', czSmile: 'assets_v15/v15_cz_smile.png', czSmileTalk: 'assets_v15/v15_cz_smile_talk.png',
   czSideSad: 'assets_v7/v7_cz_side_sad.png', czSideSadTalk: 'assets_v7/v7_cz_side_sad_talk.png', officialOts: 'assets_v7/v7_official_ots.png',
   czBack: 'assets_v4/v4_cz_back_blur.png',
   stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
   gateDusk: 'assets_v5/v5_gate_dusk.jpg',
-  cz34SmileOpen: 'assets_v13/v13_cz_34_smile_open.png',                                 // tools/v13_prep.py
   // the user's pictures for CUT 4 (the bench) and CUT 7 (① face to face, ② the bow), transparency cleaned (tools/v14_prep.py)
   benchPair: 'assets_v14/v14_bench_pair.png', c7Face: 'assets_v14/v14_c7_face.png', c7Bow: 'assets_v14/v14_c7_bow.png',
   gateOpen: 'assets_v12/v12_gate_open.jpg', gateLeaf: 'assets_v12/v12_gate_leaf.png',   // CUT 2: the gate opens (tools/v12_gate.py)
@@ -287,7 +289,7 @@ const SIT = {
 // the citizen (assets_v4, keyed off the user's sheets and upscaled 3x): eyes for blinks, eyelid skin
 const CZ = {
   side: { eyes: [[422.7, 371.1, 29, 67]], skin: 'rgb(254,215,176)' },
-  q34: { eyes: [[667.4, 369.9, 32, 67], [815.3, 370.0, 28, 66]], skin: 'rgb(252,214,178)', smileOff: [0, 3] },   // halo-free (v10)
+  q15: { eyes: [[776.0, 533.0, 41, 93], [931.0, 494.5, 29, 82]], heavyEyes: [[770.5, 543.0, 50, 81], [929.5, 512.0, 38, 69]], skin: 'rgb(251,197,166)' },   // v15
 };
 // CUT 7 (the user's pictures, tools/v14_prep.py): ① at the gate at sunset, face to face; ② the same staging with the official
 // bowing and the citizen raising a hand to see him off. Drawn as one picture in its own staging (feet on one line, y 1239); each
@@ -302,6 +304,9 @@ const C7P = { size: [1254, 1254], feet: [616, 1239], h: 1169, split: 620, czFeet
 const B4 = { s: 0.94, x: (W - 1536 * 0.94) / 2, y: 1045 - 1019 * 0.94, split: 745, feet: [[99, 1435], 1019],
   cz: { eyes: [[553.5, 285.0, 18, 27], [625.0, 263.5, 17, 32]], skin: 'rgb(254,211,180)' },
   off: { eyes: [[893.5, 267.0, 14, 33], [963.0, 282.0, 17, 33]], skin: 'rgb(254,210,185)' } };
+// where the v15 close-ups sit (top left, scale): CUT 6 (the nod, the relief) and, a little wider and further left so the
+// official's shoulder shows on the right, CUT 5c. Their eyes land about where the earlier 3/4 face's did
+const Q15 = { x: 119, y: 57, s: 0.95, talk: { x: -8, y: 78, s: 0.9 } };
 // rigs (each in its picture's own pixels): the head turns about `neck`; above the chin line `line` (a polyline under the jaw)
 // it is rigid, below it its weight falls to 0 over `band` px, so the neck stretches and the collar stays where it is. hh: the
 // head's height above the pivot (how far a nod drops it). Standing, the upper body also bows about `waist`: rigid above wTop,
@@ -310,7 +315,9 @@ const RIG = {
   stand: { neck: [546, 352], line: [[300, 350], [800, 350]], band: 44, hh: 320, waist: [548, 690], wTop: 630, wBot: 720 },
   p1: { neck: [605, 487], line: [[380, 392], [470, 472], [950, 472]], band: 42, hh: 440 },     // the tablet's corner stays put
   p2: { neck: [608, 485], line: [[380, 402], [470, 470], [950, 470]], band: 42, hh: 440 },
-  q34: { neck: [690, 603], line: [[380, 523], [700, 603], [950, 603]], band: 40, hh: 570 },    // 3/4: the pivot under his chin
+  // 3/4 (v15): under the hair at the back, then level under his chin: his jaw slopes steeply up to his cheek with nothing
+  // below it, so a line following it put the jaw's ink in the bending band, where it broke into steps
+  q15: { neck: [600, 885], line: [[200, 790], [340, 805], [470, 800], [560, 832], [650, 866], [740, 877], [1100, 877]], band: 38, hh: 820 },
   side: { neck: [640, 592], line: [[400, 632], [545, 600], [720, 560], [900, 530]], band: 38, hh: 550 },   // profile, facing left
   // CUT 4 (v14): the jaw lines traced from the faces' lowest skin pixels, 2-3 px under them
   b4cz: { neck: [500, 405], line: [[380, 330], [420, 339], [440, 341], [460, 357], [480, 370], [500, 378], [520, 384], [560, 387], [580, 384], [600, 376], [620, 359], [645, 320], [700, 300]], band: 26, hh: 290 },   // 3/4, facing right
@@ -508,20 +515,20 @@ function stNod(c, u) {                  // CUT 5b: close on the official: he lis
 }
 function stCzTalk2(c, u) {              // CUT 5c: closer on him: “그러다 보니 세금도 밀렸네요…” — the arrears come up from him, not
   const st = base(c, u), e = smoother(u);  //   from the official. In CUT 5a he looked away to tell it; now he turns to the official
-  st.flip = true;                          //   (the profile mirrored, facing him), lifts his head, then lowers it and breathes out
-  st.cam = { s: 1.1 + 0.04 * e, fx: 1000, fy: 470, dx: 0, dy: 0 };
+  st.cam = { s: 1.04 + 0.04 * e, fx: 760, fy: 520, dx: 0, dy: 0 };   //   (his 3/4 face, v15), lifts his head, lowers it, breathes out
   const talking = (u > 0.06 && u < 0.38) || (u > 0.47 && u < 0.86);
   st.open = talking && Math.sin(2 * Math.PI * 3.4 * st.sec + 0.6) > 0.15;
-  st.blink = 0;                            // heavy-lidded and still, as in CUT 5a
+  st.blink = bump(u, 0.39, 0.46);            // one blink, in the pause between the two halves of the line
   st.sub = win(u, 0.03, 0.09) * (1 - win(u, 0.94, 0.99));
   st.sigh = win(u, 0.86, 0.98);             // the breath out: he sinks and stays down into the cut
-  st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 2.1); st.sway = 3 + 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec + 1);   // toward him
+  st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 2.1); st.sway = 1.2 + 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec + 1);   // toward him
   // lower than in CUT 5a, drifting slowly as he speaks; it drops further on the breath out
   const D = (c.nf - 1) / FPS;
   st.rig = rigOf((t) => {
     const v = t / D, env = win(v, 0.04, 0.1) * (1 - win(v, 0.34, 0.41)) + win(v, 0.45, 0.51) * (1 - win(v, 0.82, 0.89));
-    // (in the picture's own frame, so the mirror turns it the right way): up to him first, down through 세금도 밀렸네요, down on the breath
-    return { rot: -0.3 - 2.2 * win(v, 0.3, 0.62) - 2.4 * win(v, 0.86, 0.98) + 0.35 * env * Math.sin(2 * Math.PI * 0.6 * t + 1.1) };
+    // he faces right (down is clockwise): up to him first, down through 세금도 밀렸네요, further down on the breath out
+    const down = 2.0 * win(v, 0.3, 0.62) + 2.2 * win(v, 0.86, 0.98);
+    return { rot: -0.4 + down + 0.3 * env * Math.sin(2 * Math.PI * 0.6 * t + 1.1), dip: 0.6 * down };
   }, null, st.sec, D, 0);
   return st;
 }
@@ -929,7 +936,6 @@ function drawCz(g, im, st, x, y, s, eyes, skin, k = 1, rig = null) {
   g.translate(bx, by); g.rotate((st.sway || 0) * D2R);
   g.scale(1, (1 + 0.004 * (st.breath || 0)) * (1 - (rig ? 0.012 : 0.03) * (st.bow || 0)) * (1 - 0.012 * (st.sigh || 0))); g.translate(-bx, -by);
   g.translate(x, y); g.scale(s, s);
-  if (st.flip) { g.translate(im.width, 0); g.scale(-1, 1); }     // mirrored about its own middle (eyes and rig follow)
   const X = rig ? drawRigged(g, im, rig, st.rig) : (g.drawImage(im, 0, 0), { head: g.getTransform() });
   g.setTransform(X.head);
   if (eyes && st.blink) eyelids(g, eyes, skin, st.blink);
@@ -1102,7 +1108,8 @@ function drawShot(g, c, sh, u) {
     const st = stCzTalk2(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, st.open ? img.czSideSadTalk : img.czSideSad, st, 58, 242, 1.05, CZ.side.eyes, CZ.side.skin, 1, RIG.side);
+    const T = Q15.talk;                     // his 3/4 face turned to the official, his shoulder out of focus on the right
+    drawCz(g, st.open ? img.czHeavyTalk : img.czHeavy, st, T.x, T.y, T.s, CZ.q15.heavyEyes, CZ.q15.skin, 1, RIG.q15);
     g.save(); g.setTransform(...camXf(st.cam, 1.3)); g.filter = 'brightness(0.86)';
     g.drawImage(img.officialOts, 1272, 300, img.officialOts.width * 1.5, img.officialOts.height * 1.5);
     g.restore();
@@ -1125,22 +1132,20 @@ function drawShot(g, c, sh, u) {
     const st = stCzNod(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    drawCz(g, img.cz34, st, 11, 124, 1.2, CZ.q34.eyes, CZ.q34.skin, 1, RIG.q34);
+    drawCz(g, img.czAttentive, st, Q15.x, Q15.y, Q15.s, CZ.q15.eyes, CZ.q15.skin, 1, RIG.q15);
   } else if (k === 'relief') {
     const st = stRelief(sh, u);
     drawBg(g, img.bgGate, st.cam, 0.4);
     bokeh(g, st.sec);
-    // neutral → the relieved smile (eyes closed) → eyes open, still smiling (tools/v13_prep.py); talking, his happy open mouth
-    // (v8), between words the closed smile again: he never drops back to a blank face
-    const x = 11, y = 124, smileRig = rigShift(RIG.q34, -CZ.q34.smileOff[0], -CZ.q34.smileOff[1]);
-    const drawSmile = () => drawCz(g, img.cz34Smile, st, x + CZ.q34.smileOff[0] * 1.2, y + CZ.q34.smileOff[1] * 1.2, 1.2, null, null, 1, smileRig);
-    const warm = st.mouth > 0 ? img.cz34Talk : img.cz34SmileOpen;
+    // listening → the relieved smile (eyes closed) → eyes open, still smiling; talking, the same smile with his mouth open
+    // (tools/v15_prep.py), between words the shut smile again: he never drops back to a blank face
+    const { x, y, s: k } = Q15, E = CZ.q15, R = RIG.q15;
     if (st.warm <= 0) {
-      if (st.smile < 1) drawCz(g, img.cz34, st, x, y, 1.2, CZ.q34.eyes, CZ.q34.skin, 1, RIG.q34);
-      if (st.smile > 0) { g.save(); g.globalAlpha = st.smile; drawSmile(); g.restore(); }
+      if (st.smile < 1) drawCz(g, img.czAttentive, st, x, y, k, E.eyes, E.skin, 1, R);
+      if (st.smile > 0) { g.save(); g.globalAlpha = st.smile; drawCz(g, img.czRelief, st, x, y, k, null, null, 1, R); g.restore(); }
     } else {
-      if (st.warm < 1) drawSmile();
-      g.save(); g.globalAlpha = st.warm; drawCz(g, warm, st, x, y, 1.2, CZ.q34.eyes, CZ.q34.skin, 1, RIG.q34); g.restore();
+      if (st.warm < 1) drawCz(g, img.czRelief, st, x, y, k, null, null, 1, R);
+      g.save(); g.globalAlpha = st.warm; drawCz(g, st.mouth > 0 ? img.czSmileTalk : img.czSmile, st, x, y, k, E.eyes, E.skin, 1, R); g.restore();
     }
     if (st.sub > 0) sub = { text: '고마워요, 마음이 좀 놓이네요.', a: st.sub };
   } else if (k === 'climbFollow') {
