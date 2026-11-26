@@ -26,7 +26,7 @@ import subprocess, sys
 import numpy as np
 
 SR = 48000
-DUR = 37.0
+DUR = 37.5
 # each line: the stretches of voice in the user's export (s), and where its first word now starts (s)
 LINES = [
     ("계세요? 동해시청에서 나왔어요.", [(2.48, 2.86), (3.14, 4.30)], 2.40),

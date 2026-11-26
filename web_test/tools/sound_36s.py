@@ -1,9 +1,9 @@
-"""Original soundtrack for the 37-second animatic (animatic_36s.html): music, sound effects and ambience, all synthesized in
+"""Original soundtrack for the 37.5-second animatic (animatic_36s.html): music, sound effects and ambience, all synthesized in
 this file from sine waves and noise. No samples, no third-party audio, nothing to license. There are no voices: the lines
 stay as subtitles, and README.md has a timing sheet for recording them.
 
 usage: python3 tools/sound_36s.py OUT.f32 [CUES.json]
-  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 37.0 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
+  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 37.5 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
              encoded with ffmpeg (see README); one gain for the whole mix keeps the music under the effects
   CUES.json  every sound event with its time, for checking against the picture
 
@@ -13,7 +13,8 @@ end-card bell with the message over the village.
 
 Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
 glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (5.75 s), "같이 방법을
-찾아볼게요." (17.75 s), the sunset (29.75 s) and the last chord (33.75 s, under the end-card message; the sign-off follows a beat later) fall on downbeats,
+찾아볼게요." (17.75 s), and the sunset (29.75 s) fall on downbeats; the last chord waits 0.8 s past its downbeat (bar 15's A ringing on) so it lands
+with the sign-off (34.55 s), once the end-card message has gone,
 and sitting down (8.75 s, CUT 3 being three seconds) on the half bar where the chord turns to G. One strum and a little run
 while he climbs (0.75 s). It steps aside for the knocks and the creak, drops to soft
 fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset, ends with a "ding" as
@@ -36,7 +37,7 @@ import json, sys
 import numpy as np
 
 SR = 48000
-DUR = 37.0
+DUR = 37.5
 N = int(round(SR * DUR))
 TAIL = 4 * SR
 rng = np.random.default_rng(20261123)          # fixed seed: every run writes the same file
@@ -162,8 +163,8 @@ def db_curve(points):
 def music_moves():
     """The music's level moves under the picture (dB): the conversation, his story, each line on screen, the farewell, the close."""
     t = np.arange(N + TAIL) / SR
-    section = np.interp(t, [0, 6.7, 7.5, 25.5, 26.5, 29.3, 30.1, 32.0, 32.6, 41], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
-    story = np.interp(t, [0, 11.1, 11.7, 18.3, 18.9, 41], [0, 0, -1.5, -1.5, 0, 0])
+    section = np.interp(t, [0, 6.7, 7.5, 25.5, 26.5, 29.3, 30.1, 32.0, 32.6, 41.5], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
+    story = np.interp(t, [0, 11.1, 11.7, 18.3, 18.9, 41.5], [0, 0, -1.5, -1.5, 0, 0])
     spans = []                                                    # lines closer than 0.8 s count as one: no pumping between them
     for a, b in LINES:
         if a < 5.5:
@@ -418,6 +419,7 @@ def wind(n):
 # ================================================================ the score
 BPM = 120
 BEAT = 60 / BPM
+HOLD = 0.8           # the last chord (bar 16 on) held back so it lands with the sign-off: 33.75 + 0.8 = 34.55 s
 BAR0 = 1.75          # bars start at 1.75 + 2k s: the gate opening (5.75), "같이 방법을 찾아봐요." (17.75), the sunset (29.75) and
                      # the last chord (33.75) all land on a downbeat; sitting down (8.75) on the half bar (G)
 
@@ -494,12 +496,12 @@ def score():
             shakes.append((t, (.35 if i % 2 == 0 else .6) * (.75 if st == 'light' else 1)))
     for i in range(8):                                   # bar 8: the shaker swells in sixteenths toward the guidance
         shakes.append((at(8, 2 + i * 0.25), .25 + .07 * i))
-    t_end = at(16)                                       # the last downbeat: D, a ding, a kick
+    t_end = at(16) + HOLD                                # the last downbeat, held for the sign-off: D, a ding, a kick
     strums.append((t_end, 'D', 'D', .7))
     basses.append((t_end, ROOT['D'], 3 * BEAT, .8))
     kicks.append((t_end, .9))
     for b, beat, m, beats, v in MELODY:
-        glock.append((at(b, beat), m, v))
+        glock.append((at(b, beat) + (HOLD if b >= 16 else 0), m, v))
     for t0, notes in RUNS:
         for j, m in enumerate(notes):
             glock.append((t0 + 0.125 * j, m, .38 + .04 * j))
@@ -538,7 +540,7 @@ def main(out_path, cues_path=None):
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
     music = to_rms(music, 19.5, 29.5, MUSIC_RMS)
     moves, spans = music_moves()
-    music *= moves * curve([(0, 1), (36.4, 1), (37.0, 0), (41, 0)])
+    music *= moves * curve([(0, 1), (36.9, 1), (37.5, 0), (41.5, 0)])
     for a, b in spans:
         cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
     cue(0.75, "music: a strum and a little run")
@@ -547,8 +549,8 @@ def main(out_path, cues_path=None):
     cue(17.75, "music: strums again, the shaker swells")
     cue(19.75, "music: full groove (the guidance)")
     cue(29.75, "music: the glockenspiel tune (sunset)")
-    cue(33.75, "music: the last D, a ding (under the end-card message; the sign-off comes in a beat later, 34.25)")
-    cue(34.75, "music: a last soft glockenspiel figure, left to ring")
+    cue(34.55, "music: the last D, a ding, as the sign-off comes in (the message gone)")
+    cue(35.55, "music: a last soft glockenspiel figure, left to ring")
 
     # chimes (effects, not music: they keep their level): the ① / ② labels, the bars filling / links lighting, the end card
     for t0, notes in ((19.82, [74, 78, 81]), (23.82, [79, 83, 86])):
@@ -563,7 +565,7 @@ def main(out_path, cues_path=None):
     cue(32.28, "bell: end-card message over the village")
     # the music's last downbeat (32.75 s) lands under the message alone; the sign-off (symbol, name, number) follows at 33.25
     bell_x = to_peak(bell_b.x, -17)
-    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (36.4, 1), (37.0, 0), (41, 0)])
+    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (36.9, 1), (37.5, 0), (41.5, 0)])
 
     # ---------------------------------------------------------------- effects
     fx = Bus()
@@ -589,8 +591,8 @@ def main(out_path, cues_path=None):
     # ---------------------------------------------------------------- ambience
     n = N + TAIL
     amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (1.47, 1), (1.53, .4), (10.45, .4), (10.55, .3), (29.5, .3), (30.0, .65),
-                                                (34.0, .65), (36.7, 0), (41, 0)])
-    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (1.47, .8), (1.53, .5), (29.5, .5), (30.0, .6), (34.0, .6), (36.7, 0), (41, 0)])
+                                                (34.5, .65), (37.2, 0), (41.5, 0)])
+    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (1.47, .8), (1.53, .5), (29.5, .5), (30.0, .6), (34.5, .6), (37.2, 0), (41.5, 0)])
     air = Bus()
     for i, t0 in enumerate((0.12, 0.40)):                                    # CUT 1: gulls over the harbour, far off
         air.add(to_peak(ffilt(gull_call(40 + i), lp(3800, 2)), -27 - 2 * i), t0, pan=-0.45)
@@ -602,13 +604,13 @@ def main(out_path, cues_path=None):
         cue(t0, "sparrow")
     crick = Bus()
     for j, (f, period, pan) in enumerate(((4300, 0.52, -0.6), (4650, 0.47, 0.55), (4480, 0.6, 0.1))):
-        crick.add(cricket(29.5, 37.0, f, period, 60 + j), 29.5, pan=pan)
+        crick.add(cricket(29.5, 37.5, f, period, 60 + j), 29.5, pan=pan)
     cue(29.5, "crickets (evening)")
-    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (29.5, 0), (30.0, 1), (34.0, 1), (36.7, 0), (41, 0)])
+    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (29.5, 0), (30.0, 1), (34.5, 1), (37.2, 0), (41.5, 0)])
     air_x = air.x + crick_x
     air_x = air_x + 0.35 * conv(air_x.mean(axis=0), reverb_ir(1.5, 2.0, 0.03, 5000, 3))[:, :n]
     amb += air_x
-    amb *= curve([(0, 0), (0.2, 1), (41, 1)])
+    amb *= curve([(0, 0), (0.2, 1), (41.5, 1)])
 
     mix = (music + bells + fx_x + amb)[:, :N] * 10 ** (0.43 / 20)    # the first version's normalisation gain, kept fixed so
                                                                         # effects and ambience stay where they were
