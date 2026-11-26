@@ -12,8 +12,9 @@ leaf swings open (끼익, heard only), taps on the tablet presses, chimes as the
 end-card bell with the message over the village.
 
 Music: a light, everyday tune, the kind a corner shop plays — ukulele strums, a bouncy bass, finger snaps and a shaker, a
-glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.75 s), sitting down (8.75 s), "같이 방법을
-찾아볼게요." (16.75 s), the sunset (28.75 s) and the last chord (32.75 s, under the end-card message; the sign-off follows a beat later) fall on downbeats. It steps aside for the knocks and the creak, drops to soft
+glockenspiel line. D major, 120 bpm, bars of two seconds placed so the gate opening (4.75 s), "같이 방법을
+찾아볼게요." (16.75 s), the sunset (28.75 s) and the last chord (32.75 s, under the end-card message; the sign-off follows a beat later) fall on downbeats,
+and sitting down (7.75 s, now that CUT 3 is three seconds) on the half bar where the chord turns to G. It steps aside for the knocks and the creak, drops to soft
 fingerpicking while he tells his trouble, comes back with the guidance, plays its tune in the sunset, ends with a "ding" as
 the sign-off appears and lets a last soft glockenspiel figure ring under it.
 The music sits about 6 dB under the first (piano) version; effects and ambience keep their levels.
@@ -145,7 +146,7 @@ def dense(x, k):
 
 
 # the lines as they are on screen (the README's timing sheet): the music steps back under them
-LINES = [(2.0, 4.0), (5.6, 7.2), (10.1, 12.4), (13.3, 14.5), (14.6, 16.7), (16.8, 18.5), (18.9, 21.5), (22.9, 25.5), (26.7, 28.5)]
+LINES = [(2.0, 4.0), (5.3, 7.3), (10.1, 12.4), (13.3, 14.5), (14.6, 16.7), (16.8, 18.5), (18.9, 21.5), (22.9, 25.5), (26.7, 28.5)]
 
 
 def db_curve(points):
@@ -406,8 +407,8 @@ def wind(n):
 # ================================================================ the score
 BPM = 120
 BEAT = 60 / BPM
-BAR0 = 0.75          # bars start at 0.75 + 2k s: the gate opening (4.75), sitting down (8.75), "같이 방법을 찾아봐요." (16.75), the
-                     # sunset (28.75) and the last chord (32.75) all land on a downbeat
+BAR0 = 0.75          # bars start at 0.75 + 2k s: the gate opening (4.75), "같이 방법을 찾아봐요." (16.75), the sunset (28.75) and
+                     # the last chord (32.75) all land on a downbeat; sitting down (7.75) on the half bar (G)
 
 
 def at(bar, beat=0.0):
@@ -426,7 +427,8 @@ BARS = {2: ('D', 'A', 'groove'), 3: ('Bm', 'G', 'groove'), 4: ('D', 'A', 'groove
         13: ('Em', 'A', 'light'),                                                            # "고마워요, 마음이 좀 놓이네요."
         14: ('D', 'A', 'chorus'),                                                            # the sunset
         15: ('G', 'A', 'end')}                                                               # the end card; D on the next downbeat
-QUIET = (10.0, 16.75)    # from his first word to the official's answer: no drums, no strumming, soft fingerpicking
+QUIET = (9.5, 16.75)     # from the cut to him (a breath, then his first word) to the official's answer: no drums, no strumming,
+                         # soft fingerpicking
 STRUM = {0: ('D', .75), 1: ('D', .55), 1.5: ('U', .45), 2.5: ('U', .45), 3: ('D', .6), 3.5: ('U', .45)}   # beat: stroke, velocity
 PICK = (1, 2, 0, 3, 2, 0, 1, 3)        # fingerpicking order over the four strings, one note an eighth
 MELODY = [  # (bar, beat, midi, beats, velocity): the glockenspiel tune in the sunset and the close
@@ -449,7 +451,7 @@ def score():
             if st == 'soft':
                 picks.append((t, UKE[ch][PICK[i]], .34 + (.06 if i % 4 == 0 else 0)))
                 if beat in (0, 2) or (style != 'soft' and t == QUIET[0]):
-                    basses.append((t, ROOT[ch], 2 * BEAT if beat in (0, 2) else 1.5 * BEAT, .55))
+                    basses.append((t, ROOT[ch], 2 * BEAT if beat in (0, 2) else ((2 if beat < 2 else 4) - beat) * BEAT, .55))
                 continue
             if st == 'end':
                 if beat in (0, 1, 2, 3):
@@ -530,7 +532,7 @@ def main(out_path, cues_path=None):
         cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
     cue(0.75, "music: a strum and a little run")
     cue(4.75, "music: the band comes in (the gate opens)")
-    cue(10.0, "music: soft fingerpicking (he tells his trouble)")
+    cue(9.5, "music: soft fingerpicking (he tells his trouble)")
     cue(16.75, "music: strums again, the shaker swells")
     cue(18.75, "music: full groove (the guidance)")
     cue(28.75, "music: the glockenspiel tune (sunset)")
@@ -575,7 +577,7 @@ def main(out_path, cues_path=None):
 
     # ---------------------------------------------------------------- ambience
     n = N + TAIL
-    amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (0.97, 1), (1.03, .4), (9.95, .4), (10.05, .3), (28.5, .3), (29.0, .65),
+    amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (0.97, 1), (1.03, .4), (9.45, .4), (9.55, .3), (28.5, .3), (29.0, .65),
                                                 (33.0, .65), (35.7, 0), (40, 0)])
     amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (0.97, .8), (1.03, .5), (28.5, .5), (29.0, .6), (33.0, .6), (35.7, 0), (40, 0)])
     air = Bus()
@@ -584,7 +586,7 @@ def main(out_path, cues_path=None):
     air.add(to_peak(ffilt(gull_call(42), lp(3000, 2)), -33), 29.25, pan=-0.5)
     cue(0.12, "gulls, far")
     cue(29.25, "gull, very far")
-    for i, t0 in enumerate((2.75, 7.9, 9.35, 19.85, 24.05, 26.1)):           # day: a sparrow now and then (not while he tells his trouble)
+    for i, t0 in enumerate((2.75, 6.9, 8.7, 19.85, 24.05, 26.1)):           # day: a sparrow now and then (not while he tells his trouble)
         air.add(to_peak(chirp_bird(50 + i), -29), t0, pan=(0.55, -0.5, 0.4, 0.6, -0.55, 0.45)[i])
         cue(t0, "sparrow")
     crick = Bus()
