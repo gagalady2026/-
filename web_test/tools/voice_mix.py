@@ -10,10 +10,13 @@ takes them out of it and lays them on the current film:
   3. the middle of the stereo pair only (the voices are centred: L/R correlation 0.99), gated to the lines;
   4. each line moved to where it now belongs: the gate line to just after the knocks (2.40 s, ending before the latch),
      "요즘은 좀 어떠세요?" to where his mouth starts (6.37 s), every line from the citizen's first one on exactly 1 s
-     later than in their edit (the cut grew by a second before it). Their words, their voices, their levels and the
-     spacing between lines are kept;
-  5. the soundtrack (already mastered) 2 dB lower throughout and 6.5 dB lower under each line, as in their edit
-     (10 dB under the two guidance lines, recorded quieter than the rest, so the 분납 / 복지 lines read over the music), then the voices on top.
+     later than in their edit (the cut grew by a second before it). Their words, their voices and the spacing between
+     lines are kept;
+  5. the lines evened out (asked for after the first voiced cut): in the export the official's lines sat 3.6 LU under
+     the citizen's on average, 6.7 LU between the loudest and the quietest. Each line's loudness (BS.1770, gated) is
+     moved 80% of the way to -20 LUFS, at most about 3 dB either way, which leaves them within ~1.3 LU of each other;
+  6. the soundtrack (already mastered) 2 dB lower throughout and 6.5 dB lower under each line, as in their edit
+     (10 dB under the two guidance lines, so the 분납 / 복지 lines read over the music), then the voices on top.
 
 usage: python3 -I tools/voice_mix.py USER_EXPORT.mov EDITED_BASE.mp4 SOUNDTRACK_MASTER.wav OUT_MIX.wav OUT_VOICE.flac
   The mix is then levelled to -16 LUFS with a limiter (README); the voice stem is the gated mono voice track on the
@@ -40,6 +43,23 @@ GUIDANCE = {6, 7}                       # the 분납 / 복지 lines: the music g
 PRE, POST, FADE = 0.08, 0.18, 0.015     # kept around each stretch of voice (breath in, the tail of the last word)
 DUCK, DUCK_GUIDE, BASE = -6.5, -10.0, -2.0
 ATTACK, RELEASE = 0.12, 0.25
+LEVEL_TARGET, LEVEL_SHARE = -20.0, 0.8  # each line's loudness moved this share of the way to the target (LUFS)
+
+
+def loudness(x):
+    """Integrated loudness of a mono clip (ITU-R BS.1770: K-weighting, 400 ms blocks, absolute and relative gates). The
+    K-weighting is applied as its magnitude response in the frequency domain (loudness needs power only)."""
+    f = np.fft.rfftfreq(len(x), 1 / SR)
+    z = np.exp(-2j * np.pi * f / SR)
+    shelf = (1.53512485958697 - 2.69169618940638 * z + 1.19839281085285 * z * z) / (1 - 1.69065929318241 * z + 0.73248077421585 * z * z)
+    hp = (1 - 2 * z + z * z) / (1 - 1.99004745483398 * z + 0.99007225036621 * z * z)
+    y = np.fft.irfft(np.fft.rfft(x) * np.abs(shelf * hp), len(x))
+    B, H = int(0.4 * SR), int(0.1 * SR)
+    p = np.array([(y[i:i + B] ** 2).mean() for i in range(0, len(y) - B + 1, H)])
+    lk = -0.691 + 10 * np.log10(p + 1e-20)
+    p = p[lk > -70]
+    rel = -0.691 + 10 * np.log10(p.mean()) - 10
+    return -0.691 + 10 * np.log10(p[-0.691 + 10 * np.log10(p + 1e-20) > rel].mean())
 
 
 def load(path):
@@ -122,6 +142,20 @@ def gate(n, stretches):
 def main(export, base, master, out_mix, out_voice):
     v = extract(load(export), load(base))
     mid = v.mean(1)                                       # the voices are centred; the sides are what is left of the music
+    # each line's gain (dB), as a smooth envelope over the export's timeline (adjacent lines meet half way between them)
+    pts = []
+    for text, ss, _ in LINES:
+        L = loudness(mid[int(ss[0][0] * SR):int(ss[-1][1] * SR)])
+        gdb = LEVEL_SHARE * (LEVEL_TARGET - L)
+        print(f'{L:6.1f} LUFS -> {L + gdb:6.1f} ({gdb:+.1f} dB)  {text}')
+        pts.append([ss[0][0] - PRE, ss[-1][1] + POST, gdb])
+    for i in range(len(pts) - 1):
+        if pts[i][1] > pts[i + 1][0] - 0.03:
+            mid_t = (pts[i][1] + pts[i + 1][0]) / 2
+            pts[i][1], pts[i + 1][0] = mid_t - 0.015, mid_t + 0.015
+    xs = [x for a, b, _ in pts for x in (a, b)]
+    gs = [g for _, _, g in pts for _ in (0, 1)]
+    mid = mid * 10 ** (np.interp(np.arange(len(mid)) / SR, xs, gs) / 20)
     n = int(round(DUR * SR))
     voice = np.zeros(n)
     t_new = np.arange(n) / SR

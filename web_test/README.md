@@ -57,7 +57,7 @@ v2는 8초, 애니매틱은 37초입니다.
 - 엔드 카드의 동해시 심벌은 받으신 공식 CI 파일에서 뽑았습니다. 흰 바탕 JPG(567×567)에서 둘레 흰 여백만 잘라 둔 원본(`assets_ci/donghae_ci.png`, 405×363)에서, 심벌(해와 바다)만 흰 바탕을 걷어 내 투명하게 했습니다(`assets_ci/donghae_ci_symbol.png`, `tools/ci_key.py`). 깃발 판매처 그림에서 오렸던 임시 로고(`assets_ci/donghae_logo.png`, `tools/ci_prep.py`)는 지웠습니다.
 - CUT 7의 새 그림에는 노을빛(해 쪽 왼쪽 가장자리의 주황빛)이 그려져 있어, 코드로는 아주 옅은 저녁빛 한 겹과 오른쪽으로 드리운 그림자만 더했습니다. 얼굴은 밝게 두었습니다.
 - 소리: 음악, 효과음, 배경음을 코드로 합성해 넣었습니다(`tools/sound_36s.py`). MP4에 들어 있고, 페이지에서는 ‘소리’를 켜면 들립니다. 대사 목소리는 보내 주신 CapCut 편집본의 목소리를 그대로 옮겨 넣은 `animatic_voice_1080p.mp4`에 들어 있습니다(아래 ‘대사 목소리’). `animatic_36s_1080p.mp4`는 목소리 없는 원본(다시 편집할 때 쓰는 판)입니다.
-- 대사 목소리(`tools/voice_mix.py`, `sound/voice_37s.flac`): 목소리는 보내 주신 CapCut 편집본에만 있어서, 그 편집본의 소리에서 편집에 쓰신 MP4(커밋 50ed47b)의 소리를 빼고(그 MP4를 그대로 디코딩해 첫 AAC 단계까지 지워지게, 편집본에서 음악을 낮춘 정도를 10ms마다 읽어 맞춤), 남은 것을 그 음악을 기준으로 주파수별로 한 번 더 걷어 내고(남은 음악이 원래보다 22~28dB 작음), 가운데(모노) 성분만 대사 구간에서 잘라 썼습니다. 말·목소리·크기·대사 사이 간격은 그대로이고, 바뀐 화면에 맞춰 자리만 옮겼습니다: 첫 대사는 2.40초(노크 직후, 빗장 전에 끝남), “요즘은 좀 어떠세요?”는 입이 움직이기 시작하는 6.37초, 어르신 첫마디부터는 편집본보다 모두 1초 뒤. 음악은 전체 −2dB, 대사 밑에서 −6.5dB(편집본과 같은 정도), 분납·복지 안내 두 줄 밑에서는 −10dB(이 두 줄이 다른 대사보다 작게 녹음되어 있어서). 전체 −16.0 LUFS, 최대 −2.1 dBTP.
+- 대사 목소리(`tools/voice_mix.py`, `sound/voice_37s.flac`): 목소리는 보내 주신 CapCut 편집본에만 있어서, 그 편집본의 소리에서 편집에 쓰신 MP4(커밋 50ed47b)의 소리를 빼고(그 MP4를 그대로 디코딩해 첫 AAC 단계까지 지워지게, 편집본에서 음악을 낮춘 정도를 10ms마다 읽어 맞춤), 남은 것을 그 음악을 기준으로 주파수별로 한 번 더 걷어 내고(남은 음악이 원래보다 22~28dB 작음), 가운데(모노) 성분만 대사 구간에서 잘라 썼습니다. 말·목소리·대사 사이 간격은 그대로이고, 바뀐 화면에 맞춰 자리만 옮겼습니다: 첫 대사는 2.40초(노크 직후, 빗장 전에 끝남), “요즘은 좀 어떠세요?”는 입이 움직이기 시작하는 6.37초, 어르신 첫마디부터는 편집본보다 모두 1초 뒤. 음악은 전체 −2dB, 대사 밑에서 −6.5dB(편집본과 같은 정도), 분납·복지 안내 두 줄 밑에서는 −10dB(핵심 안내라서). 대사 크기는 고르게 맞췄습니다(사용자 요청): 편집본에서는 주인공 대사가 어르신 대사보다 평균 3.6 LU 작고, 가장 큰 줄(“몸이 안 좋아서…” −16.9 LUFS)과 작은 줄(“나눠서…” −23.6 LUFS)이 6.7 LU 차이 나서, 줄마다 BS.1770 크기를 −20 LUFS 쪽으로 80%씩(최대 약 ±3dB) 옮겨 1.3 LU 안에 들게 했습니다(“많이 힘드셨겠어요.” +2.8dB, “나눠서…” +2.9dB, “필요하시면…” +1.8dB, “몸이 안 좋아서…” −2.5dB 등). 전체 −16.0 LUFS, 최대 −1.3 dBTP.
 
 | 컷 | 시간 | 길이 | 장면 | 그림 |
 |---|---|---|---|---|
@@ -220,7 +220,7 @@ ffmpeg -i master.wav -c:a libmp3lame -b:a 192k sound/animatic_36s_sound.mp3     
 ffmpeg -framerate 24 -i frames/f%04d.png -i master.wav -map 0:v:0 -map 1:a:0 -c:v libx264 -crf 17 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart animatic_36s_1080p.mp4
 # 대사 목소리 판: 사용자 CapCut 편집본(EXPORT.mov)과 그 편집에 쓴 MP4(git show 50ed47b:web_test/animatic_36s_1080p.mp4 > base.mp4)에서
 python3 -I tools/voice_mix.py EXPORT.mov base.mp4 master.wav voice_mix.wav sound/voice_37s.flac
-ffmpeg -i voice_mix.wav -af loudnorm=print_format=json -f null -   # input_i 를 읽고 (지금 판 −17.02)
+ffmpeg -i voice_mix.wav -af loudnorm=print_format=json -f null -   # input_i 를 읽고 (지금 판 −17.12)
 ffmpeg -i voice_mix.wav -af "volume=<−16 − input_i>dB,alimiter=limit=0.89:attack=5:release=60:level=0" -c:a pcm_s24le voice_master.wav
 ffmpeg -i voice_master.wav -c:a libmp3lame -b:a 192k sound/animatic_36s_sound.mp3   # 페이지는 대사가 들어간 소리를 틂
 ffmpeg -framerate 24 -i frames/f%04d.png -i voice_master.wav -map 0:v:0 -map 1:a:0 -c:v libx264 -crf 17 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart animatic_voice_1080p.mp4
