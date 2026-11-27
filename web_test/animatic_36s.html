@@ -218,7 +218,7 @@ const CUTS = [
   { n: 2, src: 'gpt', title: '문 앞에서', act: '마당 안에서 본 옥색 대문. 똑! 똑! → 대문 밖에서 “계세요? 동해시청에서 나왔어요.” → 잠깐 뒤 빗장 소리, (끼익 소리) 대문 오른쪽 문짝이 안쪽으로 크게(약 58°) 열리며 바깥 햇빛과 주인공이 보임(3.75초 → 4.25초, 대사와 문소리가 겹치지 않게)', shots: [{ kind: 'gate', sec: 4.25 }] },
   { n: 3, src: 'gpt', title: '문이 열린다', act: '어르신 어깨 너머로: 살짝 목례 → “요즘은 좀 어떠세요?” → 귀 기울이는 얼굴로 바로 다음 컷(활짝 웃지 않음, 4초 → 3초), 카메라가 조금 다가감', shots: [{ kind: 'react', sec: 3.0 }] },
   { n: 4, src: 'gpt', title: '평상에 마주 앉아', act: '평상에 나란히 앉아 서로를 향한 두 사람(보내주신 새 그림): 태블릿 없이 주인공은 귀 기울이며 작게 끄덕이고, 어르신은 걱정스러운 얼굴로 시선을 내렸다가 말을 꺼내려 함(1.25초 → 1.75초)', shots: [{ kind: 'bench', sec: 1.75 }] },
-  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '주인공 쪽을 향한 옆얼굴(3/4 얼굴과 같은 크기·눈높이)로, 잠깐 숨을 고른 뒤 어르신이 무거운 얼굴로 “몸이 안 좋아서 한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕인 뒤 “많이 힘드셨겠어요.” → 주인공 쪽을 보는 3/4 얼굴로 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아볼게요.”(+1초)', shots: [{ kind: 'czTalk', sec: 3.0 }, { kind: 'nod', sec: 2.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
+  { n: 5, src: 'gpt', title: '이야기를 듣다', act: '주인공 쪽을 향한 옆얼굴(3/4 얼굴과 같은 크기·눈높이)로, 잠깐 숨을 고른 뒤 어르신이 무거운 얼굴로 “몸이 안 좋아서…” → (말을 잇는 동안) 주인공이 어르신 이야기를 들으며 태블릿에 가볍게 메모(생활실태 파악, 1초) “…한동안 일을 못 했어요…” → 주인공이 귀 기울여 끄덕인 뒤 “많이 힘드셨겠어요.” → 주인공 쪽을 보는 3/4 얼굴로 어르신 “그러다 보니 세금도 밀렸네요…” → 주인공 “같이 방법을 찾아볼게요.”(+1초)', shots: [{ kind: 'czTalk', sec: 2.0 }, { kind: 'note', sec: 1.0 }, { kind: 'nod', sec: 2.0 }, { kind: 'czTalk2', sec: 2.25 }, { kind: 'reply', sec: 1.75 }] },
   { n: 6, src: 'gpt', title: '분납 상담과 복지서비스 연계', act: '① “나눠서 내는 방법도 상담해 드릴게요.” 태블릿의 분납 상담 칸을 손가락으로 짚고, 왼쪽 위에 ‘분납 상담’ → 어르신이 고개를 끄덕이며 알아들음 → ② “필요하시면 복지서비스도 연계해 드릴게요.” 복지서비스 연계 칸, 왼쪽 위에 ‘복지서비스 연계’ → 어르신이 눈을 감고 안도의 미소, 눈을 뜬 편안한 미소로 “고마워요, 마음이 좀 놓이네요.”', shots: [{ kind: 'tablet1', sec: 3.0 }, { kind: 'czNod', sec: 1.0 }, { kind: 'tablet2', sec: 3.0 }, { kind: 'relief', sec: 3.0 }] },
   { n: 7, src: 'gpt', title: '상담을 마치며', act: '29.5초부터 노을(보내주신 새 그림 두 장): 대문 앞에서 주인공이 살짝 몸을 숙였다가 태블릿을 든 채 정중하게 목례하고 다시 바로 섬, 어르신은 편안한 미소로 손을 들어 배웅(1.5초) → 두 사람은 그대로, 카메라만 천천히 조금 물러남(1초)', shots: [{ kind: 'closing', sec: 2.5 }] },
   { n: 8, src: 'gpt', title: '집집마다 불이 켜진다 · 엔드 카드', act: '노을 진 묵호 마을 전경으로 넘어가 해가 지고, 가로등에 이어 창문 불빛이 언덕 위로 하나씩 켜지며 언덕 위 멀리 흰 묵호등대에도 불이 들어옴. “체납 뒤에 사람이 있습니다.”가 먼저 떠올라 약 2초 혼자 있다가 완전히 사라지고, 34.55초에 음악의 마지막 화음과 함께 화면 가운데에 “2027년에도 찾아갑니다.”, 이어서 동해시 심벌 · 동해시 지방세입 체납관리단 · 상반기 중 참여자 모집 · 6개월간 근무 예정 · 문의 033-530-2064가 떠올라 끝까지(약 4.7초)', shots: [{ kind: 'end', sec: 7.5 }] },
@@ -243,6 +243,7 @@ const SRC = {
   // smile (eyes closed), the smile (shut / talking); all one drawing's size and place
   czAttentive: 'assets_v15/v15_cz_attentive.png', czHeavy: 'assets_v15/v15_cz_heavy.png', czHeavyTalk: 'assets_v15/v15_cz_heavy_talk.png',
   czRelief: 'assets_v15/v15_cz_relief.png', czSmile: 'assets_v15/v15_cz_smile.png', czSmileTalk: 'assets_v15/v15_cz_smile_talk.png',
+  noteBase: 'assets_v18/v18_note_base.png', noteHand: 'assets_v18/v18_note_hand.png',
   czSideSad: 'assets_v17/v17_cz_side_sad.png', czSideSadTalk: 'assets_v17/v17_cz_side_sad_talk.png', officialOts: 'assets_v7/v7_official_ots.png',
   czBack: 'assets_v4/v4_cz_back_blur.png',
   stairs: 'assets_v5/v5_stairs.jpg', climbA: 'assets_v5/v5_climb_a.png', climbB: 'assets_v5/v5_climb_b.png',
@@ -311,6 +312,11 @@ const B4 = { s: 0.94, x: (W - 1536 * 0.94) / 2, y: 1045 - 1019 * 0.94, split: 74
 // where the v15 close-ups sit (top left, scale): CUT 6 (the nod, the relief) and, a little wider and further left so the
 // official's shoulder shows on the right, CUT 5c. Their eyes land about where the earlier 3/4 face's did
 const Q15 = { x: 119, y: 57, s: 0.95, talk: { x: -8, y: 78, s: 0.9 } };
+// CUT 5a′: the user's picture of the official listening and writing (assets_v18, tools/v18_note.py): the base without the
+// writing arm, and the arm (forearm from the sleeve, hand, stylus) to turn about the sleeve; eyes and ID card as measured
+const NOTE = { s: 1.42, x: -2, y: 29, eyes: [[595.0, 265.2, 17, 28], [661.8, 244.6, 14, 28]], skin: 'rgb(253,210,185)',
+  card: [569.5, 613.2, 66, 39, -2.96, 14.0], pivot: [386.0, 568.7] };
+
 // rigs (each in its picture's own pixels): the head turns about `neck`; above the chin line `line` (a polyline under the jaw)
 // it is rigid, below it its weight falls to 0 over `band` px, so the neck stretches and the collar stays where it is. hh: the
 // head's height above the pivot (how far a nod drops it). Standing, the upper body also bows about `waist`: rigid above wTop,
@@ -455,8 +461,8 @@ function stEnd(c, u) {                  // CUT 8 (7.5 s): dusk falls on the vill
   st.info = smoother((s - 2.85) / 0.45);        // then the symbol, name, months and number, held ~4.7 s (7.5 s shot)
   return st;
 }
-function stCzTalk(c, u) {               // CUT 5a (3 s): over the official's shoulder: in profile, turned to him as on the bench,
-  const st = base(c, u), e = smoother(u);  //   eyes heavy, head a little low. A breath first (0.5 s), then he tells why he fell
+function stCzTalk(c, u) {               // CUT 5a (2 s, then CUT 5a′): over the official's shoulder: in profile, turned to him as on the bench,
+  const T3 = 71 / FPS, st = base(c, u), e = smoother(Math.min(1, st.sec / T3));   // camera and rig as in the 3 s version  //   eyes heavy, head a little low. A breath first (0.5 s), then he tells why he fell
   st.cam = { s: 1 + 0.05 * e, fx: 760, fy: 560, dx: 0, dy: 0 };   //   behind — slowly, with a pause between the two halves
   st.flip = true;                          // the profile is drawn facing left; mirrored, he faces the official (screen right)
   // the line keeps its time in the film: v is where the line is (0 → 1 over its 2.46 s), from half a second into the shot
@@ -470,7 +476,7 @@ function stCzTalk(c, u) {               // CUT 5a (3 s): over the official's sho
   st.breath = Math.sin(2 * Math.PI * 0.24 * st.sec + 0.9); st.sway = 2.2 - 0.2 * Math.sin(2 * Math.PI * 0.18 * st.sec);   // a slight
   // hunch toward him. His head (in the picture's own terms: facing left, down is anticlockwise; the mirror keeps it down)
   // sinks with the breath, hangs a little, drifts slowly as he speaks, and sinks at the end of each half of the line
-  const D = (c.nf - 1) / FPS;
+  const D = T3;
   st.rig = rigOf((t) => {
     const w = (t - LEAD) / DL, env = win(w, 0.06, 0.12) * (1 - win(w, 0.36, 0.42)) + win(w, 0.7, 0.76) * (1 - win(w, 0.95, 1.0));
     // between the two halves of the line (his voice pauses 1.45-2.23 s) his head goes down (a breath, the hard part) and
@@ -533,6 +539,18 @@ function settle(pose, sec, dur, sigma, lag) {
 const SETTLE_HEAD = [0.12, 0.06], SETTLE_BODY = [0.08, 0.02];
 function rigOf(head, body, sec, dur, breath) {
   return { ...settle(head, sec, dur, ...SETTLE_HEAD), ...(body ? settle(body, sec, dur, ...SETTLE_BODY) : {}), breath };
+}
+function stNote(c, u) {                 // CUT 5a′ (1 s): as he goes on (“…한동안 일을 못 했어요…”), the official listens and writes it
+  const st = base(c, u), s = st.sec;     //   down on his tablet (the user's picture): what the visit is for, seen — the living
+  st.cam = { s: 1 + 0.02 * smoother(u), fx: 830, fy: 400, dx: 0, dy: 0 };   //   situation noted — and gently, eyes lowered to the tablet
+  // three short strokes: the writing arm turns a little about the sleeve (the stylus tip moves ~4 px down the line), and
+  // between strokes goes back with the stylus lifted a hair
+  const P = 0.32, k = (s + 0.04) % P, down = k < 0.25;
+  st.write = down ? -0.4 + 1.0 * smoother(k / 0.25) : 0.6 - 1.0 * smoother((k - 0.25) / (P - 0.25)) - 0.35 * Math.sin(Math.PI * (k - 0.25) / (P - 0.25));
+  st.blink = 0.5;                         // lids half down: looking at what he writes
+  st.breath = Math.sin(2 * Math.PI * 0.28 * s + 0.4);
+  st.sub = 1 - win(s, 0.786, 0.934);      // the citizen's words go on over this shot and end where they did in CUT 5a
+  return st;
 }
 function stNod(c, u) {                  // CUT 5b: close on the official: he listens (head tilted), nods slowly with his eyes closed,
   const st = base(c, u), s = st.sec;     //   then looks up and meets what he heard before anything else: “많이 힘드셨겠어요.”
@@ -968,6 +986,22 @@ function drawStanding(g, st) {
   eyelids(g, v.eyes, v.skin, st.blink);
   g.restore();
 }
+// CUT 5a′: the official writing (NOTE): he breathes; the ID card carries its lettering and the lids are half down; the writing
+// arm turns about the sleeve by st.write degrees (canvas: positive is clockwise, the stylus going down the tablet)
+function drawNote(g, st) {
+  const N = NOTE, s = N.s;
+  g.save(); g.setTransform(...camXf(st.cam, 1));
+  const bx = N.x + 583 * s, by = H + 40;
+  g.translate(bx, by); g.scale(1, 1 + 0.004 * st.breath); g.translate(-bx, -by);
+  g.translate(N.x, N.y); g.scale(s, s);
+  g.drawImage(img.noteBase, 0, 0);
+  drawBadge(g, N.card, 1);
+  eyelids(g, N.eyes, N.skin, st.blink);
+  const [px, py] = N.pivot;
+  g.translate(px, py); g.rotate(st.write * D2R); g.translate(-px, -py);
+  g.drawImage(img.noteHand, 0, 0);
+  g.restore();
+}
 // a keyed citizen picture at scale s with its top-left at (x, y), under the camera (k = parallax). A bow or a sigh is a dip
 // about a point below the frame (his feet or the bench); eyelids close over the measured eyes. Returns the picture → frame transform.
 function drawCz(g, im, st, x, y, s, eyes, skin, k = 1, rig = null) {
@@ -1218,6 +1252,12 @@ function drawShot(g, c, sh, u) {
     g.save(); g.setTransform(...camXf(st.cam, 1.3)); g.filter = 'brightness(0.86)';
     g.drawImage(img.officialOts, 1272, 300, img.officialOts.width * 1.5, img.officialOts.height * 1.5);
     g.restore();
+    if (st.sub > 0) sub = { text: '몸이 안 좋아서 한동안 일을 못 했어요…', a: st.sub };
+  } else if (k === 'note') {
+    const st = stNote(sh, u);
+    drawBg(g, img.bgWall, st.cam, 0.4);         // his side of the yard, as in his close-ups
+    bokeh(g, st.sec);
+    drawNote(g, st);
     if (st.sub > 0) sub = { text: '몸이 안 좋아서 한동안 일을 못 했어요…', a: st.sub };
   } else if (k === 'czTalk2') {
     const st = stCzTalk2(sh, u);
