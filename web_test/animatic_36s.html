@@ -381,7 +381,7 @@ function stTablet(c, u, part) {         // CUT 6a/6c: ① 분납 상담 on pose 
   st.mouth = flapsAt(s, part === 1 ? VOICE.tablet1 : VOICE.tablet2);
   const subIn = part === 1 ? T(0.18, 0.3) : T(0.38, 0.5), sub = subIn * (1 - T(2.84, 2.95));   // up as his voice begins
   st.sub1 = part === 1 ? sub : 0; st.sub2 = part === 2 ? sub : 0;
-  st.badge = part === 1 ? 1 - subIn : 1;   // in ① his ID card sits under the subtitle (in ② it is higher, clear of it)
+  st.badge = 1;                            // in both framings his ID card sits above the subtitle line: its lettering stays
   st.label = { n: part, a: T(0.3, 0.55) * (1 - T(2.6, 2.85)) };            // ‘분납 상담’ / ‘복지서비스 연계’ named on screen
   if (part === 1) {
     st.hl1 = T(0.12, 0.28); st.icon1 = easeOutBack(T(0.18, 0.42)); st.text1 = T(0.28, 0.48); st.cal = T(0.5, 0.56);
@@ -534,7 +534,8 @@ function rigOf(head, body, sec, dur, breath) {
 }
 function stNod(c, u) {                  // CUT 5b: close on the official: he listens (head tilted), nods slowly with his eyes closed,
   const st = base(c, u), s = st.sec;     //   then looks up and meets what he heard before anything else: “많이 힘드셨겠어요.”
-  st.cam = { s: 1 + 0.02 * smoother(u), fx: 1150, fy: 450, dx: 0, dy: 0 };
+  // framed 70 px lower on him than before, so his ID card sits above the subtitle line and its lettering never has to step aside
+  st.cam = { s: 1 + 0.02 * smoother(u), fx: 1150, fy: 450, dx: 0, dy: -70 };
   st.frame = FRAME_B;
   st.variant = s < 0.62 ? 'listen' : 'neutral';            // the face changes while the eyes are shut in the nod
   // the nod is in his neck, with a little of his upper body; through it his head comes from the listening tilt (drawn in the
@@ -544,7 +545,6 @@ function stNod(c, u) {                  // CUT 5b: close on the official: he lis
   st.blink = bump(s, 0.12, 0.74, 0.75);       // eyes shut quickly and open quickly (a half-open lid with a smile looks smug)
   st.mouth = st.variant === 'neutral' ? flapsAt(s, VOICE.nod) : 0;   // 많이 힘드셨겠어요.
   st.sub = win(s, 0.78, 0.86) * (1 - win(s, 1.9, 1.98));
-  st.badge = 1 - win(s, 0.78, 0.86);       // the subtitle runs across his ID card here: its lettering steps aside until the cut
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 0.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 1.3);
   st.rig = rigOf((t) => ({ rot: LISTEN_TILT + 6.1 * win(t, 0.3, 0.62) + 4.0 * win(t, 0.62, 0.95),
     dip: 1.3 * bump(t, 0.1, 0.78, 0.2) + 0.35 * bump(t, 1.15, 1.85, 0.3) }), (t) => ({ bdip: 0.5 * bump(t, 0.1, 0.78, 0.2) }), s, D, st.breath);
@@ -570,12 +570,11 @@ function stCzTalk2(c, u) {              // CUT 5c: closer on him: “그러다 �
 }
 function stReply(c, u) {                // CUT 5d: close on the official again, he answers: “같이 방법을 찾아볼게요.”
   const st = base(c, u), e = smoother(u);
-  st.cam = { s: 1 + 0.02 * e, fx: 1150, fy: 450, dx: 0, dy: 0 };
+  st.cam = { s: 1 + 0.02 * e, fx: 1150, fy: 450, dx: 0, dy: -70 };   // as CUT 5b: his ID card above the subtitle line
   st.frame = FRAME_B; st.variant = 'neutral';
   st.mouth = flapsAt(st.sec, VOICE.reply);   // 같이 방법을 찾아볼게요.
   st.blink = bump(u, 0.03, 0.11);
   st.sub = win(st.sec, 0.24, 0.36) * (1 - win(u, 0.95, 1.0));
-  st.badge = 1 - win(st.sec, 0.24, 0.36);   // the subtitle runs across his ID card here: its lettering steps aside until the cut
   st.breath = Math.sin(2 * Math.PI * 0.28 * st.sec + 1.2); st.sway = 0.25 * Math.sin(2 * Math.PI * 0.2 * st.sec + 0.3);
   // his head lifts a little as he begins and turns a little as he speaks; on “찾아볼게요” a reassuring nod, leaning in a little
   const D = (c.nf - 1) / FPS;

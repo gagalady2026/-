@@ -14,6 +14,11 @@ set again at full size in the space under the picture, from the page's own timin
 
 In the 9:16 cut everything sits inside the middle 4:5 (y 285-1635), which the feed and the profile grid show, and clear
 of the Reels buttons along the bottom and the right edge.
+
+For the feed (the user's review): the title is the film's message, “체납 뒤에 사람이 있습니다”, large for the first three
+seconds only (it comes back as the end card's message); no small line under it (too small on a phone); the subtitles sit
+a little higher under the picture; the first subtitle comes up 0.15 s after the voice, so “똑! 똑!” is read first; and the
+last frame (the sign-off) is held one second longer (HOLD), the sound running out in silence.
 """
 import json, os, subprocess, sys
 import numpy as np
@@ -23,7 +28,10 @@ FPS = 24
 HERE = os.path.dirname(os.path.abspath(__file__))
 CI = os.path.join(HERE, '..', 'assets_ci', 'donghae_ci_symbol.png')
 NOTO, GOWUN = '"Noto Sans KR"', '"Gowun Dodum"'
-TITLE, ORG = '똑똑, 괜찮으세요?', '동해시 지방세입 체납관리단'
+TITLE, ORG = '체납 뒤에 사람이 있습니다', '동해시 지방세입 체납관리단'
+TITLE_IN, TITLE_OUT = (0.1, 0.5), (2.7, 3.2)   # s: the title fades in with the picture and out as the first words come up
+FIRST_SUB_DELAY = 4                                  # frames: the first subtitle after the two knocks are read
+HOLD = 24                                            # frames: the last frame (the sign-off) held one second longer
 LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '상반기 중 참여자 모집 · 6개월간 근무 예정', '문의 ', '033-530-2064'
 MSG = '체납 뒤에 사람이 있습니다.'
 # long lines in two, at a natural pause (the film's subtitles are one line across 1920 px)
@@ -38,9 +46,9 @@ SUBS = ['계세요? 동해시청에서 나왔어요.', '요즘은 좀 어떠세�
         '필요하시면 복지서비스도 연계해 드릴게요.', '고마워요, 마음이 좀 놓이네요.']
 # y: centres of the words (px); pic: top of the 1080x608 picture
 FORMATS = {
-    '4x5': dict(W=1080, H=1350, pic=262, title=(118, 64), org=(196, 30), sub=(1000, 56, 76),
+    '4x5': dict(W=1080, H=1350, pic=262, title=(140, 66), org=(196, 30), sub=(965, 56, 76),
                 msg=(1040, 58), lead=(912, 40), ci=(1022, 120), name=(1080, 56), when=(1140, 33), tel=(1218, 44, 62)),
-    '9x16': dict(W=1080, H=1920, pic=560, title=(392, 72), org=(476, 34), sub=(1300, 60, 82),
+    '9x16': dict(W=1080, H=1920, pic=560, title=(430, 74), org=(476, 34), sub=(1265, 60, 82),
                  msg=(1330, 62), lead=(1214, 44), ci=(1338, 132), name=(1402, 60), when=(1466, 36), tel=(1552, 48, 68)),
 }
 BG_TOP, BG_BOTTOM = (40, 33, 56), (20, 17, 28)     # the end card's dusk, deepening downward
@@ -50,7 +58,6 @@ def spec(out):
     items = []
     for fmt, L in FORMATS.items():
         items.append(dict(id=f'{fmt}_title', text=TITLE, family=GOWUN, weight=400, size=L['title'][1], color='#FFF6EC', shadow=6))
-        items.append(dict(id=f'{fmt}_org', text=ORG, family=NOTO, weight=500, size=L['org'][1], color='#CFC6DA'))
         for i, t in enumerate(SUBS):
             for j, line in enumerate(WRAP.get(t, [t])):
                 items.append(dict(id=f'{fmt}_sub{i}_{j}', text=line, family=NOTO, weight=700, size=L['sub'][1], color='#FFFFFF', shadow=8))
@@ -83,17 +90,23 @@ def make(fmt, frames, bare, states, text, audio, out):
     g = np.linspace(0, 1, H)[:, None, None]
     bg = (np.array(BG_TOP)[None, None, :] * (1 - g) + np.array(BG_BOTTOM)[None, None, :] * g) * np.ones((1, W, 1))
     base = Image.fromarray(np.round(bg).astype(np.uint8), 'RGB').convert('RGBA')
-    put(base, T[f'{fmt}_title'], W / 2, L['title'][0]); put(base, T[f'{fmt}_org'], W / 2, L['org'][0])
     ci = Image.open(CI).convert('RGBA'); cw = L['ci'][1]; ci = ci.resize((cw, round(ci.height * cw / ci.width)), Image.LANCZOS)
     cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
-           '-i', '-', '-i', audio, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
+           '-i', '-', '-i', audio, '-map', '0:v:0', '-map', '1:a:0', '-af', 'apad', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
            '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', '-shortest', out]
     enc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    sub_of = {r['f']: r['sub'] for r in rows}
+    smooth = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
+    last = None
     for r in rows:
-        f = r['f']; name = f'f{f:04d}.png'
+        f = r['f']; name = f'f{f:04d}.png'; t = f / FPS
         src = os.path.join(bare, name) if os.path.exists(os.path.join(bare, name)) else os.path.join(frames, name)
         pic = Image.open(src).convert('RGB').resize((W, round(W * 1080 / 1920)), Image.LANCZOS)
         c = base.copy(); c.paste(pic, (0, L['pic']))
+        ta = smooth((t - TITLE_IN[0]) / (TITLE_IN[1] - TITLE_IN[0])) * (1 - smooth((t - TITLE_OUT[0]) / (TITLE_OUT[1] - TITLE_OUT[0])))
+        put(c, T[f'{fmt}_title'], W / 2, L['title'][0], ta)
+        if r['k'] == 'gate':                                   # the first line: in a little after the knocks, out as before
+            r = dict(r, sub=min(r['sub'], sub_of.get(f - FIRST_SUB_DELAY, 0)))
         if r['sub'] > 0.001:
             i = SUBS.index(r['text']); lines = WRAP.get(r['text'], [r['text']]); lh = L['sub'][2]
             y0 = L['sub'][0] - (len(lines) - 1) * lh / 2
@@ -107,9 +120,12 @@ def make(fmt, frames, bare, states, text, audio, out):
             put(c, T[f'{fmt}_name'], W / 2, L['name'][0] + rise, a)
             put(c, T[f'{fmt}_when'], W / 2, L['when'][0] + rise, a)
             put(c, T[f'{fmt}_tel'], W / 2, L['tel'][0] + rise, a)
-        enc.stdin.write(c.convert('RGB').tobytes())
+        last = c.convert('RGB').tobytes()
+        enc.stdin.write(last)
+    for _ in range(HOLD):                                      # the sign-off held a second longer
+        enc.stdin.write(last)
     enc.stdin.close(); enc.wait()
-    print(out, 'frames', len(rows), 'exit', enc.returncode)
+    print(out, 'frames', len(rows) + HOLD, 'exit', enc.returncode)
 
 
 if __name__ == '__main__':
