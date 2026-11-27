@@ -190,6 +190,9 @@ body.capture .stage .status { display: none; }
 (function () {
 'use strict';
 const CAPTURE = new URLSearchParams(location.search).has('capture');
+// ?bare: the pictures only, without the subtitles and the end card's words, for the social cuts (tools/social_cut.py
+// lays the picture into a 4:5 or 9:16 frame and sets the words larger under it)
+const BARE = new URLSearchParams(location.search).has('bare');
 if (CAPTURE) document.body.classList.add('capture');
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FPS = 24, W = 1920, H = 1080;
@@ -1147,7 +1150,7 @@ function outlinedText(g, text, x, y, fill, stroke, lw) {
 }
 
 // ---------------------------------------------------------------- one shot
-let labelsOn = false, subsOn = true;      // working cut names: off by default, never in the MP4
+let labelsOn = false, subsOn = !BARE;     // working cut names: off by default, never in the MP4
 function drawShot(g, c, sh, u) {
   const sec = u * (sh.nf - 1) / FPS, k = sh.kind;
   let sub = null;                             // a subtitle the shot asks for: { text, a }
@@ -1286,7 +1289,7 @@ function drawShot(g, c, sh, u) {
     LIGHTS.forEach(([f, x, y], i) => { if (st.light[i] > 0.001) { g.globalAlpha = Math.min(1, st.light[i]); g.drawImage(img[f], PL.x + x, PL.y + y); } });
     g.restore();
     g.setTransform(1, 0, 0, 1, 0, 0);
-    if (st.msg > 0.001) {                     // the message across the top, on a soft dusk shade so it reads on the bright sky
+    if (!BARE && st.msg > 0.001) {            // the message across the top, on a soft dusk shade so it reads on the bright sky
       g.save(); g.globalAlpha = st.msg * (1 - st.msgOut);        // gone before the sign-off comes in
       const tg = g.createLinearGradient(0, 0, 0, 430);
       tg.addColorStop(0, 'rgba(30,18,56,0.45)'); tg.addColorStop(1, 'rgba(30,18,56,0)');
@@ -1299,7 +1302,7 @@ function drawShot(g, c, sh, u) {
     // chord, then (0.3 s later) the city's symbol, the team's name, when it runs and the number; the whole block centred on
     // the frame (line 384, symbol 420-510, name 562, months 628, number on 706)
     const NAME = '동해시 지방세입 체납관리단', LEAD = '2027년에도 찾아갑니다.', WHEN = '상반기 중 참여자 모집 · 6개월간 근무 예정';   // the year is in the line above
-    if (st.lead > 0.001) {
+    if (!BARE && st.lead > 0.001) {
       g.save(); g.globalAlpha = st.lead;
       // a soft oval of dusk behind it all (no box): the text stands clear of the lit village around it (older viewers read it
       // too), and the edges of the picture stay as they are
@@ -1311,7 +1314,7 @@ function drawShot(g, c, sh, u) {
       g.font = `500 40px ${FONT}`; g.fillStyle = '#F6E3C8'; g.fillText(LEAD, W / 2, 384 + 6 * (1 - st.lead));
       g.restore();
     }
-    if (st.info > 0.001) {
+    if (!BARE && st.info > 0.001) {
       g.save(); g.globalAlpha = st.info;
       const rise = 6 * (1 - st.info), ci = img.ci;
       g.textBaseline = 'middle'; g.imageSmoothingQuality = 'high';

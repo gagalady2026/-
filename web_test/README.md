@@ -12,6 +12,7 @@ v2는 8초, 애니매틱은 39.5초입니다.
 | 2. 모션코믹 | `cut06_motioncomic.html` | `cut06_motioncomic_1080p.mp4` | 그림(캐릭터 시트) + 코드 움직임 |
 | 2. 모션코믹 v2 | `cut06_motioncomic_v2.html` | `cut06_motioncomic_v2_1080p.mp4` | **보내주신 GPT 그림 7장** + 코드 움직임 (CUT 3 + CUT 6, 8초) |
 | **39.5초 애니매틱** | `animatic_36s.html` | `animatic_36s_1080p.mp4` | 대본 전체 8컷. 보내주신 GPT 그림(주인공·어르신·배경)을 모두 코드로 움직였습니다. |
+| SNS 피드용(인스타 피드·페이스북) | 같은 페이지 | `social/animatic_feed_4x5_1080x1350.mp4` | 4:5(1080×1350). 위 영상(대사 목소리 판)을 가로 폭에 맞춰 가운데 두고, 제목은 위에, 자막과 엔딩 문구는 그림 아래에 크게. |
 
 ## 39.5초 애니매틱 (`animatic_36s.html`, `animatic_36s_1080p.mp4`, 대사 목소리 판 `animatic_voice_1080p.mp4`)
 
@@ -247,6 +248,17 @@ ffmpeg -i voice_mix.wav -af "volume=<−16 − input_i>dB,alimiter=limit=0.89:at
 ffmpeg -i voice_master.wav -c:a libmp3lame -b:a 192k sound/animatic_36s_sound.mp3   # 페이지는 대사가 들어간 소리를 틂
 ffmpeg -framerate 24 -i frames/f%04d.png -i voice_master.wav -map 0:v:0 -map 1:a:0 -c:v libx264 -crf 17 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart animatic_voice_1080p.mp4
 ```
+
+## SNS 피드용 4:5 (`social/animatic_feed_4x5_1080x1350.mp4`)
+
+인스타그램 피드와 페이스북 피드에 올리는 판입니다(두 곳 모두 피드 영상은 4:5 세로가 화면을 가장 넓게 씁니다). 16:9 영상을 세로 화면에 그대로 넣으면 자막과 전화번호가 절반 크기로 작아져서, 그림만 가로 폭(1080×608)에 맞춰 가운데에 두고 글자는 새로 크게 얹었습니다.
+
+- 위: 제목 「똑똑, 괜찮으세요?」(Gowun Dodum 64px)와 동해시 지방세입 체납관리단(30px).
+- 가운데: 그림. 페이지의 `?bare`(자막과 엔드 카드 글자 없이 그림만)로 뽑았습니다. 태블릿 이름표(분납 상담·복지서비스 연계)와 논골담길 표지판은 그림 안에 그대로 있습니다.
+- 아래: 자막(Noto Sans KR 굵게 56px, 영상의 47px보다 크고 화면 폭 대비로는 약 2배). 긴 줄은 말이 쉬는 곳에서 두 줄로 나눴습니다. 나타나고 사라지는 시간은 영상과 같습니다. 엔드 카드에서는 같은 자리에 메시지 → 2027년에도 찾아갑니다. → 동해시 심벌(공식 CI 파일 그대로)·기관명(56px)·운영 기간·문의 033-530-2064(번호 62px)가 영상과 같은 순서와 시간으로 뜹니다.
+- 소리는 대사 목소리 판과 같습니다(−16.1 LUFS).
+
+다시 만들기(`tools/social_cut.py` 맨 위 설명 참고): ① `?capture&bare`로 글자가 있는 프레임만 다시 뽑고, ② 프레임마다 자막·엔드 카드 글자의 투명도를 페이지에서 읽어(JSON), ③ `python3 tools/social_cut.py spec SPEC.json` → `node tools/social_text.mjs SPEC.json TEXT`(페이지와 같은 웹폰트로 글자 그림), ④ `python3 -I tools/social_cut.py make 4x5 FRAMES BARE STATES.json TEXT voice_master.wav social/animatic_feed_4x5_1080x1350.mp4`. 같은 도구로 9:16(릴스)도 만들 수 있습니다(`make 9x16`).
 
 ## 2번 v2: 보내주신 GPT 그림으로 만든 모션코믹 (`cut06_motioncomic_v2.html`)
 
