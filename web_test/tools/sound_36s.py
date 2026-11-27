@@ -1,9 +1,9 @@
-"""Original soundtrack for the 38.5-second animatic (animatic_36s.html): music, sound effects and ambience, all synthesized in
+"""Original soundtrack for the 39.5-second animatic (animatic_36s.html): music, sound effects and ambience, all synthesized in
 this file from sine waves and noise. No samples, no third-party audio, nothing to license. There are no voices: the lines
 stay as subtitles, and README.md has a timing sheet for recording them.
 
 usage: python3 tools/sound_36s.py OUT.f32 [CUES.json]
-  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 38.5 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
+  OUT.f32    48 kHz stereo float32 (raw, interleaved), exactly 39.5 s; mastered to -16 LUFS (one gain for everything) and a limiter, then
              encoded with ffmpeg (see README); one gain for the whole mix keeps the music under the effects
   CUES.json  every sound event with its time, for checking against the picture
 
@@ -37,7 +37,7 @@ import json, sys
 import numpy as np
 
 SR = 48000
-DUR = 38.5
+DUR = 39.5
 N = int(round(SR * DUR))
 TAIL = 4 * SR
 rng = np.random.default_rng(20261123)          # fixed seed: every run writes the same file
@@ -163,8 +163,8 @@ def db_curve(points):
 def music_moves():
     """The music's level moves under the picture (dB): the conversation, his story, each line on screen, the farewell, the close."""
     t = np.arange(N + TAIL) / SR
-    section = np.interp(t, [0, 6.7, 7.5, 25.5, 26.5, 29.3, 30.1, 32.0, 32.6, 42.5], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
-    story = np.interp(t, [0, 11.1, 11.7, 18.3, 18.9, 42.5], [0, 0, -1.5, -1.5, 0, 0])
+    section = np.interp(t, [0, 6.7, 7.5, 25.5, 26.5, 29.3, 30.1, 32.0, 32.6, 43.5], [0, 0, -2, -2, 0, 0, 1, 1, 2.5, 2.5])
+    story = np.interp(t, [0, 11.1, 11.7, 18.3, 18.9, 43.5], [0, 0, -1.5, -1.5, 0, 0])
     spans = []                                                    # lines closer than 0.8 s count as one: no pumping between them
     for a, b in LINES:
         if a < 5.5:
@@ -540,7 +540,7 @@ def main(out_path, cues_path=None):
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
     music = to_rms(music, 19.5, 29.5, MUSIC_RMS)
     moves, spans = music_moves()
-    music *= moves * curve([(0, 1), (37.9, 1), (38.5, 0), (42.5, 0)])
+    music *= moves * curve([(0, 1), (38.9, 1), (39.5, 0), (43.5, 0)])
     for a, b in spans:
         cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
     cue(0.75, "music: a strum and a little run")
@@ -565,7 +565,7 @@ def main(out_path, cues_path=None):
     cue(32.28, "bell: end-card message over the village")
     # the music's last downbeat (32.75 s) lands under the message alone; the sign-off (symbol, name, number) follows at 33.25
     bell_x = to_peak(bell_b.x, -17)
-    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (37.9, 1), (38.5, 0), (42.5, 0)])
+    bells = (bell_x + 0.3 * conv(bell_x.mean(axis=0), reverb_ir(1.6, 2.4, 0.02, 5500, 1))[:, :N + TAIL]) * curve([(0, 1), (38.9, 1), (39.5, 0), (43.5, 0)])
 
     # ---------------------------------------------------------------- effects
     fx = Bus()
@@ -591,8 +591,8 @@ def main(out_path, cues_path=None):
     # ---------------------------------------------------------------- ambience
     n = N + TAIL
     amb = to_rms(waves(n), 0, 30, -30) * curve([(0, 1), (1.47, 1), (1.53, .4), (10.45, .4), (10.55, .3), (29.5, .3), (30.0, .65),
-                                                (35.5, .65), (38.2, 0), (42.5, 0)])
-    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (1.47, .8), (1.53, .5), (29.5, .5), (30.0, .6), (35.5, .6), (38.2, 0), (42.5, 0)])
+                                                (36.5, .65), (39.2, 0), (43.5, 0)])
+    amb += to_rms(wind(n), 0, 30, -43) * curve([(0, .8), (1.47, .8), (1.53, .5), (29.5, .5), (30.0, .6), (36.5, .6), (39.2, 0), (43.5, 0)])
     air = Bus()
     for i, t0 in enumerate((0.12, 0.40)):                                    # CUT 1: gulls over the harbour, far off
         air.add(to_peak(ffilt(gull_call(40 + i), lp(3800, 2)), -27 - 2 * i), t0, pan=-0.45)
@@ -604,13 +604,13 @@ def main(out_path, cues_path=None):
         cue(t0, "sparrow")
     crick = Bus()
     for j, (f, period, pan) in enumerate(((4300, 0.52, -0.6), (4650, 0.47, 0.55), (4480, 0.6, 0.1))):
-        crick.add(cricket(29.5, 38.5, f, period, 60 + j), 29.5, pan=pan)
+        crick.add(cricket(29.5, 39.5, f, period, 60 + j), 29.5, pan=pan)
     cue(29.5, "crickets (evening)")
-    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (29.5, 0), (30.0, 1), (35.5, 1), (38.2, 0), (42.5, 0)])
+    crick_x = to_peak(crick.x, -31) * curve([(0, 0), (29.5, 0), (30.0, 1), (36.5, 1), (39.2, 0), (43.5, 0)])
     air_x = air.x + crick_x
     air_x = air_x + 0.35 * conv(air_x.mean(axis=0), reverb_ir(1.5, 2.0, 0.03, 5000, 3))[:, :n]
     amb += air_x
-    amb *= curve([(0, 0), (0.2, 1), (42.5, 1)])
+    amb *= curve([(0, 0), (0.2, 1), (43.5, 1)])
 
     mix = (music + bells + fx_x + amb)[:, :N] * 10 ** (0.43 / 20)    # the first version's normalisation gain, kept fixed so
                                                                         # effects and ambience stay where they were

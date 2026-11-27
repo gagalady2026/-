@@ -1,0 +1,29 @@
+{
+ "target_px": 4.0,
+ "thin_max_px_each_side": 1.8,
+ "core_brightness": 58,
+ "protect": [
+  [
+   392,
+   325,
+   456,
+   415
+  ],
+  [
+   350,
+   470,
+   460,
+   560
+  ]
+ ],
+ "files": {
+  "v17_cz_side_sad.png": {
+   "source": "v7_cz_side_sad.png",
+   "pixels_in_zone": 31761
+  },
+  "v17_cz_side_sad_talk.png": {
+   "source": "v7_cz_side_sad_talk.png",
+   "pixels_in_zone": 31761
+  }
+ }
+}
