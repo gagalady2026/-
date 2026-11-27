@@ -39,7 +39,7 @@ TITLE_SMALL = 0.55                             #   (66 → 36 px), so the space 
 TITLE_GONE = (31.6, 32.0)                      #   and gives way to the end card
 FIRST_SUB_DELAY = 2                                  # frames: the first subtitle a moment after his voice (2.50 s)
 HOLD = 24                                            # frames: the last frame (the sign-off) held one second longer
-LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '상반기 중 참여자 모집 · 6개월간 운영 예정', '문의 ', '033-530-2064'
+LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '2027년 상반기부터 6개월간 운영 예정', '문의 ', '033-530-2064'
 MSG = '체납 뒤에 사람이 있습니다.'
 # long lines in two, at a natural pause (the film's subtitles are one line across 1920 px)
 WRAP = {
@@ -137,7 +137,7 @@ def make(fmt, frames, bare, states, text, audio, out):
     cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
            '-i', '-', '-i', audio, '-map', '0:v:0', '-map', '1:a:0', '-af', 'apad', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
            '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', '-shortest', out]
-    cmd[cmd.index('-crf') + 1] = '16'; cmd[cmd.index('-preset') + 1] = 'slow'      # crisp words at 1080x1350 (the feed re-encodes it)
+    cmd[cmd.index('-crf') + 1] = '14'; cmd[cmd.index('-preset') + 1] = 'slow'      # crisp words at 1080x1350 (the feed re-encodes it)
     enc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     sub_of = {r['f']: r['sub'] for r in rows}
     smooth = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
