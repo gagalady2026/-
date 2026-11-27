@@ -15,8 +15,9 @@ set again at full size in the space under the picture, from the page's own timin
 In the 9:16 cut everything sits inside the middle 4:5 (y 285-1635), which the feed and the profile grid show, and clear
 of the Reels buttons along the bottom and the right edge.
 
-For the feed (the user's reviews): the title is the film's own, 「똑똑, 괜찮으세요?」, large for the first three seconds
-only (the message “체납 뒤에 사람이 있습니다” closes the film); its two 똑 answer the two knocks on the gate — on the frame
+For the feed (the user's reviews): the title is the film's own, 「똑똑, 괜찮으세요?」, large on the cover (from the very
+first frame) and for the first three seconds, then settling small at the top so the space over the picture is not left
+empty, until the end card (where the message “체납 뒤에 사람이 있습니다”, 15% larger than before, closes the film); its two 똑 answer the two knocks on the gate — on the frame
 each knock is heard (KNOCKS, as in the page and tools/sound_36s.py), that 똑 grows by 4% and takes a warm glow, and settles
 back over 0.4 s; no small line under it (too small on a phone); the subtitles sit a little higher under the picture; the
 first subtitle comes up a moment after the voice, so “똑! 똑!” is read first; and the last frame (the sign-off) is held
@@ -33,10 +34,12 @@ NOTO, GOWUN = '"Noto Sans KR"', '"Gowun Dodum"'
 TITLE, ORG = '똑똑, 괜찮으세요?', '동해시 지방세입 체납관리단'
 KNOCKS = (44 / 24, 50 / 24)                         # s: the two knocks (frames 44 and 50), as in the page and the sound
 GLOW = 'rgba(255,206,128,0.95)'                       # the warm light a 똑 takes on its knock
-TITLE_IN, TITLE_OUT = (0.1, 0.5), (2.7, 3.2)   # s: the title fades in with the picture and out as the first words come up
+TITLE_SHRINK = (2.7, 3.2)                      # s: on the cover from the first frame; then it settles small at the top...
+TITLE_SMALL = 0.55                             #   (66 → 36 px), so the space over the picture is not left empty...
+TITLE_GONE = (31.6, 32.0)                      #   and gives way to the end card
 FIRST_SUB_DELAY = 2                                  # frames: the first subtitle a moment after his voice (2.50 s)
 HOLD = 24                                            # frames: the last frame (the sign-off) held one second longer
-LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '상반기 중 참여자 모집 · 6개월간 근무 예정', '문의 ', '033-530-2064'
+LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '상반기 중 참여자 모집 · 6개월간 운영 예정', '문의 ', '033-530-2064'
 MSG = '체납 뒤에 사람이 있습니다.'
 # long lines in two, at a natural pause (the film's subtitles are one line across 1920 px)
 WRAP = {
@@ -51,9 +54,9 @@ SUBS = ['계세요? 동해시청에서 나왔어요.', '요즘은 좀 어떠세�
 # y: centres of the words (px); pic: top of the 1080x608 picture
 FORMATS = {
     '4x5': dict(W=1080, H=1350, pic=262, title=(140, 66), org=(196, 30), sub=(965, 56, 76),
-                msg=(1040, 58), lead=(912, 40), ci=(1022, 120), name=(1080, 56), when=(1140, 33), tel=(1218, 44, 62)),
+                msg=(1040, 67), lead=(912, 40), ci=(1022, 120), name=(1080, 56), when=(1140, 33), tel=(1218, 44, 62)),
     '9x16': dict(W=1080, H=1920, pic=560, title=(430, 74), org=(476, 34), sub=(1265, 60, 82),
-                 msg=(1330, 62), lead=(1214, 44), ci=(1338, 132), name=(1402, 60), when=(1466, 36), tel=(1552, 48, 68)),
+                 msg=(1330, 71), lead=(1214, 44), ci=(1338, 132), name=(1402, 60), when=(1466, 36), tel=(1552, 48, 68)),
 }
 BG_TOP, BG_BOTTOM = (40, 33, 56), (20, 17, 28)     # the end card's dusk, deepening downward
 
@@ -104,17 +107,17 @@ def scaled(im, k):
     return im if abs(k - 1) < 1e-4 else im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
 
 
-def put_title(c, T, M, fmt, cx, cy, a, t):
-    """the title in three pieces (똑 · 똑 · , 괜찮으세요?) set where the whole line sets them, each 똑 lit on its knock"""
+def put_title(c, T, M, fmt, cx, cy, a, t, gs=1.0):
+    """the title in three pieces (똑 · 똑 · , 괜찮으세요?) set where the whole line sets them, each 똑 lit on its knock;
+    gs scales the whole line about its centre (cx, cy)"""
     if a <= 0.001: return
     full, dok, dokdok = M[f'{fmt}_title'], M[f'{fmt}_t_dok'], M[f'{fmt}_t_dokdok']
-    base_y = cy - T[f'{fmt}_title'].height / 2 + full['pad'] + full['asc']        # the line's baseline on screen
-    x0 = cx - full['w'] / 2                                                        # where the line starts
+    base_y = -T[f'{fmt}_title'].height / 2 + full['pad'] + full['asc']             # the baseline, from the line's centre
+    x0 = -full['w'] / 2                                                            # where the line starts, from its centre
     def piece(key, x, k=1.0, alpha=1.0):
         m, im = M[key], T[key]
-        left, top = x - m['pad'], base_y - m['pad'] - m['asc']
-        im2 = scaled(im, k)
-        put(c, im2, left + im.width / 2, top + im.height / 2, alpha)
+        lx, ly = x - m['pad'] + im.width / 2, base_y - m['pad'] - m['asc'] + im.height / 2
+        put(c, scaled(im, gs * k), cx + gs * lx, cy + gs * ly, alpha)
     for i, x in enumerate((x0, x0 + dok['w'])):
         e = knock_glow(t - KNOCKS[i])
         piece(f'{fmt}_t_dok', x, 1 + 0.04 * e, a)
@@ -134,6 +137,7 @@ def make(fmt, frames, bare, states, text, audio, out):
     cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
            '-i', '-', '-i', audio, '-map', '0:v:0', '-map', '1:a:0', '-af', 'apad', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
            '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', '-shortest', out]
+    cmd[cmd.index('-crf') + 1] = '16'; cmd[cmd.index('-preset') + 1] = 'slow'      # crisp words at 1080x1350 (the feed re-encodes it)
     enc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     sub_of = {r['f']: r['sub'] for r in rows}
     smooth = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
@@ -143,8 +147,9 @@ def make(fmt, frames, bare, states, text, audio, out):
         src = os.path.join(bare, name) if os.path.exists(os.path.join(bare, name)) else os.path.join(frames, name)
         pic = Image.open(src).convert('RGB').resize((W, round(W * 1080 / 1920)), Image.LANCZOS)
         c = base.copy(); c.paste(pic, (0, L['pic']))
-        ta = smooth((t - TITLE_IN[0]) / (TITLE_IN[1] - TITLE_IN[0])) * (1 - smooth((t - TITLE_OUT[0]) / (TITLE_OUT[1] - TITLE_OUT[0])))
-        put_title(c, T, M, fmt, W / 2, L['title'][0], ta, t)
+        sh = smooth((t - TITLE_SHRINK[0]) / (TITLE_SHRINK[1] - TITLE_SHRINK[0]))
+        ta = (1 - 0.15 * sh) * (1 - smooth((t - TITLE_GONE[0]) / (TITLE_GONE[1] - TITLE_GONE[0])))
+        put_title(c, T, M, fmt, W / 2, L['title'][0] - 8 * sh, ta, t, 1 - (1 - TITLE_SMALL) * sh)
         if r['k'] == 'gate':                                   # the first line: in a little after the knocks, out as before
             r = dict(r, sub=min(r['sub'], sub_of.get(f - FIRST_SUB_DELAY, 0)))
         if r['sub'] > 0.001:

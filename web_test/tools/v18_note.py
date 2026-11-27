@@ -6,7 +6,9 @@ his right, turned a little to his left), prepared for a short shot in which he w
     is filled from the colours around it (shirt, strap, lanyard), which only ever shows as a sliver beside the moving arm
   - measured for the page: his two eyes (the lids are lowered over them, looking down at what he writes), the skin colour
     of the lids, and the ID card (its white face and teal band, for the 동해시 / 체납관리단 lettering the page writes on it)
-Nothing is redrawn: the picture is the user's, only split into two layers.
+  - his smile (the user asked for a serious face while the citizen tells of his illness): the curved line is taken out
+    (filled from the skin around it) and a short, level closed mouth of the same colour and weight is drawn in its place
+Nothing else is redrawn: the picture is the user's, split into two layers.
 
 usage: python3 -I tools/v18_note.py NOTE.png assets_v18
   → assets_v18/v18_note_base.png (without the writing hand), v18_note_hand.png (the hand alone, same size) and v18_meta.json
@@ -19,6 +21,8 @@ from PIL import Image
 HAND_BOX = (355, 425, 638, 600)    # x0, y0, x1, y1: the writing forearm, hand and stylus (picture px); the tablet hand is right of it
 STYLUS = ((536, 444), (613, 507), 11)   # the stylus: from its cap to its tip, and half its width with the outline
 CARD_BOX = (515, 560, 625, 660)    # the ID card on the lanyard
+MOUTH_BOX = (612, 291, 664, 316)   # the smile (a reddish-brown curve, x 619-656, rising to the right)
+MOUTH = ((629.0, 305.2), (647.5, 303.6), 3.0)   # the serious mouth: a short level line (ends, thickness), the face's slight tilt
 FACE_BOX = (560, 200, 720, 320)    # where the eyes are
 
 
@@ -124,6 +128,31 @@ def main(src, out_dir):
     left = xs.min(); pivot = [round(float(left + 4), 1), round(float(ys[xs <= left + 8].mean()), 1)]   # the sleeve end of the forearm
     tip = np.nonzero(pen); tip = [round(float(tip[1].max()), 1), round(float(tip[0][np.argmax(tip[1])]), 1)] if pen.any() else None
 
+    # ---- a serious mouth: take out the smile, draw a short level closed mouth (4x supersampled, then down)
+    x0, y0, x1, y1 = MOUTH_BOX
+    reg = fill[y0:y1, x0:x1]
+    line = (reg[..., :3].mean(-1) < 205) & (reg[..., 0] - reg[..., 2] > 55)
+    lp = reg[line][:, :3]; dark = lp.mean(-1) <= np.percentile(lp.mean(-1), 30)
+    colour = np.median(lp[dark], 0)                                                   # the line's own (inked) colour, not its soft edge
+    hole = np.zeros(fill.shape[:2], bool); hole[y0:y1, x0:x1] = dilate(line, 2)
+    acc = fill.copy(); todo = hole.copy(); known = ~hole
+    for _ in range(60):
+        if not todo.any(): break
+        s4 = np.zeros_like(acc); c4 = np.zeros(acc.shape[:2])
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            s4 += np.roll(np.roll(np.where(known[..., None], acc, 0), dy, 0), dx, 1); c4 += np.roll(np.roll(known.astype(float), dy, 0), dx, 1)
+        new = todo & (c4 > 0); acc[new] = s4[new] / c4[new][:, None]; known |= new; todo &= ~new
+    fill = acc
+    from PIL import ImageDraw
+    SS = 4; (ax, ay), (bx, by), lw = MOUTH
+    pw, ph = (x1 - x0) * SS, (y1 - y0) * SS
+    patch = Image.new('L', (pw, ph), 0); dr = ImageDraw.Draw(patch)
+    pts = [((ax - x0) * SS, (ay - y0) * SS), (((ax + bx) / 2 - x0) * SS, ((ay + by) / 2 + 0.35 - y0) * SS), ((bx - x0) * SS, (by - y0) * SS)]
+    dr.line(pts, fill=255, width=round(lw * SS), joint='curve')
+    r = lw * SS / 2
+    for px_, py_ in (pts[0], pts[-1]): dr.ellipse((px_ - r, py_ - r, px_ + r, py_ + r), fill=255)   # round ends
+    cov = np.asarray(patch.resize((x1 - x0, y1 - y0), Image.LANCZOS)).astype(np.float64)[..., None] / 255
+    fill[y0:y1, x0:x1, :3] = fill[y0:y1, x0:x1, :3] * (1 - cov) + colour * cov
     Image.fromarray(np.clip(np.round(fill), 0, 255).astype(np.uint8), 'RGBA').save(os.path.join(out_dir, 'v18_note_base.png'))
     Image.fromarray(np.clip(np.round(hand_rgba), 0, 255).astype(np.uint8), 'RGBA').save(os.path.join(out_dir, 'v18_note_hand.png'))
     fy, fx = np.nonzero(al > 30)
