@@ -341,11 +341,13 @@ function base(c, u) { return { c, u, sec: u * (c.nf - 1) / FPS }; }
 function stGate(c, u) {                 // CUT 2: the closed gate seen from the yard (the citizen's side): two knocks, his voice from
   const st = base(c, u), s = st.sec, e = smoother(u);   //   outside, then the right leaf creaks open: daylight, and him, in the gap
   st.cam = { s: 1 + 0.07 * e, fx: 1300, fy: 600, dx: -12 * e, dy: 0 };
-  st.knocks = [[0.3208, 1150, 470, -8], [0.7379, 1450, 415, 7]].map(([t0, x, y, r]) => ({ k: win(s, t0, t0 + 0.16), out: win(s, 1.06, 1.28), x, y, r, hit: bump(s, t0, t0 + 0.128) }));
-  st.shake = Math.max(bump(s, 0.3208, 0.449), bump(s, 0.7379, 0.866));
-  // he introduces himself from outside: who is knocking, and why. Up right after the second knock (0.86 s) and on screen
-  // until just before the latch: a spoken line of about 1.8 s ends before the gate makes a sound (4.25 s shot, +0.5 s)
-  st.sub = win(s, 0.86, 0.98) * (1 - win(s, 2.95, 3.12));
+  // two light knocks a quarter second apart, each “똑!” up on the very frame its sound starts (8 and 14 frames into the shot:
+  // 1.833 s and 2.083 s), gone as his words come up
+  st.knocks = [[8 / FPS, 1150, 470, -8], [14 / FPS, 1450, 415, 7]].map(([t0, x, y, r]) => ({ k: win(s, t0 - 0.02, t0), out: win(s, 0.92, 1.12), x, y, r, hit: bump(s, t0, t0 + 0.128) }));
+  st.shake = Math.max(bump(s, 8 / FPS, 8 / FPS + 0.128), bump(s, 14 / FPS, 14 / FPS + 0.128));
+  // he introduces himself from outside: who is knocking, and why. A beat after the second knock (his voice from 0.99 s) and
+  // on screen until just before the latch: a spoken line of about 1.8 s ends before the gate makes a sound
+  st.sub = win(s, 0.95, 1.07) * (1 - win(s, 2.95, 3.12));
   // a beat after his words the latch lifts (3.0 s), the hinge creaks and the leaf swings in to ~58°, slowing as it goes
   // (3.1-4.0 s), so it stands open, with him in the gap, for a quarter second before the cut (끼익 is heard, not written)
   st.leaf = GATE.open * (1 - Math.pow(1 - clamp((s - 3.1) / 0.9), 3));

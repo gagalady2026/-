@@ -2,7 +2,9 @@
 // Renders each text item of SPEC (the social cuts' title, subtitles and end-card words, written by
 // `python3 tools/social_cut.py spec`) to a transparent PNG, with the page's own web fonts (Noto Sans KR, Gowun Dodum from
 // Google Fonts), so the words look as they do in the film. An item is { id, text, family, weight, size, color, shadow } or
-// { id, parts: [{ text, family, weight, size, color }, ...], shadow } (parts set side by side on one baseline).
+// { id, parts: [{ text, family, weight, size, color }, ...], shadow } (parts set side by side on one baseline); `glow` (a colour)
+// makes the shadow a soft halo of that colour. Also writes OUT_DIR/metrics.json: each item's advance width, padding and
+// ascent, so that pieces of one line can be set exactly where the whole line puts them.
 // Needs playwright-core next to it (as capture.mjs); CHROME overrides the browser path.
 import { chromium } from 'playwright-core';
 import fs from 'fs';
@@ -35,14 +37,16 @@ const items = await page.evaluate(async (spec) => {
     w = ws.reduce((a, b) => a + b, 0);
     const pad = Math.ceil((it.shadow || 0) * 1.5 + 4);
     c.width = Math.ceil(w) + 2 * pad; c.height = Math.ceil(asc + desc) + 2 * pad;
-    if (it.shadow) { g.shadowColor = 'rgba(8,6,14,0.55)'; g.shadowBlur = it.shadow; g.shadowOffsetY = 2; }
+    if (it.glow) { g.shadowColor = it.glow; g.shadowBlur = it.shadow || 12; g.shadowOffsetY = 0; }
+    else if (it.shadow) { g.shadowColor = 'rgba(8,6,14,0.55)'; g.shadowBlur = it.shadow; g.shadowOffsetY = 2; }
     g.textBaseline = 'alphabetic'; g.textAlign = 'left';
     let x = pad;
     parts.forEach((p, i) => { g.font = fonts[i]; g.fillStyle = p.color; g.fillText(p.text, x, pad + asc); x += ws[i]; });
-    out.push({ id: it.id, url: c.toDataURL('image/png') });
+    out.push({ id: it.id, url: c.toDataURL('image/png'), w, pad, asc });
   }
   return out;
 }, spec);
 for (const it of items) fs.writeFileSync(path.join(outDir, `${it.id}.png`), Buffer.from(it.url.split(',')[1], 'base64'));
+fs.writeFileSync(path.join(outDir, 'metrics.json'), JSON.stringify(Object.fromEntries(items.map((it) => [it.id, { w: it.w, pad: it.pad, asc: it.asc }]))));
 console.log('texts', items.length);
 await browser.close();

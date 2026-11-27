@@ -270,16 +270,21 @@ def plink(m, vel):
 
 # ---------------------------------------------------------------- sound effects
 def knock(seed):
-    """A knuckle on the painted wooden gate: the panel's body modes, a contact click and a low thock."""
+    """A knuckle lightly on the painted wooden gate, heard from inside the yard: a short, clear 똑 — the planks' body modes,
+    damped quickly (most of it gone in 0.1 s), a soft contact click, and the highs a little muffled by the leaf between. No
+    low thock and no thickening (the earlier knock boomed and was squeezed by the limiter, which made it sound drawn)."""
     r = np.random.default_rng(seed)
-    t = tvec(0.4)
-    modes = ((172, 0.085, 1.0), (251, 0.07, 0.75), (397, 0.05, 0.55), (618, 0.035, 0.38), (945, 0.025, 0.25), (1480, 0.016, 0.16), (2300, 0.01, 0.1))
-    sig = sum(a * np.exp(-t / tau) * np.sin(2 * np.pi * f * (1 + r.normal(0, 0.012)) * t + r.uniform(0, 6.3)) for f, tau, a in modes)
-    sig *= 1 - np.exp(-t / 0.0008)
-    sig += 0.55 * np.exp(-t / 0.02) * np.sin(2 * np.pi * 96 * t)
-    nc = S(0.012)
-    sig[:nc] += 0.5 * ffilt(r.standard_normal(nc), bp(1500, 6500)) * np.exp(-np.arange(nc) / SR / 0.0012)
-    return sig
+    t = tvec(0.25)
+    modes = ((148, 0.04, 0.55), (236, 0.034, 0.9), (372, 0.026, 0.8), (561, 0.019, 0.55), (834, 0.013, 0.36), (1240, 0.009, 0.22),
+             (1890, 0.006, 0.12))
+    sig = sum(a * np.exp(-t / tau) * np.sin(2 * np.pi * f * (1 + r.normal(0, 0.015)) * t + r.uniform(0, 6.3)) for f, tau, a in modes)
+    sig *= 1 - np.exp(-t / 0.0005)
+    nc = S(0.008)
+    sig[:nc] += 0.3 * ffilt(r.standard_normal(nc), bp(1800, 5200)) * np.exp(-np.arange(nc) / SR / 0.0008)
+    sig = ffilt(sig, lp(5200, 2))
+    late = np.zeros_like(sig); d = S(0.006)                     # the wall beside the gate: one early reflection, softer and duller
+    late[d:] = ffilt(sig, lp(2500, 2))[:-d] * 0.22
+    return sig + late
 
 
 def creak():
@@ -419,6 +424,9 @@ def wind(n):
 # ================================================================ the score
 BPM = 120
 BEAT = 60 / BPM
+KNOCKS = (44 / 24, 50 / 24)   # s: the two knocks, on the frames the 똑! come up (1.833 s, 2.083 s: 0.25 s apart)
+KNOCK_DUCK = curve([(0, 1), (1.55, 1), (1.75, 10 ** (-3 / 20)), (2.3, 10 ** (-3 / 20)), (2.6, 1), (60, 1)])   # music and
+#   ambience 3 dB down from just before the knocks until they have rung, so they are heard clearly
 HOLD = 0.8           # the last chord (bar 16 on) held back so it lands with the sign-off: 33.75 + 0.8 = 34.55 s
 BAR0 = 1.75          # bars start at 1.75 + 2k s: the gate opening (5.75), "같이 방법을 찾아봐요." (17.75), the sunset (29.75) and
                      # the last chord (33.75) all land on a downbeat; sitting down (8.75) on the half bar (G)
@@ -540,7 +548,7 @@ def main(out_path, cues_path=None):
     music = music_dry + 0.22 * conv(send, reverb_ir(1.1, 1.6, 0.012, 6000, 4))[:, :N + TAIL]
     music = to_rms(music, 19.5, 29.5, MUSIC_RMS)
     moves, spans = music_moves()
-    music *= moves * curve([(0, 1), (38.9, 1), (39.5, 0), (43.5, 0)])
+    music *= moves * curve([(0, 1), (38.9, 1), (39.5, 0), (43.5, 0)]) * KNOCK_DUCK[:music.shape[-1]]
     for a, b in spans:
         cue(a, f"music steps back under the lines ({a:.1f}-{b:.1f} s)")
     cue(0.75, "music: a strum and a little run")
@@ -572,9 +580,9 @@ def main(out_path, cues_path=None):
     for i, t0 in enumerate((0.255, 0.681, 1.106)):                            # CUT 1: footfalls (steps land at (n + 0.6) / 2.35 s)
         fx.add(to_peak(footstep(10 + i), -18), t0 - 0.004, pan=(-0.08, 0.08, -0.06)[i])
         cue(t0, "footstep")
-    for i, t0 in enumerate((1.8208, 2.2379)):                                 # CUT 2: 똑! 똑! (0.32 s and 0.74 s into the gate shot)
-        fx.add(to_peak(dense(knock(20 + i), 1.3), -7.0 + 0.5 * i), t0, pan=(0.22, 0.4)[i])   # the title's 똑똑: the loudest effect,
-                                                                                               # fuller under the same peak (forward)
+    for i, t0 in enumerate(KNOCKS):                                          # CUT 2: 똑! 똑! on their frames, a quarter second apart
+        fx.add(to_peak(knock(20 + i), -12.0 - 0.8 * i), t0, pan=(0.2, 0.3)[i])  # clear but not loud: under the limiter, the second
+                                                                               # a touch softer, as a hand knocks
         cue(t0, "knock")
     fx.add(to_peak(dense(latch(), 1.2), -19), 4.50, pan=0.3)                # the gate's sounds ~2.5 dB further forward, a beat
     cue(4.50, "latch")                                                       #   after his line (on screen until 4.45)
@@ -610,7 +618,7 @@ def main(out_path, cues_path=None):
     air_x = air.x + crick_x
     air_x = air_x + 0.35 * conv(air_x.mean(axis=0), reverb_ir(1.5, 2.0, 0.03, 5000, 3))[:, :n]
     amb += air_x
-    amb *= curve([(0, 0), (0.2, 1), (43.5, 1)])
+    amb *= curve([(0, 0), (0.2, 1), (43.5, 1)]) * KNOCK_DUCK[:amb.shape[-1]]
 
     mix = (music + bells + fx_x + amb)[:, :N] * 10 ** (0.43 / 20)    # the first version's normalisation gain, kept fixed so
                                                                         # effects and ambience stay where they were

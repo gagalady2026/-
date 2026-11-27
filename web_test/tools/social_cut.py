@@ -15,10 +15,12 @@ set again at full size in the space under the picture, from the page's own timin
 In the 9:16 cut everything sits inside the middle 4:5 (y 285-1635), which the feed and the profile grid show, and clear
 of the Reels buttons along the bottom and the right edge.
 
-For the feed (the user's review): the title is the film's message, “체납 뒤에 사람이 있습니다”, large for the first three
-seconds only (it comes back as the end card's message); no small line under it (too small on a phone); the subtitles sit
-a little higher under the picture; the first subtitle comes up 0.15 s after the voice, so “똑! 똑!” is read first; and the
-last frame (the sign-off) is held one second longer (HOLD), the sound running out in silence.
+For the feed (the user's reviews): the title is the film's own, 「똑똑, 괜찮으세요?」, large for the first three seconds
+only (the message “체납 뒤에 사람이 있습니다” closes the film); its two 똑 answer the two knocks on the gate — on the frame
+each knock is heard (KNOCKS, as in the page and tools/sound_36s.py), that 똑 grows by 4% and takes a warm glow, and settles
+back over 0.4 s; no small line under it (too small on a phone); the subtitles sit a little higher under the picture; the
+first subtitle comes up a moment after the voice, so “똑! 똑!” is read first; and the last frame (the sign-off) is held
+one second longer (HOLD), the sound running out in silence.
 """
 import json, os, subprocess, sys
 import numpy as np
@@ -28,9 +30,11 @@ FPS = 24
 HERE = os.path.dirname(os.path.abspath(__file__))
 CI = os.path.join(HERE, '..', 'assets_ci', 'donghae_ci_symbol.png')
 NOTO, GOWUN = '"Noto Sans KR"', '"Gowun Dodum"'
-TITLE, ORG = '체납 뒤에 사람이 있습니다', '동해시 지방세입 체납관리단'
+TITLE, ORG = '똑똑, 괜찮으세요?', '동해시 지방세입 체납관리단'
+KNOCKS = (44 / 24, 50 / 24)                         # s: the two knocks (frames 44 and 50), as in the page and the sound
+GLOW = 'rgba(255,206,128,0.95)'                       # the warm light a 똑 takes on its knock
 TITLE_IN, TITLE_OUT = (0.1, 0.5), (2.7, 3.2)   # s: the title fades in with the picture and out as the first words come up
-FIRST_SUB_DELAY = 4                                  # frames: the first subtitle after the two knocks are read
+FIRST_SUB_DELAY = 2                                  # frames: the first subtitle a moment after his voice (2.50 s)
 HOLD = 24                                            # frames: the last frame (the sign-off) held one second longer
 LEAD, WHEN, ASK, TEL = '2027년에도 찾아갑니다.', '상반기 중 참여자 모집 · 6개월간 근무 예정', '문의 ', '033-530-2064'
 MSG = '체납 뒤에 사람이 있습니다.'
@@ -57,7 +61,12 @@ BG_TOP, BG_BOTTOM = (40, 33, 56), (20, 17, 28)     # the end card's dusk, deepen
 def spec(out):
     items = []
     for fmt, L in FORMATS.items():
-        items.append(dict(id=f'{fmt}_title', text=TITLE, family=GOWUN, weight=400, size=L['title'][1], color='#FFF6EC', shadow=6))
+        ts = L['title'][1]
+        items.append(dict(id=f'{fmt}_title', text=TITLE, family=GOWUN, weight=400, size=ts, color='#FFF6EC', shadow=6))
+        items.append(dict(id=f'{fmt}_t_dok', text='똑', family=GOWUN, weight=400, size=ts, color='#FFF6EC', shadow=6))
+        items.append(dict(id=f'{fmt}_t_dokdok', text='똑똑', family=GOWUN, weight=400, size=ts, color='#FFF6EC', shadow=6))
+        items.append(dict(id=f'{fmt}_t_rest', text=TITLE[2:], family=GOWUN, weight=400, size=ts, color='#FFF6EC', shadow=6))
+        items.append(dict(id=f'{fmt}_t_glow', text='똑', family=GOWUN, weight=400, size=ts, color='#FFEBC2', shadow=16, glow=GLOW))
         for i, t in enumerate(SUBS):
             for j, line in enumerate(WRAP.get(t, [t])):
                 items.append(dict(id=f'{fmt}_sub{i}_{j}', text=line, family=NOTO, weight=700, size=L['sub'][1], color='#FFFFFF', shadow=8))
@@ -83,10 +92,41 @@ def put(canvas, im, cx, cy, a=1.0):
     canvas.alpha_composite(faded(im, a), (int(round(cx - im.width / 2)), int(round(cy - im.height / 2))))
 
 
+def knock_glow(dt):
+    """how lit a 똑 is, dt seconds after its knock: fully on the knock's frame, settling back over 0.4 s"""
+    if dt < 0 or dt >= 0.4: return 0.0
+    if dt < 0.06: return 1.0
+    x = (dt - 0.06) / 0.34
+    return 1.0 - x * x * (3 - 2 * x)
+
+
+def scaled(im, k):
+    return im if abs(k - 1) < 1e-4 else im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+
+
+def put_title(c, T, M, fmt, cx, cy, a, t):
+    """the title in three pieces (똑 · 똑 · , 괜찮으세요?) set where the whole line sets them, each 똑 lit on its knock"""
+    if a <= 0.001: return
+    full, dok, dokdok = M[f'{fmt}_title'], M[f'{fmt}_t_dok'], M[f'{fmt}_t_dokdok']
+    base_y = cy - T[f'{fmt}_title'].height / 2 + full['pad'] + full['asc']        # the line's baseline on screen
+    x0 = cx - full['w'] / 2                                                        # where the line starts
+    def piece(key, x, k=1.0, alpha=1.0):
+        m, im = M[key], T[key]
+        left, top = x - m['pad'], base_y - m['pad'] - m['asc']
+        im2 = scaled(im, k)
+        put(c, im2, left + im.width / 2, top + im.height / 2, alpha)
+    for i, x in enumerate((x0, x0 + dok['w'])):
+        e = knock_glow(t - KNOCKS[i])
+        piece(f'{fmt}_t_dok', x, 1 + 0.04 * e, a)
+        if e > 0.001: piece(f'{fmt}_t_glow', x, 1 + 0.04 * e, a * e)
+    piece(f'{fmt}_t_rest', x0 + dokdok['w'], 1.0, a)
+
+
 def make(fmt, frames, bare, states, text, audio, out):
     L = FORMATS[fmt]; W, H = L['W'], L['H']
     rows = json.load(open(states))
     T = {n[:-4]: Image.open(os.path.join(text, n)).convert('RGBA') for n in os.listdir(text) if n.startswith(fmt + '_')}
+    M = json.load(open(os.path.join(text, 'metrics.json')))
     g = np.linspace(0, 1, H)[:, None, None]
     bg = (np.array(BG_TOP)[None, None, :] * (1 - g) + np.array(BG_BOTTOM)[None, None, :] * g) * np.ones((1, W, 1))
     base = Image.fromarray(np.round(bg).astype(np.uint8), 'RGB').convert('RGBA')
@@ -104,7 +144,7 @@ def make(fmt, frames, bare, states, text, audio, out):
         pic = Image.open(src).convert('RGB').resize((W, round(W * 1080 / 1920)), Image.LANCZOS)
         c = base.copy(); c.paste(pic, (0, L['pic']))
         ta = smooth((t - TITLE_IN[0]) / (TITLE_IN[1] - TITLE_IN[0])) * (1 - smooth((t - TITLE_OUT[0]) / (TITLE_OUT[1] - TITLE_OUT[0])))
-        put(c, T[f'{fmt}_title'], W / 2, L['title'][0], ta)
+        put_title(c, T, M, fmt, W / 2, L['title'][0], ta, t)
         if r['k'] == 'gate':                                   # the first line: in a little after the knocks, out as before
             r = dict(r, sub=min(r['sub'], sub_of.get(f - FIRST_SUB_DELAY, 0)))
         if r['sub'] > 0.001:
