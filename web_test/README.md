@@ -13,6 +13,7 @@ v2는 8초, 애니매틱은 39.5초입니다.
 | 2. 모션코믹 v2 | `cut06_motioncomic_v2.html` | `cut06_motioncomic_v2_1080p.mp4` | **보내주신 GPT 그림 7장** + 코드 움직임 (CUT 3 + CUT 6, 8초) |
 | **39.5초 애니매틱** | `animatic_36s.html` | `animatic_36s_1080p.mp4` | 대본 전체 8컷. 보내주신 GPT 그림(주인공·어르신·배경)을 모두 코드로 움직였습니다. |
 | SNS 피드용(인스타 피드·페이스북) | 같은 페이지 | `social/animatic_feed_4x5_1080x1350.mp4` | 4:5(1080×1350), 40.5초. 위 영상(대사 목소리 판)을 가로 폭에 맞춰 가운데 두고, 처음 3초는 위에 제목 「똑똑, 괜찮으세요?」(두 ‘똑’이 노크에 맞춰 빛남), 자막과 엔딩 문구는 그림 아래에 크게. |
+| SNS 대표 썸네일(커버) 두 안 | 같은 페이지 | `social/cover_4x5_A_bench.png`, `social/cover_4x5_B_smile.png` | 1080×1350. 대표 문구 “체납 뒤에 사람이 있습니다”와 기관명·동해시 심벌. A안 벤치 투샷(추천), B안 어르신 미소. |
 
 ## 39.5초 애니매틱 (`animatic_36s.html`, `animatic_36s_1080p.mp4`, 대사 목소리 판 `animatic_voice_1080p.mp4`)
 
@@ -283,6 +284,16 @@ ffmpeg -framerate 24 -i frames/f%04d.png -i voice_master.wav -map 0:v:0 -map 1:a
 - 게시물 제목·캡션 첫 줄(제안): “체납 뒤에 사람이 있습니다 | 동해시 지방세입 체납관리단”.
 
 다시 만들기(`tools/social_cut.py` 맨 위 설명 참고): ① `?capture&bare`로 글자가 있는 프레임만 다시 뽑고, ② 프레임마다 자막·엔드 카드 글자의 투명도를 페이지에서 읽어(JSON), ③ `python3 tools/social_cut.py spec SPEC.json` → `node tools/social_text.mjs SPEC.json TEXT`(페이지와 같은 웹폰트로 글자 그림), ④ `python3 -I tools/social_cut.py make 4x5 FRAMES BARE STATES.json TEXT voice_master.wav social/animatic_feed_4x5_1080x1350.mp4`. 같은 도구로 9:16(릴스)도 만들 수 있습니다(`make 9x16`).
+
+### 대표 썸네일(커버) 두 안 (`social/cover_4x5_A_bench.png`, `social/cover_4x5_B_smile.png`)
+
+영상과 같은 1080×1350(4:5) 이미지입니다. 첫 프레임 대신 올리는 커버로, 인스타그램은 게시 화면의 ‘커버 편집 → 카메라 롤에서 추가’, 페이스북은 ‘썸네일 → 이미지 업로드’에서 고릅니다.
+
+- 글자: 작은 제목 「똑똑, 괜찮으세요?」(48px) 아래 대표 문구 “체납 뒤에 / 사람이 있습니다”(Gowun Dodum 106px, 두 줄), 맨 아래 동해시 심벌(공식 CI 파일을 크기만 줄임)과 “동해시 지방세입 체납관리단”(Noto Sans KR 굵게 40px). 영상과 같은 글꼴과 색입니다. 글자는 모두 가운데 폭 안(x 188–892)에 있어, 프로필 격자(3:4)처럼 양옆이 잘려 보이는 곳에서도 잘리지 않습니다.
+- A안(벤치): 벤치에 나란히 앉아 어르신 이야기를 듣는 장면(8.83초, 프레임 212)을 둥근 카드로 넣고, 둘레는 피드 영상과 같은 저녁 하늘 색입니다. 커버와 그 뒤에 재생되는 영상이 한 벌로 보입니다.
+- B안(미소): 어르신이 안도하며 웃는 얼굴(28.50초, 프레임 684)을 꽉 차게 넣고, 아래쪽이 저녁 하늘 색으로 스며들며 글자가 놓입니다. 작게 보여도 얼굴이 먼저 눈에 띕니다.
+
+다시 만들기: `python3 tools/social_cover.py spec COVER.json` → `node tools/social_text.mjs COVER.json TEXT` → `python3 -I tools/social_cover.py make 프레임212.png 프레임684.png TEXT social`(두 프레임은 `?capture&bare`로 뽑은 그림).
 
 ## 2번 v2: 보내주신 GPT 그림으로 만든 모션코믹 (`cut06_motioncomic_v2.html`)
 
